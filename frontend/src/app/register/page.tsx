@@ -2,8 +2,8 @@ import { RegisterForm } from '@/components/RegisterForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Register | Afilas General Hospital',
-  description: 'Create your account at Afilas General Hospital',
+  title: 'Register | Adinas General Hospital',
+  description: 'Create your account at Adinas General Hospital',
 };
 
 export default function RegisterPage() {

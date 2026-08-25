@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
+import { useTheme } from "@/contexts/ThemeProvider"; // ✅ Added theme import
 import { Header } from "@/components/Header";
 
 import {
@@ -47,7 +48,7 @@ function useScrollReveal() {
 }
 
 // ============================================================
-// SECTION WRAPPER (scroll‑animated)
+// SECTION WRAPPER (scroll‑animated) - With dark mode support
 // ============================================================
 function AnimatedSection({
   id,
@@ -83,6 +84,8 @@ function AnimatedSection({
 // ============================================================
 export default function AboutUsPage() {
   const { t } = useLanguage();
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
   const [activeSection, setActiveSection] = useState("what-is-afilas");
 
   // Table of contents sections
@@ -95,50 +98,50 @@ export default function AboutUsPage() {
     [t]
   );
 
-  // Core values data
+  // Core values data - With dark mode support
   const coreValues = useMemo(
     () => [
       { 
         icon: Heart, 
         title: t("about.core_value_1_title"), 
         desc: t("about.core_value_1_desc"), 
-        color: "text-rose-600",
-        bgColor: "bg-rose-50"
+        color: "text-rose-600 dark:text-rose-400",
+        bgColor: "bg-rose-50 dark:bg-rose-950/30"
       },
       { 
         icon: Star, 
         title: t("about.core_value_2_title"), 
         desc: t("about.core_value_2_desc"), 
-        color: "text-amber-600",
-        bgColor: "bg-amber-50"
+        color: "text-amber-600 dark:text-amber-400",
+        bgColor: "bg-amber-50 dark:bg-amber-950/30"
       },
       { 
         icon: Shield, 
         title: t("about.core_value_3_title"), 
         desc: t("about.core_value_3_desc"), 
-        color: "text-blue-600",
-        bgColor: "bg-blue-50"
+        color: "text-blue-600 dark:text-blue-400",
+        bgColor: "bg-blue-50 dark:bg-blue-950/30"
       },
       { 
         icon: Lightbulb, 
         title: t("about.core_value_4_title"), 
         desc: t("about.core_value_4_desc"), 
-        color: "text-emerald-600",
-        bgColor: "bg-emerald-50"
+        color: "text-emerald-600 dark:text-emerald-400",
+        bgColor: "bg-emerald-50 dark:bg-emerald-950/30"
       },
       { 
         icon: Users, 
         title: t("about.core_value_5_title"), 
         desc: t("about.core_value_5_desc"), 
-        color: "text-violet-600",
-        bgColor: "bg-violet-50"
+        color: "text-violet-600 dark:text-violet-400",
+        bgColor: "bg-violet-50 dark:bg-violet-950/30"
       },
       { 
         icon: CheckCircle2, 
         title: t("about.core_value_6_title"), 
         desc: t("about.core_value_6_desc"), 
-        color: "text-cyan-600",
-        bgColor: "bg-cyan-50"
+        color: "text-cyan-600 dark:text-cyan-400",
+        bgColor: "bg-cyan-50 dark:bg-cyan-950/30"
       },
     ],
     [t]
@@ -169,37 +172,45 @@ export default function AboutUsPage() {
   }, [tocSections]);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
+    <div className={`min-h-screen flex flex-col transition-colors duration-300
+      ${isDark ? 'bg-gray-900 text-gray-300' : 'bg-gray-50 text-gray-800'}`}>
       <Header />
 
       <main className="flex-grow">
-        {/* ================= HERO / TITLE ================= - REMOVED GAP */}
-        <section className="relative pt-28 pb-12 bg-white border-b border-gray-200 overflow-hidden">
+        {/* ================= HERO / TITLE ================= - With dark mode support */}
+        <section className={`relative pt-28 pb-12 border-b transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'}`}>
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2A3380]/10 text-[#2A3380] text-xs font-semibold uppercase tracking-wider border border-[#2A3380]/20 mb-6">
+            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border mb-6
+              ${isDark 
+                ? 'bg-[#4A5BCC]/20 text-[#4A5BCC] border-[#4A5BCC]/30' 
+                : 'bg-[#2A3380]/10 text-[#2A3380] border-[#2A3380]/20'}`}>
               <Building2 className="w-3.5 h-3.5" />
               <span>Adinas Group</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight transition-colors duration-300
+              ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {t("about.page_title")}
             </h1>
 
-            <p className="mt-4 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className={`mt-4 text-lg sm:text-xl max-w-2xl mx-auto transition-colors duration-300
+              ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               {t("about.meaning_text")}
             </p>
-
-            {/* REMOVED: Quick stats section (Established, Meaning, Divisions) */}
           </div>
         </section>
 
         {/* ================= MAIN CONTENT + TOC LAYOUT ================= */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="flex gap-10 xl:gap-16 relative">
-            {/* ---- Sticky Table of Contents (Desktop sidebar) ---- */}
+            {/* ---- Sticky Table of Contents (Desktop sidebar) - With dark mode support ---- */}
             <aside className="hidden lg:block w-64 xl:w-72 shrink-0">
               <nav className="sticky top-32 space-y-1">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4 px-3">
+                <h3 className={`text-xs font-bold uppercase tracking-wider mb-4 px-3
+                  ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   {t("about.toc_title")}
                 </h3>
                 {tocSections.map((section) => {
@@ -214,14 +225,18 @@ export default function AboutUsPage() {
                       }}
                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                         activeSection === section.id
-                          ? "bg-[#2A3380]/10 text-[#2A3380] border-l-2 border-[#2A3380]"
-                          : "text-gray-500 hover:bg-gray-100 hover:text-gray-800 border-l-2 border-transparent"
+                          ? isDark
+                            ? "bg-[#4A5BCC]/20 text-[#4A5BCC] border-l-2 border-[#4A5BCC]"
+                            : "bg-[#2A3380]/10 text-[#2A3380] border-l-2 border-[#2A3380]"
+                          : isDark
+                            ? "text-gray-400 hover:bg-gray-800 hover:text-gray-200 border-l-2 border-transparent"
+                            : "text-gray-500 hover:bg-gray-100 hover:text-gray-800 border-l-2 border-transparent"
                       }`}
                     >
                       <Icon className={`w-4 h-4 shrink-0 transition-colors ${
                         activeSection === section.id
-                          ? "text-[#2A3380]"
-                          : "text-gray-400 group-hover:text-gray-600"
+                          ? isDark ? "text-[#4A5BCC]" : "text-[#2A3380]"
+                          : isDark ? "text-gray-500 group-hover:text-gray-300" : "text-gray-400 group-hover:text-gray-600"
                       }`} />
                       <span className="truncate">{section.label}</span>
                     </a>
@@ -232,24 +247,27 @@ export default function AboutUsPage() {
 
             {/* ---- Main content column ---- */}
             <div className="flex-1 min-w-0 space-y-16 sm:space-y-20">
-              {/* ================= WHAT IS ADINAS ================= */}
+              {/* ================= WHAT IS ADINAS ================= - With dark mode support */}
               <AnimatedSection id="what-is-afilas" className="scroll-mt-28">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#2A3380]/10 flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-[#2A3380]" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center
+                    ${isDark ? 'bg-[#4A5BCC]/20' : 'bg-[#2A3380]/10'}`}>
+                    <BookOpen className={`w-5 h-5 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                  <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight transition-colors duration-300
+                    ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {t("about.what_is_afilas")}
                   </h2>
                 </div>
 
-                <div className="space-y-5 text-base leading-relaxed text-gray-600">
+                <div className={`space-y-5 text-base leading-relaxed transition-colors duration-300
+                  ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   <p>{t("about.what_is_afilas_p1")}</p>
                   <p>{t("about.what_is_afilas_p2")}</p>
                   <p>{t("about.what_is_afilas_p3")}</p>
                 </div>
 
-                {/* Timeline badges */}
+                {/* Timeline badges - With dark mode support */}
                 <div className="mt-8 grid sm:grid-cols-3 gap-4">
                   {[
                     { year: "2017", label: "Adinas Founded", desc: "Health Science Scholars" },
@@ -258,32 +276,47 @@ export default function AboutUsPage() {
                   ].map((item, i) => (
                     <div
                       key={i}
-                      className="relative p-5 rounded-2xl bg-white border border-gray-200 hover:border-[#2A3380]/30 transition-all group"
+                      className={`relative p-5 rounded-2xl border transition-all group
+                        ${isDark 
+                          ? 'bg-gray-800 border-gray-700 hover:border-[#4A5BCC]/30' 
+                          : 'bg-white border-gray-200 hover:border-[#2A3380]/30'}`}
                     >
-                      <span className="text-3xl font-black text-[#2A3380]/10 absolute top-3 right-4 group-hover:text-[#2A3380]/20 transition-colors">
+                      <span className={`text-3xl font-black absolute top-3 right-4 transition-colors
+                        ${isDark 
+                          ? 'text-[#4A5BCC]/10 group-hover:text-[#4A5BCC]/20' 
+                          : 'text-[#2A3380]/10 group-hover:text-[#2A3380]/20'}`}>
                         {item.year}
                       </span>
-                      <p className="text-sm font-bold text-gray-800">{item.label}</p>
-                      <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+                      <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                        {item.label}
+                      </p>
+                      <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {item.desc}
+                      </p>
                     </div>
                   ))}
                 </div>
               </AnimatedSection>
 
-              {/* ================= VISION & MISSION ================= */}
+              {/* ================= VISION & MISSION ================= - With dark mode support */}
               <AnimatedSection id="vision-mission" className="scroll-mt-28">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#2A3380]/10 flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-[#2A3380]" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center
+                    ${isDark ? 'bg-[#4A5BCC]/20' : 'bg-[#2A3380]/10'}`}>
+                    <Eye className={`w-5 h-5 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                  <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight transition-colors duration-300
+                    ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {t("about.vision_title")} & {t("about.mission_title")}
                   </h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Vision Card */}
-                  <div className="relative p-8 rounded-3xl bg-[#2A3380] text-white overflow-hidden">
+                  <div className={`relative p-8 rounded-3xl overflow-hidden
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] text-white' 
+                      : 'bg-[#2A3380] text-white'}`}>
                     <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
                     <div className="relative z-10">
                       <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center mb-5">
@@ -296,14 +329,21 @@ export default function AboutUsPage() {
                     </div>
                   </div>
 
-                  {/* Mission Card */}
-                  <div className="relative p-8 rounded-3xl bg-white border border-gray-200 overflow-hidden">
-                    <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-[#2A3380]/5 blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  {/* Mission Card - With dark mode support */}
+                  <div className={`relative p-8 rounded-3xl border overflow-hidden transition-colors duration-300
+                    ${isDark 
+                      ? 'bg-gray-800 border-gray-700' 
+                      : 'bg-white border-gray-200'}`}>
+                    <div className={`absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2
+                      ${isDark ? 'bg-[#4A5BCC]/10' : 'bg-[#2A3380]/5'}`} />
                     <div className="relative z-10">
-                      <div className="w-12 h-12 rounded-xl bg-[#2A3380]/10 flex items-center justify-center mb-5">
-                        <Target className="w-6 h-6 text-[#2A3380]" />
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5
+                        ${isDark ? 'bg-[#4A5BCC]/20' : 'bg-[#2A3380]/10'}`}>
+                        <Target className={`w-6 h-6 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">{t("about.mission_title")}</h3>
+                      <h3 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        {t("about.mission_title")}
+                      </h3>
                       <ul className="space-y-3">
                         {[
                           t("about.mission_1"),
@@ -311,8 +351,9 @@ export default function AboutUsPage() {
                           t("about.mission_3"),
                           t("about.mission_4"),
                         ].map((item, i) => (
-                          <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
-                            <ChevronRight className="w-4 h-4 text-[#2A3380] shrink-0 mt-0.5" />
+                          <li key={i} className={`flex items-start gap-3 text-sm transition-colors duration-300
+                            ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                            <ChevronRight className={`w-4 h-4 shrink-0 mt-0.5 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
                             <span>{item}</span>
                           </li>
                         ))}
@@ -322,13 +363,15 @@ export default function AboutUsPage() {
                 </div>
               </AnimatedSection>
 
-              {/* ================= CORE VALUES ================= */}
+              {/* ================= CORE VALUES ================= - With dark mode support */}
               <AnimatedSection id="core-values" className="scroll-mt-28">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[#2A3380]/10 flex items-center justify-center">
-                    <Star className="w-5 h-5 text-[#2A3380]" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center
+                    ${isDark ? 'bg-[#4A5BCC]/20' : 'bg-[#2A3380]/10'}`}>
+                    <Star className={`w-5 h-5 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                  <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight transition-colors duration-300
+                    ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {t("about.core_values_title")}
                   </h2>
                 </div>
@@ -339,15 +382,18 @@ export default function AboutUsPage() {
                     return (
                       <div
                         key={idx}
-                        className="group p-6 rounded-2xl bg-white border border-gray-200 hover:border-[#2A3380]/30 hover:shadow-md transition-all duration-300"
+                        className={`group p-6 rounded-2xl border transition-all duration-300 hover:shadow-md
+                          ${isDark 
+                            ? 'bg-gray-800 border-gray-700 hover:border-[#4A5BCC]/30 hover:shadow-[#4A5BCC]/20' 
+                            : 'bg-white border-gray-200 hover:border-[#2A3380]/30 hover:shadow-lg'}`}
                       >
                         <div className={`w-11 h-11 rounded-xl ${value.bgColor} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                           <Icon className={`w-5 h-5 ${value.color}`} />
                         </div>
-                        <h3 className="text-base font-bold text-gray-900 mb-2">
+                        <h3 className={`text-base font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                           {value.title}
                         </h3>
-                        <p className="text-sm text-gray-500 leading-relaxed">
+                        <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {value.desc}
                         </p>
                       </div>
@@ -359,8 +405,6 @@ export default function AboutUsPage() {
           </div>
         </div>
       </main>
-
-      
     </div>
   );
 }

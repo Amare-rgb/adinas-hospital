@@ -2,8 +2,8 @@ import { LoginForm } from '@/components/LoginForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login | Afilas Hospital',
-  description: 'Login to your Afilas Hospital account',
+  title: 'Login | Adinas Hospital',
+  description: 'Login to your Adinas Hospital account',
 };
 
 export default function LoginPage() {

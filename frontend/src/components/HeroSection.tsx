@@ -9,7 +9,7 @@ import { Calendar, ArrowRight } from "lucide-react";
 // ============================================================
 // CONFIGURATION – Image & Video files (must be in /public folder)
 // ============================================================
-const HERO_STILL_IMAGE = "/adinas-hospital.jpg"; // First frame image
+// First frame image
 const HERO_VIDEOS = [
   "/adinas.mp4", // Video 1
   "/adinas2.mp4", // Video 2
@@ -122,11 +122,7 @@ export function HeroSection() {
           WebkitMaskSize: "100% 100%",
         }}
       >
-        <img
-          src={HERO_STILL_IMAGE}
-          alt={t("hero.headline") || "Adinas General Hospital"}
-          className="h-full w-full object-cover"
-        />
+        
       </div>
 
       {/* 2. VIDEO PLAYER (Fades in after image) */}

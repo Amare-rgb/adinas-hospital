@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { api, ApiError } from '@/lib/api';
 import { getToken, clearSession } from '@/lib/auth';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeProvider'; // ✅ Added theme import
 import { 
   Plus, 
   Pencil, 
@@ -161,6 +162,9 @@ const validateImage = (file: File | null, currentImage?: string): string | null 
 
 export default function AdminServicesAdinasGeneralPage() {
   const { t } = useLanguage();
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
+  
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -495,7 +499,6 @@ export default function AdminServicesAdinasGeneralPage() {
     e.preventDefault();
     setError('');
     
-    // Validate all fields
     const allTouched: Record<string, boolean> = {};
     Object.keys(formData).forEach(key => {
       allTouched[key] = true;
@@ -513,7 +516,6 @@ export default function AdminServicesAdinasGeneralPage() {
     try {
       setUploading(true);
       
-      // Create FormData
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
       formDataToSend.append('description', formData.description);
@@ -523,7 +525,6 @@ export default function AdminServicesAdinasGeneralPage() {
       formDataToSend.append('location', formData.location || LOCATION);
       formDataToSend.append('isActive', String(formData.isActive));
       
-      // Add image file if selected
       if (imageFile) {
         formDataToSend.append('image', imageFile);
         console.log('📁 Adding image to form data:', imageFile.name);
@@ -596,18 +597,18 @@ export default function AdminServicesAdinasGeneralPage() {
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
-      'Consultation': 'bg-blue-100 text-blue-700',
-      'Diagnostic': 'bg-purple-100 text-purple-700',
-      'Surgery': 'bg-red-100 text-red-700',
-      'Emergency': 'bg-orange-100 text-orange-700',
-      'Pharmacy': 'bg-green-100 text-green-700',
-      'Laboratory': 'bg-yellow-100 text-yellow-700',
-      'Radiology': 'bg-indigo-100 text-indigo-700',
-      'Therapy': 'bg-pink-100 text-pink-700',
-      'Preventive Care': 'bg-teal-100 text-teal-700',
-      'Specialist': 'bg-cyan-100 text-cyan-700'
+      'Consultation': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'Diagnostic': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      'Surgery': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+      'Emergency': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+      'Pharmacy': 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      'Laboratory': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+      'Radiology': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+      'Therapy': 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+      'Preventive Care': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+      'Specialist': 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
     };
-    return colors[category] || 'bg-gray-100 text-gray-700';
+    return colors[category] || 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400';
   };
 
   // ============================================================
@@ -625,20 +626,26 @@ export default function AdminServicesAdinasGeneralPage() {
   // ============================================================
   return (
     <>
-      {/* Header */}
+      {/* Header - With dark mode support */}
       <div className="flex items-center justify-end mb-6 flex-wrap gap-4">
         <div className="flex gap-3 flex-wrap">
           <button
             onClick={loadServices}
             disabled={loading}
-            className="rounded-lg bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 px-4 py-2 text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+            className={`rounded-lg px-4 py-2 text-sm transition-colors flex items-center gap-2 disabled:opacity-50
+              ${isDark 
+                ? 'bg-gray-800 border border-gray-700 hover:bg-gray-700 hover:border-gray-600 text-gray-300' 
+                : 'bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700'}`}
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             {loading ? 'Loading...' : 'Refresh'}
           </button>
           <button
             onClick={() => handleOpenModal()}
-            className="rounded-lg bg-[#2A3380] hover:bg-[#1E3A8A] text-white px-4 py-2 text-sm transition-colors flex items-center gap-2"
+            className={`rounded-lg px-4 py-2 text-sm transition-colors flex items-center gap-2
+              ${isDark 
+                ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8] text-white' 
+                : 'bg-[#2A3380] hover:bg-[#1E3A8A] text-white'}`}
           >
             <Plus className="w-4 h-4" />
             Add Service
@@ -646,18 +653,24 @@ export default function AdminServicesAdinasGeneralPage() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+      {/* Filters - With dark mode support */}
+      <div className={`rounded-xl border p-4 mb-6 transition-colors duration-300
+        ${isDark 
+          ? 'bg-gray-800 border-gray-700' 
+          : 'bg-white border-gray-200'}`}>
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex-1 min-w-[200px]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
               <input
                 type="text"
                 placeholder="Search services..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent text-sm"
+                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent text-sm transition-colors duration-300
+                  ${isDark 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC]' 
+                    : 'bg-white border-gray-300 text-gray-900'}`}
               />
             </div>
           </div>
@@ -665,17 +678,20 @@ export default function AdminServicesAdinasGeneralPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent appearance-none bg-white text-sm"
+              className={`pl-3 pr-8 py-2 border rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent appearance-none text-sm transition-colors duration-300
+                ${isDark 
+                  ? 'bg-gray-700 border-gray-600 text-white focus:ring-[#4A5BCC]' 
+                  : 'bg-white border-gray-300 text-gray-900'}`}
             >
               <option value="">All Categories</option>
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 pointer-events-none ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
           </div>
-          <div className="text-sm text-gray-500 flex items-center gap-2">
-            <span className="bg-[#2A3380]/10 text-[#2A3380] px-2 py-0.5 rounded-full text-xs font-medium">
+          <div className={`text-sm flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isDark ? 'bg-[#4A5BCC]/20 text-[#4A5BCC]' : 'bg-[#2A3380]/10 text-[#2A3380]'}`}>
               {filteredServices.length}
             </span>
             service{filteredServices.length !== 1 ? 's' : ''}
@@ -683,44 +699,58 @@ export default function AdminServicesAdinasGeneralPage() {
         </div>
       </div>
 
-      {/* Success Message */}
+      {/* Success Message - With dark mode support */}
       {success && (
-        <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 animate-fade-in">
-          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-          <p className="text-sm text-green-600">{success}</p>
+        <div className={`mb-6 p-3 border rounded-lg flex items-center gap-2 animate-fade-in transition-colors duration-300
+          ${isDark 
+            ? 'bg-green-900/20 border-green-800' 
+            : 'bg-green-50 border-green-200'}`}>
+          <CheckCircle className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
+          <p className={`text-sm ${isDark ? 'text-green-400' : 'text-green-600'}`}>{success}</p>
           <button onClick={() => setSuccess('')} className="ml-auto">
-            <X className="w-4 h-4 text-green-600" />
+            <X className={`w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
           </button>
         </div>
       )}
 
-      {/* Error Message */}
+      {/* Error Message - With dark mode support */}
       {error && (
-        <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-fade-in">
-          <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-          <p className="text-sm text-red-600">{error}</p>
+        <div className={`mb-6 p-3 border rounded-lg flex items-center gap-2 animate-fade-in transition-colors duration-300
+          ${isDark 
+            ? 'bg-red-900/20 border-red-800' 
+            : 'bg-red-50 border-red-200'}`}>
+          <XCircle className={`w-4 h-4 flex-shrink-0 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
+          <p className={`text-sm ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>
           <button onClick={() => setError('')} className="ml-auto">
-            <X className="w-4 h-4 text-red-600" />
+            <X className={`w-4 h-4 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
           </button>
         </div>
       )}
 
-      {/* Services Grid */}
+      {/* Services Grid - With dark mode support */}
       {loading ? (
         <div className="flex items-center justify-center p-12">
-          <Loader2 className="w-8 h-8 text-[#2A3380] animate-spin" />
+          <Loader2 className={`w-8 h-8 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'} animate-spin`} />
         </div>
       ) : filteredServices.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-          <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Services Found</h3>
-          <p className="text-sm text-gray-500 mb-4">
+        <div className={`border rounded-xl p-12 text-center transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'}`}>
+          <Building2 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
+          <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-700'}`}>
+            No Services Found
+          </h3>
+          <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             {searchTerm || categoryFilter ? 'Try adjusting your filters' : 'Click "Add Service" to create one'}
           </p>
           {!searchTerm && !categoryFilter && (
             <button
               onClick={() => handleOpenModal()}
-              className="rounded-lg bg-[#2A3380] hover:bg-[#1E3A8A] text-white px-5 py-2 text-sm transition-colors"
+              className={`rounded-lg px-5 py-2 text-sm transition-colors
+                ${isDark 
+                  ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8] text-white' 
+                  : 'bg-[#2A3380] hover:bg-[#1E3A8A] text-white'}`}
             >
               + Add Service
             </button>
@@ -729,9 +759,12 @@ export default function AdminServicesAdinasGeneralPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredServices.map((service) => (
-            <div key={service.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <div key={service.id} className={`rounded-lg border overflow-hidden hover:shadow-md transition-all duration-300
+              ${isDark 
+                ? 'bg-gray-800 border-gray-700 hover:shadow-[#4A5BCC]/20' 
+                : 'bg-white border-gray-200 hover:shadow-lg'}`}>
               {/* Service Image */}
-              <div className="relative h-40 bg-gray-100">
+              <div className={`relative h-40 ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
                 {service.image ? (
                   <Image
                     src={getImageUrl(service.image) || ''}
@@ -746,14 +779,14 @@ export default function AdminServicesAdinasGeneralPage() {
                       if (parent) {
                         const fallback = document.createElement('div');
                         fallback.className = 'flex items-center justify-center h-full';
-                        fallback.innerHTML = `<svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+                        fallback.innerHTML = `<svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
                         parent.appendChild(fallback);
                       }
                     }}
                   />
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <ImageIcon className="w-12 h-12 text-gray-300" />
+                    <ImageIcon className={`w-12 h-12 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
                   </div>
                 )}
                 {!service.isActive && (
@@ -764,17 +797,23 @@ export default function AdminServicesAdinasGeneralPage() {
               </div>
               
               <div className="p-4">
-                <h4 className="text-sm font-semibold text-gray-800 truncate">{service.name}</h4>
+                <h4 className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                  {service.name}
+                </h4>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block mt-1 ${getCategoryColor(service.category)}`}>
                   {service.category}
                 </span>
                 
-                <p className="text-xs text-gray-500 mt-2 line-clamp-2">{service.description}</p>
+                <p className={`text-xs mt-2 line-clamp-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {service.description}
+                </p>
                 
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <div className={`flex items-center justify-between mt-3 pt-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
                   <div>
-                    <p className="text-sm font-bold text-gray-800">{formatCurrency(service.price)}</p>
-                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                    <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                      {formatCurrency(service.price)}
+                    </p>
+                    <p className={`text-[10px] flex items-center gap-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                       <Clock className="w-3 h-3" />
                       {service.duration} min
                     </p>
@@ -782,7 +821,7 @@ export default function AdminServicesAdinasGeneralPage() {
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleOpenModal(service)}
-                      className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      className={`p-1.5 rounded-lg transition-colors ${isDark ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}
                       title="Edit"
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -790,7 +829,7 @@ export default function AdminServicesAdinasGeneralPage() {
                     <button
                       onClick={() => handleDeleteClick(service)}
                       disabled={deletingId === service.id}
-                      className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                      className={`p-1.5 rounded-lg transition-colors disabled:opacity-50 ${isDark ? 'text-gray-500 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'}`}
                       title="Delete"
                     >
                       {deletingId === service.id ? (
@@ -808,12 +847,12 @@ export default function AdminServicesAdinasGeneralPage() {
       )}
 
       {!loading && filteredServices.length > 0 && (
-        <div className="mt-4 text-xs text-gray-400 flex items-center justify-end">
+        <div className={`mt-4 text-xs flex items-center justify-end ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} in {LOCATION}
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal - With dark mode support */}
       {showDeleteModal && serviceToDelete && (
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -823,31 +862,38 @@ export default function AdminServicesAdinasGeneralPage() {
             }
           }}
         >
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+          <div className={`rounded-xl shadow-2xl max-w-md w-full p-6 transition-colors duration-300
+            ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-100 rounded-full">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                <AlertTriangle className={`w-6 h-6 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Delete Service</h3>
+              <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Delete Service
+              </h3>
             </div>
             
-            <p className="text-sm text-gray-600 mb-2">
-              Are you sure you want to delete <strong className="text-gray-900">"{serviceToDelete.name}"</strong>?
+            <p className={`text-sm mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+              Are you sure you want to delete <strong className={isDark ? 'text-white' : 'text-gray-900'}>"{serviceToDelete.name}"</strong>?
             </p>
-            <p className="text-xs text-red-600 mb-4">
+            <p className={`text-xs mb-4 ${isDark ? 'text-red-400' : 'text-red-600'}`}>
               ⚠️ This action cannot be undone. All data associated with this service will be permanently deleted.
             </p>
             
             <div className="flex gap-2">
               <button
                 onClick={handleConfirmDelete}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                className={`flex-1 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors
+                  ${isDark ? 'bg-red-600 hover:bg-red-700' : 'bg-red-600 hover:bg-red-700'}`}
               >
                 Delete Service
               </button>
               <button
                 onClick={handleCloseDeleteModal}
-                className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+                className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors
+                  ${isDark 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
               >
                 Cancel
               </button>
@@ -856,7 +902,7 @@ export default function AdminServicesAdinasGeneralPage() {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
+      {/* Create/Edit Modal - With dark mode support */}
       {showModal && (
         <div 
           ref={modalRef}
@@ -867,25 +913,32 @@ export default function AdminServicesAdinasGeneralPage() {
             }
           }}
         >
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between rounded-t-xl">
-              <h3 className="text-sm font-semibold text-gray-800">
+          <div className={`rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transition-colors duration-300
+            ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className={`sticky top-0 border-b px-4 py-3 flex items-center justify-between rounded-t-xl transition-colors duration-300
+              ${isDark 
+                ? 'bg-gray-800 border-gray-700' 
+                : 'bg-white border-gray-100'}`}>
+              <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
                 {editingService ? '✏️ Edit Service' : '➕ New Service'}
               </h3>
               <button
                 onClick={handleCloseModal}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
+                className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-gray-700 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'}`}
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-4 space-y-3">
-              {/* Image Upload */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-gray-400 transition-colors">
+              {/* Image Upload - With dark mode support */}
+              <div className={`border-2 border-dashed rounded-lg p-4 transition-colors ${isDark ? 'border-gray-600 hover:border-gray-500' : 'border-gray-300 hover:border-gray-400'}`}>
                 <div className="flex items-center gap-4">
                   <div className="relative flex-shrink-0">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
+                    <div className={`w-20 h-20 rounded-lg overflow-hidden border-2 flex items-center justify-center
+                      ${isDark 
+                        ? 'bg-gray-700 border-gray-600' 
+                        : 'bg-gray-100 border-gray-200'}`}>
                       {imagePreview ? (
                         <Image
                           src={imagePreview}
@@ -896,7 +949,7 @@ export default function AdminServicesAdinasGeneralPage() {
                           className="object-cover w-full h-full"
                         />
                       ) : (
-                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                        <ImageIcon className={`w-8 h-8 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                       )}
                     </div>
                     <input
@@ -909,20 +962,33 @@ export default function AdminServicesAdinasGeneralPage() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute -bottom-2 -right-2 bg-white border border-gray-300 text-gray-600 p-1.5 rounded-full hover:bg-gray-50 hover:border-gray-400 transition-colors shadow-sm"
+                      className={`absolute -bottom-2 -right-2 border p-1.5 rounded-full transition-colors shadow-sm
+                        ${isDark 
+                          ? 'bg-gray-800 border-gray-600 text-gray-400 hover:bg-gray-700 hover:border-gray-500' 
+                          : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400'}`}
                     >
                       <Upload className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-700">Service Image</p>
-                    <p className="text-xs text-gray-400">Click the upload button to add an image</p>
-                    <p className="text-[10px] text-gray-400 mt-1">JPG, PNG, GIF, WebP (max 5MB)</p>
+                    <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Service Image
+                    </p>
+                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Click the upload button to add an image
+                    </p>
+                    <p className={`text-[10px] mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                      JPG, PNG, GIF, WebP (max 5MB)
+                    </p>
                     {formData.image && !imageFile && !imagePreview && (
-                      <p className="text-xs text-green-600 mt-1">✓ Image uploaded</p>
+                      <p className={`text-xs mt-1 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                        ✓ Image uploaded
+                      </p>
                     )}
                     {getFieldStatus('image') === 'success' && imageFile && (
-                      <p className="text-xs text-green-600 mt-1">✓ Image ready to upload</p>
+                      <p className={`text-xs mt-1 ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                        ✓ Image ready to upload
+                      </p>
                     )}
                   </div>
                 </div>
@@ -933,7 +999,7 @@ export default function AdminServicesAdinasGeneralPage() {
 
               {/* Service Name */}
               <div data-error={!!formErrors.name && touched.name}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Service Name <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
@@ -946,14 +1012,18 @@ export default function AdminServicesAdinasGeneralPage() {
                       hasError('name')
                         ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
                         : getFieldStatus('name') === 'success'
-                        ? 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                        : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                        ? isDark 
+                          ? 'border-green-600 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                          : 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                        : isDark
+                          ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                          : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
                     }`}
                     placeholder="Enter service name"
                     maxLength={100}
                   />
                   {getFieldStatus('name') === 'success' && (
-                    <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500" />
+                    <CheckCircle className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-500'}`} />
                   )}
                   {getFieldStatus('name') === 'error' && (
                     <XCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
@@ -962,12 +1032,14 @@ export default function AdminServicesAdinasGeneralPage() {
                 {hasError('name') && (
                   <p className="text-xs text-red-500 mt-0.5">{formErrors.name}</p>
                 )}
-                <p className="text-[10px] text-gray-400 mt-0.5">{formData.name.length}/100</p>
+                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {formData.name.length}/100
+                </p>
               </div>
 
               {/* Category */}
               <div data-error={!!formErrors.category && touched.category}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Category <span className="text-red-400">*</span>
                 </label>
                 <select
@@ -977,30 +1049,40 @@ export default function AdminServicesAdinasGeneralPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('category')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
                   }`}
                 >
                   <option value="">Select category</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
-                  <option value="new" className="text-[#2A3380] font-medium">+ Add New Category</option>
+                  <option value="new" className={isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}>
+                    + Add New Category
+                  </option>
                 </select>
                 {hasError('category') && (
                   <p className="text-xs text-red-500 mt-0.5">{formErrors.category}</p>
                 )}
               </div>
 
-              {/* New Category Input */}
+              {/* New Category Input - With dark mode support */}
               {showNewCategory && (
-                <div className="flex gap-2 items-center bg-[#2A3380]/5 border border-[#2A3380]/20 rounded-lg p-3">
+                <div className={`flex gap-2 items-center border rounded-lg p-3
+                  ${isDark 
+                    ? 'bg-[#4A5BCC]/10 border-[#4A5BCC]/20' 
+                    : 'bg-[#2A3380]/5 border-[#2A3380]/20'}`}>
                   <div className="flex-1">
                     <input
                       type="text"
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value)}
                       placeholder="Enter new category name..."
-                      className="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380] outline-none"
+                      className={`w-full rounded-lg border px-3 py-1.5 text-sm focus:ring-1 outline-none
+                        ${isDark 
+                          ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-[#4A5BCC]' 
+                          : 'border-gray-300 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'}`}
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -1013,7 +1095,10 @@ export default function AdminServicesAdinasGeneralPage() {
                   <button
                     type="button"
                     onClick={handleAddNewCategory}
-                    className="px-3 py-1.5 bg-[#2A3380] text-white text-sm font-medium rounded-lg hover:bg-[#1E3A8A] transition-colors flex items-center gap-1"
+                    className={`px-3 py-1.5 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1
+                      ${isDark 
+                        ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                        : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Add
@@ -1025,7 +1110,10 @@ export default function AdminServicesAdinasGeneralPage() {
                       setNewCategory('');
                       setFormData({ ...formData, category: '' });
                     }}
-                    className="px-3 py-1.5 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
+                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors
+                      ${isDark 
+                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
                   >
                     Cancel
                   </button>
@@ -1034,7 +1122,7 @@ export default function AdminServicesAdinasGeneralPage() {
 
               {/* Description */}
               <div data-error={!!formErrors.description && touched.description}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Description <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
@@ -1046,15 +1134,19 @@ export default function AdminServicesAdinasGeneralPage() {
                       hasError('description')
                         ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
                         : getFieldStatus('description') === 'success'
-                        ? 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                        : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                        ? isDark 
+                          ? 'border-green-600 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                          : 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                        : isDark
+                          ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                          : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
                     }`}
                     rows={2}
                     placeholder="Enter service description"
                     maxLength={500}
                   />
                   {getFieldStatus('description') === 'success' && (
-                    <CheckCircle className="absolute right-3 top-3 w-4 h-4 text-green-500" />
+                    <CheckCircle className={`absolute right-3 top-3 w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-500'}`} />
                   )}
                   {getFieldStatus('description') === 'error' && (
                     <XCircle className="absolute right-3 top-3 w-4 h-4 text-red-500" />
@@ -1063,17 +1155,19 @@ export default function AdminServicesAdinasGeneralPage() {
                 {hasError('description') && (
                   <p className="text-xs text-red-500 mt-0.5">{formErrors.description}</p>
                 )}
-                <p className="text-[10px] text-gray-400 mt-0.5">{formData.description.length}/500</p>
+                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {formData.description.length}/500
+                </p>
               </div>
 
-              {/* Price and Duration */}
+              {/* Price and Duration - With dark mode support */}
               <div className="grid grid-cols-2 gap-3">
                 <div data-error={!!formErrors.price && touched.price}>
-                  <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                  <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                     Price (USD) <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                    <DollarSign className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                     <input
                       type="number"
                       value={formData.price}
@@ -1083,15 +1177,19 @@ export default function AdminServicesAdinasGeneralPage() {
                         hasError('price')
                           ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
                           : getFieldStatus('price') === 'success'
-                          ? 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                          : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                          ? isDark 
+                            ? 'border-green-600 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                            : 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                          : isDark
+                            ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                            : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
                       }`}
                       min="0"
                       step="0.01"
                       placeholder="0.00"
                     />
                     {getFieldStatus('price') === 'success' && (
-                      <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500" />
+                      <CheckCircle className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-500'}`} />
                     )}
                     {getFieldStatus('price') === 'error' && (
                       <XCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
@@ -1103,11 +1201,11 @@ export default function AdminServicesAdinasGeneralPage() {
                 </div>
 
                 <div data-error={!!formErrors.duration && touched.duration}>
-                  <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                  <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                     Duration (min) <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
-                    <Clock className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                    <Clock className={`absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                     <input
                       type="number"
                       value={formData.duration}
@@ -1117,15 +1215,19 @@ export default function AdminServicesAdinasGeneralPage() {
                         hasError('duration')
                           ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
                           : getFieldStatus('duration') === 'success'
-                          ? 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
-                          : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                          ? isDark 
+                            ? 'border-green-600 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                            : 'border-green-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
+                          : isDark
+                            ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                            : 'border-gray-200 focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
                       }`}
                       min="5"
                       step="5"
                       placeholder="30"
                     />
                     {getFieldStatus('duration') === 'success' && (
-                      <CheckCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-green-500" />
+                      <CheckCircle className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? 'text-green-400' : 'text-green-500'}`} />
                     )}
                     {getFieldStatus('duration') === 'error' && (
                       <XCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500" />
@@ -1139,14 +1241,17 @@ export default function AdminServicesAdinasGeneralPage() {
 
               {/* Location */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Location
                 </label>
                 <input
                   type="text"
                   value={formData.location}
                   disabled
-                  className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+                  className={`w-full rounded-lg border px-3 py-1.5 text-sm cursor-not-allowed
+                    ${isDark 
+                      ? 'bg-gray-700 border-gray-600 text-gray-400' 
+                      : 'bg-gray-50 border-gray-200 text-gray-500'}`}
                 />
               </div>
 
@@ -1157,18 +1262,26 @@ export default function AdminServicesAdinasGeneralPage() {
                     type="checkbox"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="w-4 h-4 text-[#2A3380] rounded focus:ring-[#2A3380]"
+                    className={`w-4 h-4 rounded focus:ring-[#2A3380] 
+                      ${isDark 
+                        ? 'bg-gray-700 border-gray-600 text-[#4A5BCC]' 
+                        : 'text-[#2A3380]'}`}
                   />
-                  <span className="text-xs font-medium text-gray-700">Active</span>
+                  <span className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    Active
+                  </span>
                 </label>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2 border-t border-gray-100">
+              {/* Action Buttons - With dark mode support */}
+              <div className={`flex gap-2 pt-2 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="flex-1 rounded-lg bg-[#2A3380] hover:bg-[#1E3A8A] text-white disabled:opacity-50 text-sm font-medium px-4 py-2 transition-colors flex items-center justify-center gap-2"
+                  className={`flex-1 rounded-lg text-white disabled:opacity-50 text-sm font-medium px-4 py-2 transition-colors flex items-center justify-center gap-2
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                      : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
                 >
                   {uploading ? (
                     <>
@@ -1185,7 +1298,10 @@ export default function AdminServicesAdinasGeneralPage() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2 transition-colors"
+                  className={`flex-1 rounded-lg text-sm font-medium px-4 py-2 transition-colors
+                    ${isDark 
+                      ? 'bg-gray-700 border border-gray-600 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                 >
                   Cancel
                 </button>

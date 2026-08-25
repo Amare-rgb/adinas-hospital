@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageProvider";
 import { api } from "@/lib/api";
+import { useTheme } from "@/contexts/ThemeProvider"; // ✅ Correct import
 import { 
   Heart, 
   Users, 
@@ -31,15 +32,15 @@ import {
 // CONFIGURATION – Local image path
 // ============================================================
 const GENERAL_IMAGE = {
-  src: "/download.jpeg",
+  src: "/Adinasimag.jpg",
   alt: "Adinas General Hospital building",
 };
 
 const LOCATION = "Adinas General Hospital";
-const MAX_SERVICES_TO_DISPLAY = 12; // ✅ Changed from 8 to 12
+const MAX_SERVICES_TO_DISPLAY = 12;
 
 // ============================================================
-// SERVICE CARD COMPONENT
+// SERVICE CARD COMPONENT - WITH DARK MODE SUPPORT
 // ============================================================
 function ServiceCard({ 
   icon, 
@@ -61,11 +62,17 @@ function ServiceCard({
   onClick?: () => void;
 }) {
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
     <div 
       onClick={onClick}
-      className="group p-6 rounded-2xl bg-white border border-gray-100 hover:border-[#2A3380]/30 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer"
+      className={`group p-6 rounded-2xl border transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer
+        ${isDark 
+          ? 'bg-gray-800/50 border-gray-700 hover:border-[#2A3380]/50 shadow-lg hover:shadow-[#2A3380]/20' 
+          : 'bg-white border-gray-100 hover:border-[#2A3380]/30 shadow-sm hover:shadow-xl'
+        }`}
     >
       {/* Service Image */}
       <div className="relative w-full h-40 mb-4 rounded-xl overflow-hidden">
@@ -82,15 +89,15 @@ function ServiceCard({
               const parent = target.parentElement;
               if (parent) {
                 const fallback = document.createElement('div');
-                fallback.className = 'flex items-center justify-center h-full bg-gray-100';
+                fallback.className = `flex items-center justify-center h-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`;
                 fallback.innerHTML = `<span class="text-4xl text-gray-400">🏥</span>`;
                 parent.appendChild(fallback);
               }
             }}
           />
         ) : (
-          <div className="flex items-center justify-center h-full bg-gray-100">
-            <span className="text-4xl text-gray-400">🏥</span>
+          <div className={`flex items-center justify-center h-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+          
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -98,15 +105,20 @@ function ServiceCard({
           {icon}
         </div>
       </div>
-      <h3 className="text-lg font-bold text-[#1a1a1a] mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{description}</p>
+      <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+        {title}
+      </h3>
+      <p className={`text-sm leading-relaxed line-clamp-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+        {description}
+      </p>
       {price && (
-        <p className="text-sm font-bold text-[#2A3380] mt-2">
+        <p className={`text-sm font-bold mt-2 ${isDark ? 'text-[#0EA5E9]' : 'text-[#2A3380]'}`}>
           ${price.toFixed(2)}
-          {duration && <span className="text-xs font-normal text-gray-400 ml-2">({duration} min)</span>}
+          {duration && <span className={`text-xs font-normal ml-2 ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>({duration} min)</span>}
         </p>
       )}
-      <div className="inline-flex items-center gap-1 mt-3 text-sm font-semibold text-[#2A3380] hover:text-[#0EA5E9] transition-colors">
+      <div className={`inline-flex items-center gap-1 mt-3 text-sm font-semibold transition-colors
+        ${isDark ? 'text-[#0EA5E9] hover:text-[#4A5BCC]' : 'text-[#2A3380] hover:text-[#0EA5E9]'}`}>
         {t("general.learn_more") || "Learn More"} <ArrowRight className="w-4 h-4" />
       </div>
     </div>
@@ -114,10 +126,12 @@ function ServiceCard({
 }
 
 // ============================================================
-// MAIN COMPONENT
+// MAIN COMPONENT - WITH DARK MODE SUPPORT
 // ============================================================
 export function GeneralSec() {
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [email, setEmail] = useState("");
@@ -144,16 +158,12 @@ export function GeneralSec() {
           }
         }
         
-        // Filter to only show active services
         servicesData = servicesData.filter(s => s.isActive !== false);
-        
-        // ✅ Limit to MAX_SERVICES_TO_DISPLAY (12)
         setServices(servicesData.slice(0, MAX_SERVICES_TO_DISPLAY));
         console.log(`✅ Loaded ${servicesData.length} services, showing ${Math.min(servicesData.length, MAX_SERVICES_TO_DISPLAY)} for ${LOCATION}`);
       } catch (error: any) {
         console.error('❌ Failed to load services:', error);
         setError(error.message || 'Failed to load services');
-        // Use fallback data if API fails
         setServices(getFallbackServices());
       } finally {
         setLoading(false);
@@ -246,7 +256,6 @@ export function GeneralSec() {
         duration: 10,
         isActive: true
       },
-      // ✅ Added 4 more fallback services to reach 12
       {
         id: '9',
         name: 'Radiology',
@@ -359,20 +368,32 @@ export function GeneralSec() {
 
   const displayServices = services.length > 0 ? services : getFallbackServices();
 
+  // Dynamic styles based on theme
+  const sectionBg = isDark 
+    ? 'from-gray-900 via-gray-800 to-gray-900' 
+    : 'from-white to-gray-50';
+  
+  const servicesSectionBg = isDark 
+    ? 'bg-gray-900' 
+    : 'bg-white';
+  
+  const textColor = isDark ? 'text-white' : 'text-[#1a1a1a]';
+  const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
+
   return (
     <>
       {/* ============================================================
-          GENERAL/HOSPITAL SECTION
+          GENERAL/HOSPITAL SECTION - WITH DARK MODE
           ============================================================ */}
       <section
         id="adinas-general-hospital"
         ref={sectionRef}
-        className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden"
+        className={`py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b ${sectionBg} relative overflow-hidden transition-colors duration-300`}
       >
-        {/* Subtle background decoration */}
+        {/* Subtle background decoration - Adjusted for dark mode */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#2A3380]/5 via-transparent to-[#0EA5E9]/5 pointer-events-none" />
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#2A3380]/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#0EA5E9]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className={`absolute -top-40 -right-40 w-80 h-80 ${isDark ? 'bg-[#2A3380]/5' : 'bg-[#2A3380]/10'} rounded-full blur-3xl pointer-events-none`} />
+        <div className={`absolute -bottom-40 -left-40 w-80 h-80 ${isDark ? 'bg-[#0EA5E9]/5' : 'bg-[#0EA5E9]/10'} rounded-full blur-3xl pointer-events-none`} />
 
         <div className="max-w-7xl mx-auto relative z-10">
           {/* Main content: two-column layout */}
@@ -384,21 +405,21 @@ export function GeneralSec() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
             >
-              {/* TITLE - Using translations for both words */}
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight">
-                <span className="text-[#2A3380]">{t("hospital.name.adinas") || "Adinas"}</span>{" "}
-                <span className="text-[#0EA5E9]">{t("hospital.name.general") || "General Hospital"}</span>
+              {/* TITLE - With dark mode support */}
+              <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight`}>
+                <span className="text-[#2A3380] dark:text-[#4A5BCC]">{t("hospital.name.adinas") || "Adinas"}</span>{" "}
+                <span className="text-[#0EA5E9] dark:text-[#38BDF8]">{t("hospital.name.general") || "General Hospital"}</span>
               </h2>
 
-              {/* Description - Using translation */}
-              <p className="text-gray-600 text-sm sm:text-base leading-relaxed max-w-xl">
+              {/* Description - With dark mode support */}
+              <p className={`${textSecondary} text-sm sm:text-base leading-relaxed max-w-xl`}>
                 {t("general.hospital_description") || "Our hospital has been delivering compassionate, expert medical care to our community. Our legacy of excellence is built on experience, innovation, and an unwavering commitment to patient well-being."}
               </p>
 
-              {/* Why Choose Us - Features - Using translations */}
+              {/* Why Choose Us - Features - With dark mode support */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#1a1a1a] flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-[#2A3380]" />
+                <h3 className={`text-lg font-semibold ${textColor} flex items-center gap-2`}>
+                  <CheckCircle2 className="w-5 h-5 text-[#2A3380] dark:text-[#4A5BCC]" />
                   {t("general.why_choose_us") || "Why Choose Us?"}
                 </h3>
                 <div className="space-y-2.5">
@@ -410,11 +431,12 @@ export function GeneralSec() {
                     t("general.why_choose_5") || "24/7 Availability - Emergency and critical care services.",
                     t("general.why_choose_6") || "High-Quality Facilities - Modern inpatient rooms and ICUs."
                   ].map((text, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-2 rounded-lg hover:bg-[#2A3380]/5 transition-colors">
-                      <div className="w-6 h-6 rounded-full bg-[#2A3380]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <CheckCircle2 className="w-4 h-4 text-[#2A3380]" />
+                    <div key={idx} className={`flex items-start gap-3 p-2 rounded-lg transition-colors
+                      ${isDark ? 'hover:bg-[#2A3380]/10' : 'hover:bg-[#2A3380]/5'}`}>
+                      <div className={`w-6 h-6 rounded-full ${isDark ? 'bg-[#2A3380]/20' : 'bg-[#2A3380]/10'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                        <CheckCircle2 className={`w-4 h-4 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
                       </div>
-                      <span className="text-sm text-gray-700 leading-relaxed">
+                      <span className={`text-sm ${textSecondary} leading-relaxed`}>
                         {text}
                       </span>
                     </div>
@@ -422,11 +444,15 @@ export function GeneralSec() {
                 </div>
               </div>
 
-              {/* CTA Button - Using translation */}
+              {/* CTA Button - With dark mode support */}
               <div className="mt-6">
                 <Link
                   href="/services"
-                  className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#2A3380] hover:bg-[#1E3A8A] text-white font-semibold text-sm rounded-full transition-all duration-300 shadow-lg shadow-[#2A3380]/30 hover:shadow-xl hover:shadow-[#2A3380]/40 hover:scale-[1.02] active:scale-95"
+                  className={`inline-flex items-center gap-2.5 px-8 py-3.5 font-semibold text-sm rounded-full transition-all duration-300 hover:scale-[1.02] active:scale-95
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8] text-white shadow-lg shadow-[#2A3380]/20 hover:shadow-xl hover:shadow-[#2A3380]/30' 
+                      : 'bg-[#2A3380] hover:bg-[#1E3A8A] text-white shadow-lg shadow-[#2A3380]/30 hover:shadow-xl hover:shadow-[#2A3380]/40'
+                    }`}
                 >
                   <span>{t("general.cta") || "Discover Our Services"}</span>
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -434,17 +460,17 @@ export function GeneralSec() {
               </div>
             </div>
 
-            {/* Right column – Image */}
+            {/* Right column – Image - With dark mode support */}
             <div
               className={`relative transition-all duration-700 ease-out delay-200 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               }`}
             >
-              <div className="absolute -top-6 -right-6 w-64 h-64 bg-[#2A3380]/20 rounded-full blur-3xl opacity-70" />
-              <div className="absolute -bottom-6 -left-6 w-64 h-64 bg-[#0EA5E9]/20 rounded-full blur-3xl opacity-70" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#2A3380]/10 rounded-full blur-3xl" />
+              <div className={`absolute -top-6 -right-6 w-64 h-64 ${isDark ? 'bg-[#2A3380]/10' : 'bg-[#2A3380]/20'} rounded-full blur-3xl opacity-70`} />
+              <div className={`absolute -bottom-6 -left-6 w-64 h-64 ${isDark ? 'bg-[#0EA5E9]/10' : 'bg-[#0EA5E9]/20'} rounded-full blur-3xl opacity-70`} />
+              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 ${isDark ? 'bg-[#2A3380]/5' : 'bg-[#2A3380]/10'} rounded-full blur-3xl`} />
 
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-[#2A3380]/15 bg-white">
+              <div className={`relative rounded-2xl overflow-hidden shadow-2xl ${isDark ? 'shadow-[#2A3380]/10' : 'shadow-[#2A3380]/15'} ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
                 <div className="aspect-[4/3] relative">
                   <Image
                     src={GENERAL_IMAGE.src}
@@ -464,23 +490,24 @@ export function GeneralSec() {
 
       {/* ============================================================
           SERVICES SECTION - DYNAMIC FROM API - CENTERED
+          WITH DARK MODE SUPPORT
           ============================================================ */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white pointer-events-none" />
+      <section className={`py-16 sm:py-20 px-4 sm:px-6 lg:px-8 ${servicesSectionBg} relative overflow-hidden transition-colors duration-300`}>
+        <div className={`absolute inset-0 bg-gradient-to-b ${isDark ? 'from-gray-800 to-gray-900' : 'from-gray-50 to-white'} pointer-events-none`} />
         
         <div className="max-w-7xl mx-auto relative z-10">
-          {/* Section Header - Centered */}
+          {/* Section Header - Centered - With dark mode support */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#2A3380]/10 rounded-full mb-4">
-              <span className="text-xs font-semibold text-[#2A3380] uppercase tracking-wider">
+            <div className={`inline-flex items-center gap-2 px-4 py-1.5 ${isDark ? 'bg-[#2A3380]/20' : 'bg-[#2A3380]/10'} rounded-full mb-4`}>
+              <span className={`text-xs font-semibold ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'} uppercase tracking-wider`}>
                 {t("hospital.dept.badge") || "Our Services"}
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1a1a1a]">
-              <span className="text-[#0EA5E9]">{t("hospital.sec_services.title") || "Healthcare"}</span>{" "}
-              <span className="text-[#2A3380]">{t("hospital.sec_services.subtitle") || "Services"}</span>
+            <h2 className={`text-3xl sm:text-4xl font-bold ${textColor}`}>
+              <span className="text-[#0EA5E9] dark:text-[#38BDF8]">{t("hospital.sec_services.title") || "Healthcare"}</span>{" "}
+              <span className="text-[#2A3380] dark:text-[#4A5BCC]">{t("hospital.sec_services.subtitle") || "Services"}</span>
             </h2>
-            <p className="text-gray-600 text-sm sm:text-base mt-2 max-w-2xl mx-auto">
+            <p className={`${textSecondary} text-sm sm:text-base mt-2 max-w-2xl mx-auto`}>
               {t("hospital.sec_services.description") || "We offer a wide range of medical services to meet all your healthcare needs."}
             </p>
           </div>
@@ -488,23 +515,25 @@ export function GeneralSec() {
           {/* Loading State */}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="w-12 h-12 text-[#2A3380] animate-spin" />
-              <p className="text-sm text-gray-500 mt-4">{t("doctors.status_loading") || "Loading services..."}</p>
+              <Loader2 className={`w-12 h-12 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'} animate-spin`} />
+              <p className={`text-sm ${textSecondary} mt-4`}>{t("doctors.status_loading") || "Loading services..."}</p>
             </div>
           ) : error ? (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-red-500">{error}</p>
+            <div className="text-center py-12">
+              <p className={isDark ? 'text-red-400' : 'text-red-500'}>{error}</p>
               <button 
                 onClick={() => window.location.reload()} 
-                className="mt-2 text-[#2A3380] hover:underline"
+                className={`mt-2 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'} hover:underline`}
               >
                 {t("departments.try_again") || "Retry"}
               </button>
             </div>
           ) : displayServices.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <Building2 className="w-16 h-16 mx-auto mb-4 opacity-20" />
-              <p className="text-sm">{t("departments.empty_message") || "No services available at this time."}</p>
+            <div className="text-center py-12">
+              <Building2 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
+              <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
+                {t("departments.empty_message") || "No services available at this time."}
+              </p>
             </div>
           ) : (
             /* Services Grid */
@@ -533,11 +562,15 @@ export function GeneralSec() {
             </div>
           )}
 
-          {/* View All Services Button - Using translation */}
+          {/* View All Services Button - With dark mode support */}
           <div className="text-center mt-12">
             <Link
               href="/services"
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 border-2 border-[#2A3380] text-[#2A3380] hover:bg-[#2A3380] hover:text-white font-semibold text-sm rounded-full transition-all duration-300 hover:scale-[1.02] active:scale-95"
+              className={`inline-flex items-center gap-2.5 px-8 py-3.5 border-2 font-semibold text-sm rounded-full transition-all duration-300 hover:scale-[1.02] active:scale-95
+                ${isDark 
+                  ? 'border-[#4A5BCC] text-[#4A5BCC] hover:bg-[#4A5BCC] hover:text-white' 
+                  : 'border-[#2A3380] text-[#2A3380] hover:bg-[#2A3380] hover:text-white'
+                }`}
             >
               <span>{t("hospital.sec_services.view_all_btn") || "View All Services"}</span>
               <ArrowRight className="w-4 h-4" />
@@ -547,21 +580,21 @@ export function GeneralSec() {
       </section>
 
       {/* ============================================================
-          NEWSLETTER SUBSCRIPTION - WHITE BACKGROUND
+          NEWSLETTER SUBSCRIPTION - WITH DARK MODE SUPPORT
           ============================================================ */}
-      <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
+      <section className={`py-8 sm:py-12 px-4 sm:px-6 lg:px-8 ${isDark ? 'bg-gray-800' : 'bg-white'} border-t ${isDark ? 'border-gray-700' : 'border-gray-100'} transition-colors duration-300`}>
         <div className="max-w-3xl mx-auto relative z-10">
           {subscribed ? (
-            <div className="text-center text-[#2A3380]">
+            <div className="text-center text-[#2A3380] dark:text-[#4A5BCC]">
               <div className="flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-[#0EA5E9]" />
-                <span className="font-semibold">Thank you for subscribing!</span>
+                <CheckCircle2 className="w-5 h-5 text-[#0EA5E9] dark:text-[#38BDF8]" />
+                <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>Thank you for subscribing!</span>
               </div>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <div className="text-center sm:text-left">
-                <h3 className="text-sm font-semibold text-[#1a1a1a]">
+                <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
                   Subscribe to our news
                 </h3>
               </div>
@@ -572,11 +605,19 @@ export function GeneralSec() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   required
-                  className="px-4 py-2 text-sm rounded-full bg-gray-50 border border-gray-200 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2A3380] focus:border-transparent transition-all w-full sm:w-64"
+                  className={`px-4 py-2 text-sm rounded-full border transition-all w-full sm:w-64
+                    ${isDark 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-[#4A5BCC]' 
+                      : 'bg-gray-50 border-gray-200 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-[#2A3380]'
+                    } focus:border-transparent focus:outline-none`}
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2 text-sm bg-[#2A3380] hover:bg-[#1E3A8A] text-white font-semibold rounded-full transition-all duration-300 shadow-lg shadow-[#2A3380]/30 hover:shadow-xl hover:shadow-[#2A3380]/40 flex items-center justify-center gap-1.5"
+                  className={`px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300 shadow-lg flex items-center justify-center gap-1.5
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8] text-white shadow-[#2A3380]/20 hover:shadow-xl hover:shadow-[#2A3380]/30' 
+                      : 'bg-[#2A3380] hover:bg-[#1E3A8A] text-white shadow-[#2A3380]/30 hover:shadow-xl hover:shadow-[#2A3380]/40'
+                    }`}
                 >
                   <span>Subscribe</span>
                   <Send className="w-3.5 h-3.5" />

@@ -8,6 +8,7 @@ import { api, ApiError } from '@/lib/api';
 import { getToken, clearSession } from '@/lib/auth';
 import { Doctor, ScheduleSlot } from '@/lib/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeProvider'; // ✅ Added theme import
 
 interface DoctorFormData {
   name: string;
@@ -70,7 +71,7 @@ const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'F
 const LOCATION_NAME = 'Adinas General Hospital';
 
 // ============================================================
-// VALIDATION FUNCTIONS
+// VALIDATION FUNCTIONS (unchanged)
 // ============================================================
 
 const validateName = (value: string): string | null => {
@@ -212,6 +213,9 @@ const validatePhoto = (file: File | null): string | null => {
 
 export default function AdminDoctorsPage() {
   const { t } = useLanguage();
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
+  
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DoctorFormData>(emptyForm);
@@ -403,9 +407,6 @@ export default function AdminDoctorsPage() {
     setImagePreview('');
   }
 
-  // ============================================================
-  // 🔥 FIXED: startEdit function with proper null/undefined handling
-  // ============================================================
   function startEdit(doc: Doctor) {
     const scheduleSlots = { ...emptyForm.scheduleSlots };
     if (doc.scheduleSlots && doc.scheduleSlots.length > 0) {
@@ -420,7 +421,6 @@ export default function AdminDoctorsPage() {
       });
     }
 
-    // 🔥 FIXED: Added fallback values for undefined properties
     setEditingId(doc.id);
     setForm({
       name: doc.name || '',
@@ -495,7 +495,6 @@ export default function AdminDoctorsPage() {
         return;
       }
 
-      // 🔥 FIXED: Use 'specialization' and include all required fields
       const doctorData = { 
         name: form.name.trim(),
         specialization: form.specialization.trim(),
@@ -609,47 +608,68 @@ export default function AdminDoctorsPage() {
 
   return (
     <>
-      {/* Header */}
+      {/* Header - With dark mode support */}
       <div className="flex items-center justify-end mb-8 flex-wrap gap-4">
         <button
           onClick={() => load()}
-          className="focus-ring rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 text-sm font-semibold px-5 py-2.5 transition-colors shadow-sm flex items-center gap-2"
+          className={`focus-ring rounded-lg border text-sm font-semibold px-5 py-2.5 transition-colors shadow-sm flex items-center gap-2
+            ${isDark 
+              ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600' 
+              : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'}`}
         >
           ⟳ Refresh
         </button>
         <button
           onClick={startCreate}
-          className="focus-ring rounded-lg bg-[#2A3380] text-white hover:bg-[#1E3A8A] text-sm font-semibold px-5 py-2.5 transition-colors shadow-sm"
+          className={`focus-ring rounded-lg text-white text-sm font-semibold px-5 py-2.5 transition-colors shadow-sm
+            ${isDark 
+              ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+              : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
         >
           + Add Doctor
         </button>
       </div>
 
+      {/* Success Message - With dark mode support */}
       {success && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
-          <span className="text-green-600">✓</span>
-          <p className="text-sm text-green-600">{success}</p>
+        <div className={`mb-6 p-4 border rounded-lg flex items-center gap-2 transition-colors duration-300
+          ${isDark 
+            ? 'bg-green-900/20 border-green-800' 
+            : 'bg-green-50 border-green-200'}`}>
+          <span className={isDark ? 'text-green-400' : 'text-green-600'}>✓</span>
+          <p className={`text-sm ${isDark ? 'text-green-400' : 'text-green-600'}`}>{success}</p>
           <button onClick={() => setSuccess('')} className="ml-auto">
-            <span className="text-green-600">×</span>
+            <span className={isDark ? 'text-green-400' : 'text-green-600'}>×</span>
           </button>
         </div>
       )}
 
+      {/* Error Message - With dark mode support */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-          <span className="text-red-600">✗</span>
-          <p className="text-sm text-red-600">{error}</p>
+        <div className={`mb-6 p-4 border rounded-lg flex items-center gap-2 transition-colors duration-300
+          ${isDark 
+            ? 'bg-red-900/20 border-red-800' 
+            : 'bg-red-50 border-red-200'}`}>
+          <span className={isDark ? 'text-red-400' : 'text-red-600'}>✗</span>
+          <p className={`text-sm ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>
           <button onClick={() => setError('')} className="ml-auto">
-            <span className="text-red-600">×</span>
+            <span className={isDark ? 'text-red-400' : 'text-red-600'}>×</span>
           </button>
         </div>
       )}
 
+      {/* Modal Form - With dark mode support */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between rounded-t-xl">
-              <h3 className="text-sm font-semibold text-gray-800">
+          <div className={`rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto transition-colors duration-300
+            ${isDark 
+              ? 'bg-gray-800' 
+              : 'bg-white'}`}>
+            <div className={`sticky top-0 border-b px-4 py-3 flex items-center justify-between rounded-t-xl transition-colors duration-300
+              ${isDark 
+                ? 'bg-gray-800 border-gray-700' 
+                : 'bg-white border-gray-100'}`}>
+              <h3 className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
                 {editingId ? '✏️ Edit Doctor' : '➕ New Doctor'}
               </h3>
               <button
@@ -662,17 +682,20 @@ export default function AdminDoctorsPage() {
                   setFormErrors({});
                   setTouched({});
                 }}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
+                className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-gray-700 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'}`}
               >
                 ✕
               </button>
             </div>
             
             <form onSubmit={handleSubmit} className="p-4 space-y-3">
-              {/* Image Upload */}
+              {/* Image Upload - With dark mode support */}
               <div className="flex items-center gap-3">
                 <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
+                  <div className={`w-14 h-14 rounded-full overflow-hidden border-2 flex items-center justify-center
+                    ${isDark 
+                      ? 'bg-gray-700 border-gray-600' 
+                      : 'bg-gray-100 border-gray-200'}`}>
                     {imagePreview ? (
                       <Image
                         src={imagePreview}
@@ -683,7 +706,7 @@ export default function AdminDoctorsPage() {
                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <span className="text-2xl text-gray-400">👤</span>
+                      <span className={`text-2xl ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>👤</span>
                     )}
                   </div>
                   <input
@@ -696,14 +719,17 @@ export default function AdminDoctorsPage() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-0 right-0 bg-white border border-gray-200 text-gray-600 p-0.5 rounded-full hover:bg-gray-50 transition-colors text-xs shadow-sm"
+                    className={`absolute bottom-0 right-0 border p-0.5 rounded-full transition-colors text-xs shadow-sm
+                      ${isDark 
+                        ? 'bg-gray-800 border-gray-600 text-gray-400 hover:bg-gray-700' 
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                   >
                     📷
                   </button>
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-700">Photo</p>
-                  <p className="text-[10px] text-gray-400">JPG, PNG, GIF, WebP (max 5MB)</p>
+                  <p className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Photo</p>
+                  <p className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>JPG, PNG, GIF, WebP (max 5MB)</p>
                 </div>
               </div>
               {formErrors.photo && touched.photo && (
@@ -712,7 +738,7 @@ export default function AdminDoctorsPage() {
               
               {/* Full Name */}
               <div data-error={!!formErrors.name && touched.name}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Full Name <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -729,7 +755,9 @@ export default function AdminDoctorsPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('name')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
                   }`}
                   placeholder="Dr. John Doe"
                   maxLength={100}
@@ -737,12 +765,14 @@ export default function AdminDoctorsPage() {
                 {hasError('name') && (
                   <p className="text-xs text-red-500 mt-0.5">{formErrors.name}</p>
                 )}
-                <p className="text-[10px] text-gray-400 mt-0.5">{form.name.length}/100</p>
+                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {form.name.length}/100
+                </p>
               </div>
               
               {/* Specialization */}
               <div data-error={!!formErrors.specialization && touched.specialization}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Specialization <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -760,19 +790,23 @@ export default function AdminDoctorsPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('specialization')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
                   }`}
                   maxLength={100}
                 />
                 {hasError('specialization') && (
                   <p className="text-xs text-red-500 mt-0.5">{formErrors.specialization}</p>
                 )}
-                <p className="text-[10px] text-gray-400 mt-0.5">{form.specialization.length}/100</p>
+                <p className={`text-[10px] mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {form.specialization.length}/100
+                </p>
               </div>
               
               {/* Email */}
               <div data-error={!!formErrors.email && touched.email}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Email <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -788,7 +822,9 @@ export default function AdminDoctorsPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('email')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
                   }`}
                   maxLength={255}
                 />
@@ -799,7 +835,7 @@ export default function AdminDoctorsPage() {
               
               {/* Phone */}
               <div data-error={!!formErrors.phone && touched.phone}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Phone
                 </label>
                 <input
@@ -816,7 +852,9 @@ export default function AdminDoctorsPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('phone')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
                   }`}
                   maxLength={20}
                 />
@@ -827,7 +865,7 @@ export default function AdminDoctorsPage() {
 
               {/* Experience */}
               <div data-error={!!formErrors.experience && touched.experience}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Experience (years)
                 </label>
                 <input
@@ -851,7 +889,9 @@ export default function AdminDoctorsPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('experience')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
                   }`}
                   placeholder="10"
                 />
@@ -860,18 +900,24 @@ export default function AdminDoctorsPage() {
                 )}
               </div>
 
-              {/* Weekly Schedule */}
-              <div className={`border rounded-lg p-3 ${
-                hasError('schedule') ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'
+              {/* Weekly Schedule - With dark mode support */}
+              <div className={`border rounded-lg p-3 transition-colors duration-300 ${
+                hasError('schedule') 
+                  ? 'border-red-400 bg-red-50 dark:bg-red-900/20' 
+                  : isDark
+                    ? 'border-gray-700 bg-gray-700/50'
+                    : 'border-gray-200 bg-gray-50'
               }`}>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className={`block text-xs font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Weekly Schedule <span className="text-red-400">*</span>
                 </label>
                 <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
                   {DAYS_OF_WEEK.map((day, index) => (
-                    <div key={index} className="flex items-center gap-1.5 p-1.5 bg-white rounded-lg shadow-sm">
+                    <div key={index} className={`flex items-center gap-1.5 p-1.5 rounded-lg shadow-sm transition-colors duration-300
+                      ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
                       <div className="w-14 flex-shrink-0">
-                        <label className="flex items-center gap-1 text-xs font-medium text-gray-600 cursor-pointer">
+                        <label className={`flex items-center gap-1 text-xs font-medium cursor-pointer
+                          ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                           <input
                             type="checkbox"
                             checked={form.scheduleSlots[index]?.isAvailable || false}
@@ -880,7 +926,8 @@ export default function AdminDoctorsPage() {
                               console.log(`Day ${index} (${day}) toggled:`, isChecked);
                               handleScheduleToggle(index, isChecked);
                             }}
-                            className="rounded border-gray-300 text-[#2A3380] focus:ring-[#2A3380] cursor-pointer"
+                            className={`rounded border-gray-300 focus:ring-[#2A3380] dark:focus:ring-[#4A5BCC] cursor-pointer
+                              ${isDark ? 'bg-gray-700 border-gray-600 text-[#4A5BCC]' : ''}`}
                           />
                           <span className="truncate text-[10px]">{day.slice(0, 3)}</span>
                         </label>
@@ -893,8 +940,12 @@ export default function AdminDoctorsPage() {
                           onChange={(e) => handleScheduleChange(index, 'startTime', e.target.value)}
                           className={`w-full rounded border px-1.5 py-0.5 text-[10px] transition-colors outline-none ${
                             form.scheduleSlots[index]?.isAvailable 
-                              ? 'border-gray-300 bg-white focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]' 
-                              : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                              ? isDark
+                                ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                                : 'border-gray-300 bg-white focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                              : isDark
+                                ? 'border-gray-700 bg-gray-800 text-gray-500 cursor-not-allowed'
+                                : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
                           }`}
                           step="900"
                         />
@@ -905,8 +956,12 @@ export default function AdminDoctorsPage() {
                           onChange={(e) => handleScheduleChange(index, 'endTime', e.target.value)}
                           className={`w-full rounded border px-1.5 py-0.5 text-[10px] transition-colors outline-none ${
                             form.scheduleSlots[index]?.isAvailable 
-                              ? 'border-gray-300 bg-white focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]' 
-                              : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                              ? isDark
+                                ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                                : 'border-gray-300 bg-white focus:border-[#2A3380] focus:ring-1 focus:ring-[#2A3380]'
+                              : isDark
+                                ? 'border-gray-700 bg-gray-800 text-gray-500 cursor-not-allowed'
+                                : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
                           }`}
                           step="900"
                         />
@@ -920,7 +975,7 @@ export default function AdminDoctorsPage() {
                   </p>
                 )}
                 {!hasError('schedule') && (
-                  <p className="text-[10px] text-gray-400 mt-2">
+                  <p className={`text-[10px] mt-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                     Check at least one day and set working hours
                   </p>
                 )}
@@ -928,7 +983,7 @@ export default function AdminDoctorsPage() {
               
               {/* Bio */}
               <div data-error={!!formErrors.bio && touched.bio}>
-                <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                <label className={`block text-xs font-medium mb-0.5 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                   Bio
                 </label>
                 <textarea
@@ -939,7 +994,9 @@ export default function AdminDoctorsPage() {
                   className={`w-full rounded-lg border px-3 py-1.5 text-sm transition-colors outline-none ${
                     hasError('bio')
                       ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                      : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
+                      : isDark
+                        ? 'border-gray-600 bg-gray-700 text-white focus:border-[#4A5BCC] focus:ring-1 focus:ring-[#4A5BCC]'
+                        : 'border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-400'
                   }`}
                   placeholder="Brief bio..."
                   maxLength={500}
@@ -948,22 +1005,26 @@ export default function AdminDoctorsPage() {
                   {hasError('bio') && (
                     <p className="text-xs text-red-500 mt-0.5">{formErrors.bio}</p>
                   )}
-                  <p className={`text-[10px] mt-0.5 ml-auto ${form.bio.length > 450 ? 'text-orange-500' : 'text-gray-400'}`}>
+                  <p className={`text-[10px] mt-0.5 ml-auto ${form.bio.length > 450 ? 'text-orange-500' : isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                     {form.bio.length}/500
                   </p>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-2 border-t border-gray-100">
+              {/* Action Buttons - With dark mode support */}
+              <div className={`flex gap-2 pt-2 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
                 <button
                   type="submit"
                   disabled={saving || uploadingImage}
-                  className="flex-1 rounded-lg bg-[#2A3380] text-white hover:bg-[#1E3A8A] disabled:opacity-50 text-sm font-medium px-4 py-2 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className={`flex-1 rounded-lg text-white text-sm font-medium px-4 py-2 transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                      : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
                 >
                   {saving || uploadingImage ? (
                     <>
-                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span className={`inline-block w-3 h-3 border-2 border-t-transparent rounded-full animate-spin
+                        ${isDark ? 'border-white' : 'border-white'}`}></span>
                       {uploadingImage ? 'Uploading...' : 'Saving...'}
                     </>
                   ) : (
@@ -980,7 +1041,10 @@ export default function AdminDoctorsPage() {
                     setFormErrors({});
                     setTouched({});
                   }}
-                  className="flex-1 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 hover:bg-gray-50 transition-colors"
+                  className={`flex-1 rounded-lg border text-sm font-medium px-4 py-2 transition-colors
+                    ${isDark 
+                      ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600' 
+                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                 >
                   Cancel
                 </button>
@@ -990,27 +1054,46 @@ export default function AdminDoctorsPage() {
         </div>
       )}
 
+      {/* Loading State - With dark mode support */}
       {loading ? (
         <div className="flex items-center justify-center p-12">
-          <span className="text-[#2A3380] animate-spin text-2xl">⟳</span>
+          <span className={`${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'} animate-spin text-2xl`}>⟳</span>
         </div>
       ) : doctors.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Doctors Found</h3>
-          <p className="text-sm text-gray-500 mb-4">No doctors available for Adinas General Hospital</p>
+        <div className={`border rounded-xl p-12 text-center transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'}`}>
+          <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-700'}`}>
+            No Doctors Found
+          </h3>
+          <p className={`text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            No doctors available for Adinas General Hospital
+          </p>
           <button
             onClick={startCreate}
-            className="focus-ring rounded-lg bg-[#2A3380] text-white hover:bg-[#1E3A8A] text-sm font-semibold px-5 py-2.5 transition-colors"
+            className={`focus-ring rounded-lg text-white text-sm font-semibold px-5 py-2.5 transition-colors
+              ${isDark 
+                ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
           >
             + Add Doctor
           </button>
         </div>
       ) : (
+        /* Doctor Cards - With dark mode support */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {doctors.map((doc) => (
-            <div key={doc.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-[#2A3380]/30 hover:scale-[1.02] transition-all duration-300 flex flex-col">
-              <div className="relative flex-shrink-0 p-4 bg-gradient-to-br from-[#2A3380]/10 to-gray-100 flex items-center justify-center">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md">
+            <div key={doc.id} className={`rounded-xl border overflow-hidden shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex flex-col
+              ${isDark 
+                ? 'bg-gray-800 border-gray-700 hover:border-[#4A5BCC]/30 hover:shadow-[#4A5BCC]/20' 
+                : 'bg-white border-gray-200 hover:border-[#2A3380]/30 hover:shadow-lg'}`}>
+              <div className={`relative flex-shrink-0 p-4 flex items-center justify-center
+                ${isDark 
+                  ? 'bg-[#4A5BCC]/10' 
+                  : 'bg-gradient-to-br from-[#2A3380]/10 to-gray-100'}`}>
+                <div className={`w-32 h-32 rounded-full overflow-hidden border-4 shadow-md
+                  ${isDark ? 'border-gray-700' : 'border-white'}`}>
                   {doc.photoUrl ? (
                     <Image
                       src={doc.photoUrl}
@@ -1021,14 +1104,16 @@ export default function AdminDoctorsPage() {
                       className="object-cover w-full h-full"
                     />
                   ) : (
-                    <div className="flex items-center justify-center w-full h-full bg-gray-200">
-                      <span className="text-4xl text-gray-400">👤</span>
+                    <div className={`flex items-center justify-center w-full h-full ${isDark ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                      <span className={`text-4xl ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>👤</span>
                     </div>
                   )}
                 </div>
                 <div className="absolute top-3 right-3">
                   <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                    doc.isAvailable !== false ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'
+                    doc.isAvailable !== false 
+                      ? isDark ? 'bg-green-600 text-white' : 'bg-green-500 text-white'
+                      : isDark ? 'bg-gray-600 text-white' : 'bg-gray-500 text-white'
                   }`}>
                     {doc.isAvailable !== false ? 'Active' : 'Inactive'}
                   </span>
@@ -1036,37 +1121,51 @@ export default function AdminDoctorsPage() {
               </div>
               
               <div className="p-5 flex flex-col flex-1">
-                <h3 className="font-semibold text-gray-900 text-lg text-center">{doc.name || 'Unknown'}</h3>
-                <p className="text-sm text-[#2A3380] font-medium text-center">{doc.specialization || doc.title || 'General'}</p>
+                <h3 className={`font-semibold text-lg text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {doc.name || 'Unknown'}
+                </h3>
+                <p className={`text-sm font-medium text-center ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`}>
+                  {doc.specialization || doc.title || 'General'}
+                </p>
                 
                 {doc.email && (
-                  <p className="text-xs text-gray-400 mt-1 text-center">
+                  <p className={`text-xs mt-1 text-center ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>
                     {doc.email}
                   </p>
                 )}
                 
                 {doc.bio && (
-                  <p className="text-xs text-gray-500 mt-3 line-clamp-2 text-center">{doc.bio}</p>
+                  <p className={`text-xs mt-3 line-clamp-2 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {doc.bio}
+                  </p>
                 )}
                 
                 {doc.scheduleSlots && doc.scheduleSlots.filter(s => s.isAvailable).length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-gray-100">
+                  <div className="mt-4 pt-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}">
                     <div className="text-xs text-center">
-                      <p className="font-medium text-gray-700">{getScheduleDisplay(doc)}</p>
+                      <p className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {getScheduleDisplay(doc)}
+                      </p>
                     </div>
                   </div>
                 )}
                 
-                <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                <div className={`flex gap-2 mt-4 pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
                   <button 
                     onClick={() => startEdit(doc)} 
-                    className="flex-1 text-sm text-[#2A3380] hover:text-[#1E3A8A] font-medium hover:bg-[#2A3380]/10 px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    className={`flex-1 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1
+                      ${isDark 
+                        ? 'text-[#4A5BCC] hover:text-[#5B6BD8] hover:bg-[#4A5BCC]/10' 
+                        : 'text-[#2A3380] hover:text-[#1E3A8A] hover:bg-[#2A3380]/10'}`}
                   >
                     ✏️ Edit
                   </button>
                   <button 
                     onClick={() => remove(doc.id)} 
-                    className="flex-1 text-sm text-red-600 hover:text-red-800 font-medium hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    className={`flex-1 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1
+                      ${isDark 
+                        ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20' 
+                        : 'text-red-600 hover:text-red-800 hover:bg-red-50'}`}
                   >
                     🗑️ Delete
                   </button>
@@ -1078,7 +1177,7 @@ export default function AdminDoctorsPage() {
       )}
       
       {!loading && doctors.length > 0 && (
-        <div className="mt-4 text-xs text-gray-400 flex items-center justify-end">
+        <div className={`mt-4 text-xs flex items-center justify-end ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
           <span>Showing {doctors.length} doctor{doctors.length !== 1 ? 's' : ''} for Adinas General Hospital</span>
         </div>
       )}

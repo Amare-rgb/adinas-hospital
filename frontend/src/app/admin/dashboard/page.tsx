@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@/contexts/ThemeProvider'; // ✅ Added theme import
 import {
   XAxis,
   YAxis,
@@ -87,6 +88,8 @@ const MOCK_USERS_CHART = [
 ];
 
 export default function AdminDashboardPage() {
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -119,7 +122,6 @@ export default function AdminDashboardPage() {
     try {
       const token = localStorage.getItem('token');
       
-      // Fetch stats
       const statsResponse = await fetch(`http://localhost:5000/api/dashboard/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -131,7 +133,6 @@ export default function AdminDashboardPage() {
       if (statsResponse.ok) {
         stats = await statsResponse.json();
       } else {
-        // Fallback data
         stats = {
           overview: {
             totalAppointments: 0,
@@ -153,7 +154,6 @@ export default function AdminDashboardPage() {
         };
       }
 
-      // Use mock data for charts
       const appointmentsChart = MOCK_APPOINTMENTS_CHART;
       const usersChart = MOCK_USERS_CHART;
 
@@ -164,7 +164,6 @@ export default function AdminDashboardPage() {
       });
     } catch (error: any) {
       console.error('❌ Error fetching dashboard data:', error);
-      // Use mock data as fallback
       setData({
         stats: {
           overview: {
@@ -200,19 +199,18 @@ export default function AdminDashboardPage() {
     const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={`star-${i}`} className="text-yellow-400">★</span>);
+      stars.push(<span key={`star-${i}`} className="text-yellow-400 dark:text-yellow-400">★</span>);
     }
     if (hasHalfStar) {
-      stars.push(<span key="half-star" className="text-yellow-400">★</span>);
+      stars.push(<span key="half-star" className="text-yellow-400 dark:text-yellow-400">★</span>);
     }
     const emptyStars = 5 - stars.length;
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span key={`empty-${i}`} className="text-gray-300">★</span>);
+      stars.push(<span key={`empty-${i}`} className="text-gray-300 dark:text-gray-600">★</span>);
     }
     return stars;
   };
 
-  // Custom label renderer for pie charts
   const renderPieLabel = ({ name, percent }: { name?: string; percent?: number }) => {
     if (!name || !percent) return '';
     return `${name} ${(percent * 100).toFixed(0)}%`;
@@ -220,10 +218,13 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className={`min-h-[60vh] flex items-center justify-center ${isDark ? 'bg-gray-900' : ''}`}>
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#2A3380] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard data...</p>
+          <div className={`w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-4
+            ${isDark 
+              ? 'border-[#4A5BCC] border-t-transparent' 
+              : 'border-[#2A3380] border-t-transparent'}`}></div>
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Loading dashboard data...</p>
         </div>
       </div>
     );
@@ -231,14 +232,17 @@ export default function AdminDashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className={`min-h-[60vh] flex items-center justify-center ${isDark ? 'bg-gray-900' : ''}`}>
         <div className="text-center max-w-md">
           <div className="text-red-500 text-5xl mb-4">⚠</div>
-          <p className="text-gray-600 mb-2">Failed to load dashboard data</p>
-          <p className="text-sm text-gray-500 mb-4">{error}</p>
+          <p className={`mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Failed to load dashboard data</p>
+          <p className={`text-sm mb-4 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{error}</p>
           <button 
             onClick={fetchDashboardData}
-            className="px-4 py-2 bg-[#2A3380] text-white rounded-lg hover:bg-[#1E3A8A] transition-colors"
+            className={`px-4 py-2 rounded-lg transition-colors text-white
+              ${isDark 
+                ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
           >
             ↻ Retry
           </button>
@@ -249,9 +253,9 @@ export default function AdminDashboardPage() {
 
   if (!data) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className={`min-h-[60vh] flex items-center justify-center ${isDark ? 'bg-gray-900' : ''}`}>
         <div className="text-center">
-          <p className="text-gray-600">No data available</p>
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>No data available</p>
         </div>
       </div>
     );
@@ -259,7 +263,7 @@ export default function AdminDashboardPage() {
 
   const { stats, appointmentsChart, usersChart } = data;
 
-  // Summary Cards - No Icons
+  // Summary Cards - With dark mode support
   const summaryCards = [
     { 
       label: 'Total Appointments', 
@@ -295,14 +299,21 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 bg-white min-h-screen p-6">
-      {/* Period Selector - Only */}
-      <div className="flex justify-end items-center gap-3 bg-white">
-        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-3 py-2">
+    <div className={`space-y-6 min-h-screen p-6 transition-colors duration-300
+      ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      
+      {/* Period Selector - With dark mode support */}
+      <div className={`flex justify-end items-center gap-3 transition-colors duration-300
+        ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'}`}>
           <select 
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value as any)}
-            className="bg-transparent border-none outline-none text-sm text-gray-600"
+            className={`bg-transparent border-none outline-none text-sm transition-colors duration-300
+              ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
           >
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -311,22 +322,29 @@ export default function AdminDashboardPage() {
         </div>
         <button 
           onClick={fetchDashboardData}
-          className="flex items-center gap-2 px-4 py-2 bg-[#2A3380] text-white rounded-lg hover:bg-[#1E3A8A] transition-colors text-sm"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors text-sm text-white
+            ${isDark 
+              ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+              : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
         >
           ↻ Refresh
         </button>
       </div>
 
-      {/* Summary Cards - 6 cards in a row - No Icons */}
+      {/* Summary Cards - 6 cards in a row - With dark mode support */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {summaryCards.map((card, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+          <div key={index} className={`rounded-xl border p-4 hover:shadow-md transition-all duration-300
+            ${isDark 
+              ? 'bg-gray-800 border-gray-700 hover:shadow-[#4A5BCC]/20' 
+              : 'bg-white border-gray-200 hover:shadow-lg'}`}>
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider truncate">
+                <p className={`text-[10px] font-medium uppercase tracking-wider truncate
+                  ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   {card.label}
                 </p>
-                <p className="text-xl font-bold text-gray-900 mt-0.5">
+                <p className={`text-xl font-bold mt-0.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   {card.value}
                 </p>
                 {card.rating !== undefined && card.rating > 0 && (
@@ -334,7 +352,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center">
                       {renderStars(card.rating)}
                     </div>
-                    <span className="text-[10px] text-gray-500">
+                    <span className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
                       {card.rating.toFixed(1)}
                     </span>
                   </div>
@@ -346,14 +364,19 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* TWO CHARTS: Appointments Trend & Users by Role */}
+      {/* TWO CHARTS: Appointments Trend & Users by Role - With dark mode support */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Appointments Trend */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className={`rounded-xl border p-6 transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'}`}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="font-semibold text-gray-900">Appointments Trend</h3>
-              <p className="text-xs text-gray-500 mt-1">
+              <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Appointments Trend
+              </h3>
+              <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 Adinas General Hospital • Monthly statistics
               </p>
             </div>
@@ -362,11 +385,29 @@ export default function AdminDashboardPage() {
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={appointmentsChart}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip />
-                  <Legend />
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke={isDark ? '#374151' : '#e5e7eb'} 
+                  />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 10, fill: isDark ? '#9CA3AF' : '#6B7280' }} 
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10, fill: isDark ? '#9CA3AF' : '#6B7280' }} 
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+                      borderColor: isDark ? '#374151' : '#E5E7EB',
+                      color: isDark ? '#F3F4F6' : '#1F2937'
+                    }} 
+                  />
+                  <Legend 
+                    wrapperStyle={{ 
+                      color: isDark ? '#D1D5DB' : '#374151' 
+                    }} 
+                  />
                   <Bar dataKey="appointments" fill="#10B981" name="Total" />
                   <Bar dataKey="completed" fill="#3B82F6" name="Completed" />
                   <Bar dataKey="cancelled" fill="#EF4444" name="Cancelled" />
@@ -376,19 +417,30 @@ export default function AdminDashboardPage() {
           ) : (
             <div className="h-72 flex items-center justify-center">
               <div className="text-center">
-                <p className="text-gray-500">No appointment data available</p>
-                <p className="text-xs text-gray-400 mt-1">Add appointments to see the chart</p>
+                <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
+                  No appointment data available
+                </p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                  Add appointments to see the chart
+                </p>
               </div>
             </div>
           )}
         </div>
 
         {/* Chart 2: Users by Role */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className={`rounded-xl border p-6 transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'}`}>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="font-semibold text-gray-900">Users by Role</h3>
-              <p className="text-xs text-gray-500 mt-1">User role distribution</p>
+              <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Users by Role
+              </h3>
+              <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                User role distribution
+              </p>
             </div>
           </div>
           {usersChart && usersChart.length > 0 ? (
@@ -410,15 +462,25 @@ export default function AdminDashboardPage() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+                      borderColor: isDark ? '#374151' : '#E5E7EB',
+                      color: isDark ? '#F3F4F6' : '#1F2937'
+                    }} 
+                  />
                 </RechartsPieChart>
               </ResponsiveContainer>
             </div>
           ) : (
             <div className="h-72 flex items-center justify-center">
               <div className="text-center">
-                <p className="text-gray-500">No user data available</p>
-                <p className="text-xs text-gray-400 mt-1">Add users to see the chart</p>
+                <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>
+                  No user data available
+                </p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
+                  Add users to see the chart
+                </p>
               </div>
             </div>
           )}

@@ -34,13 +34,15 @@ interface Settings {
 export default function SettingsPage() {
   const router = useRouter();
   const { language } = useLanguage();
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   
-  // Settings state with proper types
   const [settings, setSettings] = useState<Settings>({
     notifications: true,
     emailNotifications: true,
@@ -50,14 +52,12 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    // Check if user is logged in
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login');
       return;
     }
     
-    // Load saved settings
     const savedSettings = localStorage.getItem('userSettings');
     if (savedSettings) {
       try {
@@ -89,17 +89,14 @@ export default function SettingsPage() {
     setErrorMessage('');
 
     try {
-      // Validate password if changed
       if (settings.password && settings.password !== settings.confirmPassword) {
         setErrorMessage(language === 'am' ? 'የይለፍ ቃሎች አይዛመዱም' : 'Passwords do not match');
         setSaving(false);
         return;
       }
 
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Save settings (remove password fields before saving)
       const settingsToSave = {
         notifications: settings.notifications,
         emailNotifications: settings.emailNotifications,
@@ -110,7 +107,6 @@ export default function SettingsPage() {
       
       setSuccessMessage(language === 'am' ? 'ቅንብሮች ተሳክተዋል!' : 'Settings saved successfully!');
       
-      // Clear messages after 3 seconds
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       setErrorMessage(language === 'am' ? 'ስህተት ተከስቷል' : 'An error occurred');
@@ -121,78 +117,103 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300
+        ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-3 text-sm text-gray-500">Loading...</p>
+          <div className={`animate-spin rounded-full h-10 w-10 border-b-2 mx-auto
+            ${isDark ? 'border-[#4A5BCC]' : 'border-teal-600'}`}></div>
+          <p className={`mt-3 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            {language === 'am' ? 'በመጫን ላይ...' : 'Loading...'}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white py-4 px-4 sm:py-6 sm:px-6">
+    <div className={`min-h-screen py-4 px-4 sm:py-6 sm:px-6 transition-colors duration-300
+      ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       <div className="max-w-2xl mx-auto">
-        {/* Back Button */}
+        {/* Back Button - With dark mode support */}
         <Link 
           href="/" 
-          className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-teal-600 transition-colors mb-4"
+          className={`inline-flex items-center gap-1.5 text-sm transition-colors mb-4
+            ${isDark ? 'text-gray-400 hover:text-[#4A5BCC]' : 'text-gray-600 hover:text-teal-600'}`}
         >
           <ArrowLeft className="h-4 w-4" />
           <span>{language === 'am' ? 'ተመለስ' : 'Back'}</span>
         </Link>
 
-        {/* Settings Card */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-          {/* Header - White Background */}
-          <div className="bg-white px-5 py-4 sm:px-6 border-b border-gray-200">
+        {/* Settings Card - With dark mode support */}
+        <div className={`rounded-xl border overflow-hidden shadow-sm transition-colors duration-300
+          ${isDark 
+            ? 'bg-gray-800 border-gray-700 shadow-[#4A5BCC]/10' 
+            : 'bg-white border-gray-200 shadow-sm'}`}>
+          
+          {/* Header - With dark mode support */}
+          <div className={`px-5 py-4 sm:px-6 border-b transition-colors duration-300
+            ${isDark 
+              ? 'bg-gray-800 border-gray-700' 
+              : 'bg-white border-gray-200'}`}>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-teal-50 flex items-center justify-center">
-                <SettingsIcon className="h-5 w-5 text-teal-600" />
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center
+                ${isDark ? 'bg-[#4A5BCC]/20' : 'bg-teal-50'}`}>
+                <SettingsIcon className={`h-5 w-5 ${isDark ? 'text-[#4A5BCC]' : 'text-teal-600'}`} />
               </div>
               <div>
-                <h1 className="text-base font-semibold text-gray-800">
+                <h1 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
                   {language === 'am' ? 'ቅንብሮች' : 'Settings'}
                 </h1>
-                <p className="text-xs text-gray-500">
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   {language === 'am' ? 'ቅንብሮችዎን ያስተዳድሩ' : 'Manage your preferences'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Body - Minimized */}
+          {/* Body - With dark mode support */}
           <div className="p-4 sm:p-5">
-            {/* Success/Error Messages */}
+            {/* Success Message - With dark mode support */}
             {successMessage && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700">
+              <div className={`mb-4 p-3 border rounded-lg flex items-center gap-2 transition-colors duration-300
+                ${isDark 
+                  ? 'bg-green-900/20 border-green-800 text-green-400' 
+                  : 'bg-green-50 border-green-200 text-green-700'}`}>
                 <CheckCircle className="h-4 w-4 flex-shrink-0" />
                 <span className="text-sm">{successMessage}</span>
               </div>
             )}
+            
+            {/* Error Message - With dark mode support */}
             {errorMessage && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+              <div className={`mb-4 p-3 border rounded-lg flex items-center gap-2 transition-colors duration-300
+                ${isDark 
+                  ? 'bg-red-900/20 border-red-800 text-red-400' 
+                  : 'bg-red-50 border-red-200 text-red-700'}`}>
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 <span className="text-sm">{errorMessage}</span>
               </div>
             )}
 
             <div className="space-y-5">
-              {/* Notifications Section */}
+              {/* Notifications Section - With dark mode support */}
               <div>
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2.5">
-                  <Bell className="h-4 w-4 text-teal-600" />
+                <h2 className={`flex items-center gap-2 text-sm font-semibold mb-2.5
+                  ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Bell className={`h-4 w-4 ${isDark ? 'text-[#4A5BCC]' : 'text-teal-600'}`} />
                   {language === 'am' ? 'ማስታወቂያዎች' : 'Notifications'}
                 </h2>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  {/* Push Notifications */}
+                  <div className={`flex items-center justify-between p-3 rounded-lg transition-colors duration-300
+                    ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <div className="flex items-center gap-3">
-                      <Bell className="h-4 w-4 text-gray-500" />
+                      <Bell className={`h-4 w-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
                           {language === 'am' ? 'ማስታወቂያዎች' : 'Push Notifications'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {language === 'am' ? 'የአፕሊኬሽን ማስታወቂያዎችን ይቀበሉ' : 'Receive app notifications'}
                         </p>
                       </div>
@@ -200,7 +221,9 @@ export default function SettingsPage() {
                     <button
                       onClick={() => handleToggle('notifications')}
                       className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
-                        settings.notifications ? 'bg-teal-600' : 'bg-gray-300'
+                        settings.notifications 
+                          ? isDark ? 'bg-[#4A5BCC]' : 'bg-teal-600' 
+                          : isDark ? 'bg-gray-600' : 'bg-gray-300'
                       }`}
                     >
                       <span
@@ -211,14 +234,16 @@ export default function SettingsPage() {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  {/* Email Notifications */}
+                  <div className={`flex items-center justify-between p-3 rounded-lg transition-colors duration-300
+                    ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <div className="flex items-center gap-3">
-                      <BellOff className="h-4 w-4 text-gray-500" />
+                      <BellOff className={`h-4 w-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
                           {language === 'am' ? 'የኢሜል ማስታወቂያዎች' : 'Email Notifications'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {language === 'am' ? 'የኢሜል ማስታወቂያዎችን ይቀበሉ' : 'Receive email notifications'}
                         </p>
                       </div>
@@ -226,7 +251,9 @@ export default function SettingsPage() {
                     <button
                       onClick={() => handleToggle('emailNotifications')}
                       className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
-                        settings.emailNotifications ? 'bg-teal-600' : 'bg-gray-300'
+                        settings.emailNotifications 
+                          ? isDark ? 'bg-[#4A5BCC]' : 'bg-teal-600' 
+                          : isDark ? 'bg-gray-600' : 'bg-gray-300'
                       }`}
                     >
                       <span
@@ -239,21 +266,24 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* Security Section */}
+              {/* Security Section - With dark mode support */}
               <div>
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2.5">
-                  <Shield className="h-4 w-4 text-teal-600" />
+                <h2 className={`flex items-center gap-2 text-sm font-semibold mb-2.5
+                  ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <Shield className={`h-4 w-4 ${isDark ? 'text-[#4A5BCC]' : 'text-teal-600'}`} />
                   {language === 'am' ? 'ደህንነት' : 'Security'}
                 </h2>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  {/* Two-Factor Authentication */}
+                  <div className={`flex items-center justify-between p-3 rounded-lg transition-colors duration-300
+                    ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <div className="flex items-center gap-3">
-                      <Lock className="h-4 w-4 text-gray-500" />
+                      <Lock className={`h-4 w-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
                           {language === 'am' ? 'ሁለት ደረጃ ማረጋገጫ' : 'Two-Factor Authentication'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {language === 'am' ? 'ተጨማሪ ደህንነት ያክሉ' : 'Add an extra layer of security'}
                         </p>
                       </div>
@@ -261,7 +291,9 @@ export default function SettingsPage() {
                     <button
                       onClick={() => handleToggle('twoFactorAuth')}
                       className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
-                        settings.twoFactorAuth ? 'bg-teal-600' : 'bg-gray-300'
+                        settings.twoFactorAuth 
+                          ? isDark ? 'bg-[#4A5BCC]' : 'bg-teal-600' 
+                          : isDark ? 'bg-gray-600' : 'bg-gray-300'
                       }`}
                     >
                       <span
@@ -272,11 +304,12 @@ export default function SettingsPage() {
                     </button>
                   </div>
 
-                  {/* Change Password */}
-                  <div className="p-3 bg-gray-50 rounded-lg space-y-3">
+                  {/* Change Password - With dark mode support */}
+                  <div className={`p-3 rounded-lg space-y-3 transition-colors duration-300
+                    ${isDark ? 'bg-gray-700' : 'bg-gray-50'}`}>
                     <div className="flex items-center gap-3">
-                      <Lock className="h-4 w-4 text-gray-500" />
-                      <p className="text-sm font-medium text-gray-700">
+                      <Lock className={`h-4 w-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
+                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-700'}`}>
                         {language === 'am' ? 'የይለፍ ቃል ለውጥ' : 'Change Password'}
                       </p>
                     </div>
@@ -288,12 +321,16 @@ export default function SettingsPage() {
                           value={settings.password}
                           onChange={handlePasswordChange}
                           placeholder={language === 'am' ? 'አዲስ የይለፍ ቃል' : 'New password'}
-                          className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                          className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-300
+                            ${isDark 
+                              ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC]' 
+                              : 'bg-white border-gray-300 text-gray-900'}`}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors
+                            ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -304,23 +341,29 @@ export default function SettingsPage() {
                         value={settings.confirmPassword}
                         onChange={handlePasswordChange}
                         placeholder={language === 'am' ? 'የይለፍ ቃል ያረጋግጡ' : 'Confirm password'}
-                        className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                        className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-300
+                          ${isDark 
+                            ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC]' 
+                            : 'bg-white border-gray-300 text-gray-900'}`}
                       />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Save Button - White Background */}
-              <div className="pt-3 border-t border-gray-200">
+              {/* Save Button - With dark mode support */}
+              <div className={`pt-3 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-teal-600 text-teal-600 rounded-lg font-medium text-sm hover:bg-teal-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8] text-white' 
+                      : 'bg-teal-600 hover:bg-teal-700 text-white'}`}
                 >
                   {saving ? (
                     <>
-                      <svg className="animate-spin h-4 w-4 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className={`animate-spin h-4 w-4 ${isDark ? 'text-white' : 'text-white'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>

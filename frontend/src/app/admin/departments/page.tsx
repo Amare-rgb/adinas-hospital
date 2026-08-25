@@ -3,19 +3,42 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useTheme } from '@/contexts/ThemeProvider'; // ✅ Added theme import
 import { Loader2, Plus, Trash2, Building2, Stethoscope, Heart, Brain, Bone, Shield } from 'lucide-react';
 
-// Helper to assign a random icon and color to each new department
+// Helper to assign a random icon and color to each new department - With dark mode support
 const getDepartmentIcon = (name: string) => {
   const lower = name.toLowerCase();
-  if (lower.includes('cardio') || lower.includes('heart')) return { Icon: Heart, color: 'text-red-500 bg-red-100 dark:bg-red-900/30' };
-  if (lower.includes('brain') || lower.includes('neuro')) return { Icon: Brain, color: 'text-purple-500 bg-purple-100 dark:bg-purple-900/30' };
-  if (lower.includes('bone') || lower.includes('ortho')) return { Icon: Bone, color: 'text-green-500 bg-green-100 dark:bg-green-900/30' };
-  if (lower.includes('emergency') || lower.includes('shield')) return { Icon: Shield, color: 'text-orange-500 bg-orange-100 dark:bg-orange-900/30' };
-  return { Icon: Stethoscope, color: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30' };
+  if (lower.includes('cardio') || lower.includes('heart')) 
+    return { 
+      Icon: Heart, 
+      color: 'text-red-500 bg-red-100 dark:bg-red-900/30 dark:text-red-400' 
+    };
+  if (lower.includes('brain') || lower.includes('neuro')) 
+    return { 
+      Icon: Brain, 
+      color: 'text-purple-500 bg-purple-100 dark:bg-purple-900/30 dark:text-purple-400' 
+    };
+  if (lower.includes('bone') || lower.includes('ortho')) 
+    return { 
+      Icon: Bone, 
+      color: 'text-green-500 bg-green-100 dark:bg-green-900/30 dark:text-green-400' 
+    };
+  if (lower.includes('emergency') || lower.includes('shield')) 
+    return { 
+      Icon: Shield, 
+      color: 'text-orange-500 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400' 
+    };
+  return { 
+    Icon: Stethoscope, 
+    color: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400' 
+  };
 };
 
 export default function AdminDepartmentsPage() {
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
+  
   const [departments, setDepartments] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -64,7 +87,7 @@ export default function AdminDepartmentsPage() {
         toast.success(`Department "${name}" added successfully!`);
         setName('');
         setDescription('');
-        fetchDepartments(); // Refresh the list
+        fetchDepartments();
       } else {
         toast.error(data.error || 'Failed to add department');
       }
@@ -88,7 +111,7 @@ export default function AdminDepartmentsPage() {
 
       if (data.success) {
         toast.success('Department deleted successfully');
-        fetchDepartments(); // Refresh list
+        fetchDepartments();
       } else {
         toast.error(data.error || 'Failed to delete department');
       }
@@ -100,19 +123,32 @@ export default function AdminDepartmentsPage() {
   };
 
   return (
-    <div className="space-y-8 p-4 sm:p-6">
-      {/* Header Section */}
+    <div className={`space-y-8 p-4 sm:p-6 transition-colors duration-300
+      ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      
+      {/* Header Section - With dark mode support */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+        <h1 className={`text-3xl font-extrabold tracking-tight transition-colors duration-300
+          ${isDark ? 'text-white' : 'text-gray-900'}`}>
           Departments
         </h1>
       </div>
 
-      {/* 1. MINIMIZED FORM CARD */}
-      <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
+      {/* 1. MINIMIZED FORM CARD - With dark mode support */}
+      <div className={`max-w-2xl w-full rounded-2xl shadow-lg border overflow-hidden transition-colors duration-300
+        ${isDark 
+          ? 'bg-gray-800 border-gray-700 shadow-[#4A5BCC]/10' 
+          : 'bg-white border-gray-100 shadow-lg'}`}>
+        <div className={`p-6 sm:p-8 border-b transition-colors duration-300
+          ${isDark 
+            ? 'border-gray-700 bg-gray-800/50' 
+            : 'border-gray-100 bg-gray-50/50'}`}>
+          <h2 className={`text-lg font-bold flex items-center gap-2 transition-colors duration-300
+            ${isDark ? 'text-white' : 'text-gray-800'}`}>
+            <div className={`p-2 rounded-lg transition-colors duration-300
+              ${isDark 
+                ? 'bg-green-900/30 text-green-400' 
+                : 'bg-green-100 text-green-600'}`}>
               <Plus className="w-5 h-5" />
             </div>
             Add New Department
@@ -123,26 +159,34 @@ export default function AdminDepartmentsPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className={`block text-sm font-semibold mb-1.5 transition-colors duration-300
+                  ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Department Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#2A3380]/50 focus:border-[#2A3380] outline-none transition-all text-sm shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#2A3380]/50 focus:border-[#2A3380] outline-none transition-all shadow-sm
+                    ${isDark 
+                      ? 'bg-gray-900 border-gray-700 text-white focus:ring-[#4A5BCC]/50 focus:border-[#4A5BCC]' 
+                      : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                   placeholder="e.g., Cardiology, Pediatrics..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className={`block text-sm font-semibold mb-1.5 transition-colors duration-300
+                  ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Description <span className="text-gray-400 text-xs font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#2A3380]/50 focus:border-[#2A3380] outline-none transition-all text-sm shadow-sm"
+                  className={`w-full px-4 py-3 border rounded-xl text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#2A3380]/50 focus:border-[#2A3380] outline-none transition-all shadow-sm
+                    ${isDark 
+                      ? 'bg-gray-900 border-gray-700 text-white focus:ring-[#4A5BCC]/50 focus:border-[#4A5BCC]' 
+                      : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                   placeholder="e.g., Heart and vascular care"
                 />
               </div>
@@ -152,7 +196,10 @@ export default function AdminDepartmentsPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#2A3380] hover:bg-[#1E3A8A] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`inline-flex items-center gap-2 px-6 py-3 text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed
+                  ${isDark 
+                    ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                    : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
               >
                 {loading ? (
                   <>
@@ -171,31 +218,52 @@ export default function AdminDepartmentsPage() {
         </div>
       </div>
 
-      {/* 2. SIMPLE CARD LIST */}
-      <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+      {/* 2. SIMPLE CARD LIST - With dark mode support */}
+      <div className={`w-full rounded-2xl shadow-lg border overflow-hidden transition-colors duration-300
+        ${isDark 
+          ? 'bg-gray-800 border-gray-700 shadow-[#4A5BCC]/10' 
+          : 'bg-white border-gray-100 shadow-lg'}`}>
+        <div className={`p-6 sm:p-8 border-b flex items-center justify-between transition-colors duration-300
+          ${isDark 
+            ? 'border-gray-700 bg-gray-800/50' 
+            : 'border-gray-100 bg-gray-50/50'}`}>
+          <h2 className={`text-lg font-bold flex items-center gap-2 transition-colors duration-300
+            ${isDark ? 'text-white' : 'text-gray-800'}`}>
+            <div className={`p-2 rounded-lg transition-colors duration-300
+              ${isDark 
+                ? 'bg-blue-900/30 text-blue-400' 
+                : 'bg-blue-100 text-blue-600'}`}>
               <Building2 className="w-5 h-5" />
             </div>
             All Departments
           </h2>
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+          <span className={`text-xs font-medium px-3 py-1 rounded-full transition-colors duration-300
+            ${isDark 
+              ? 'text-gray-400 bg-gray-700' 
+              : 'text-gray-500 bg-gray-100'}`}>
             {departments.length} Total
           </span>
         </div>
 
         <div className="p-6 sm:p-8">
           {fetching ? (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-              <Loader2 className="w-8 h-8 text-[#2A3380] animate-spin mb-2" />
+            <div className={`flex flex-col items-center justify-center py-12 transition-colors duration-300
+              ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              <Loader2 className={`w-8 h-8 animate-spin mb-2 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`} />
               <p className="text-sm">Loading departments...</p>
             </div>
           ) : departments.length === 0 ? (
-            <div className="text-center py-16 text-gray-500 dark:text-gray-400 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl">
-              <Building2 className="w-16 h-16 mx-auto mb-4 opacity-20" />
-              <p className="font-semibold text-gray-600 dark:text-gray-300">No departments added yet</p>
-              <p className="text-sm mt-1">Start by creating a new department above.</p>
+            <div className={`text-center py-16 border-2 border-dashed rounded-2xl transition-colors duration-300
+              ${isDark 
+                ? 'text-gray-400 border-gray-700' 
+                : 'text-gray-500 border-gray-200'}`}>
+              <Building2 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'opacity-30' : 'opacity-20'}`} />
+              <p className={`font-semibold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                No departments added yet
+              </p>
+              <p className={`text-sm mt-1 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                Start by creating a new department above.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -204,7 +272,10 @@ export default function AdminDepartmentsPage() {
                 return (
                   <div
                     key={dept.id}
-                    className="group relative flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-[#2A3380]/30 dark:hover:border-[#2A3380]/50 hover:shadow-md transition-all duration-200"
+                    className={`group relative flex items-start gap-4 p-4 rounded-xl border transition-all duration-200 hover:shadow-md
+                      ${isDark 
+                        ? 'bg-gray-800/50 border-gray-700 hover:border-[#4A5BCC]/50 hover:shadow-[#4A5BCC]/20' 
+                        : 'bg-gray-50 border-gray-100 hover:border-[#2A3380]/30 hover:shadow-lg'}`}
                   >
                     {/* Department Icon */}
                     <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
@@ -214,28 +285,34 @@ export default function AdminDepartmentsPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0 pt-0.5">
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-bold text-gray-800 dark:text-white text-sm truncate">
+                        <h3 className={`font-bold text-sm truncate transition-colors duration-300
+                          ${isDark ? 'text-white' : 'text-gray-800'}`}>
                           {dept.name}
                         </h3>
                         <button
                           onClick={() => handleDelete(dept.id)}
                           disabled={deletingId === dept.id}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          className={`p-1.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100
+                            ${isDark 
+                              ? 'text-gray-500 hover:text-red-400 hover:bg-red-900/20' 
+                              : 'text-gray-400 hover:text-red-600 hover:bg-red-50'}`}
                           title="Delete department"
                         >
                           {deletingId === dept.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-red-500" />
+                            <Loader2 className={`w-3.5 h-3.5 animate-spin ${isDark ? 'text-red-400' : 'text-red-500'}`} />
                           ) : (
                             <Trash2 className="w-3.5 h-3.5" />
                           )}
                         </button>
                       </div>
                       {dept.description && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                        <p className={`text-xs mt-0.5 truncate transition-colors duration-300
+                          ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                           {dept.description}
                         </p>
                       )}
-                      <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-1.5 font-mono">
+                      <p className={`text-[10px] mt-1.5 font-mono transition-colors duration-300
+                        ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
                         ID: {dept.id.slice(0, 8)}
                       </p>
                     </div>

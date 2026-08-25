@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 import { Header } from '@/components/Header';
 import { useLanguage } from '@/contexts/LanguageProvider';
+import { useTheme } from '@/contexts/ThemeProvider'; // ✅ Added theme import
 import api from '@/lib/api';
 import { Appointment } from '@/lib/types';
 
@@ -53,6 +54,8 @@ type HospitalBookingData = z.infer<typeof hospitalBookingSchema>;
 export default function HospitalBookingPage() {
   const router = useRouter();
   const { language } = useLanguage();
+  const { theme } = useTheme(); // ✅ Get current theme
+  const isDark = theme === 'dark'; // ✅ Check if dark mode
   const isAm = language === 'am';
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -245,15 +248,11 @@ export default function HospitalBookingPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ============================================================
-  // ✅ FIXED SUBMIT FUNCTION
-  // ============================================================
   const onSubmit = async (data: HospitalBookingData) => {
     setIsSubmitting(true);
     setErrorDetails('');
 
     try {
-      // 🔥 STEP 1: Check if user is authenticated
       const token = localStorage.getItem('token');
       if (!token) {
         const errorMsg = isAm ? 'እባክዎን መጀመሪያ ይግቡ' : 'Please login first';
@@ -294,19 +293,16 @@ export default function HospitalBookingPage() {
         payload.homeAddress = data.homeAddress || null;
       }
 
-      // 🔥 STEP 2: Create appointment with authentication
-      // api.post now sends token by default (auth = true)
       const response = await api.post('/appointments', payload);
       const appointmentData = api.extractData<Appointment>(response);
 
       console.log('✅ Appointment created:', appointmentData);
 
-      // 🔥 STEP 3: Initiate Payment with Chapa
       const payRes = await fetch('http://localhost:5000/api/payment/initiate', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // 🔥 Add token here
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           amount: 500,
@@ -323,10 +319,8 @@ export default function HospitalBookingPage() {
       console.log('💰 Payment response:', payData);
 
       if (payData.success && payData.checkout_url) {
-        // ✅ REDIRECT TO CHAPA CHECKOUT
         window.location.href = payData.checkout_url;
       } else {
-        // Fallback: Show confirmation if payment fails
         setCreatedAppointment(appointmentData);
         setBookingData(data);
         setShowConfirmation(true);
@@ -339,7 +333,6 @@ export default function HospitalBookingPage() {
         ? 'ቀጠሮ መያዝ አልተቻለም። እባክዎን ደግመው ይሞክሩ።' 
         : 'Failed to book appointment. Please try again.';
       
-      // 🔥 Better error handling
       if (error.status === 401 || error.message?.includes('401')) {
         errorMessage = isAm ? 'እባክዎን መጀመሪያ ይግቡ' : 'Please login first';
         localStorage.removeItem('token');
@@ -361,79 +354,87 @@ export default function HospitalBookingPage() {
 
   if (showConfirmation && bookingData) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className={`min-h-screen transition-colors duration-300
+        ${isDark ? 'bg-gray-900 text-gray-100' : 'bg-background text-foreground'}`}>
         <Header />
         <div className="flex items-center justify-center p-4 pt-32 pb-12">
-          <div className="max-w-md w-full bg-card text-card-foreground rounded-2xl shadow-xl p-6 border border-border">
+          <div className={`max-w-md w-full rounded-2xl shadow-xl p-6 border transition-colors duration-300
+            ${isDark 
+              ? 'bg-gray-800 border-gray-700 text-gray-100' 
+              : 'bg-card text-card-foreground border-border'}`}>
             <div className="text-center">
-              <div className="w-14 h-14 bg-green-500/10 dark:bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Check className="w-7 h-7 text-green-600 dark:text-green-400" />
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3
+                ${isDark ? 'bg-green-500/20' : 'bg-green-500/10'}`}>
+                <Check className={`w-7 h-7 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
               </div>
-              <h1 className="text-xl font-bold text-foreground">{t('confirmed')}</h1>
-              <p className="text-xs text-muted-foreground mt-1">{t('confirmedSubtitle')}</p>
+              <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-foreground'}`}>{t('confirmed')}</h1>
+              <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('confirmedSubtitle')}</p>
               
-              <div className="mt-4 p-4 bg-muted/50 rounded-xl text-left space-y-2 max-h-60 overflow-y-auto border border-border">
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-muted-foreground">{t('patientLabel')}</span> {bookingData.patientName}
+              <div className={`mt-4 p-4 rounded-xl text-left space-y-2 max-h-60 overflow-y-auto border transition-colors duration-300
+                ${isDark 
+                  ? 'bg-gray-700/50 border-gray-600' 
+                  : 'bg-muted/50 border-border'}`}>
+                <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('patientLabel')}</span> {bookingData.patientName}
                 </p>
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-muted-foreground">{t('emailLabel')}</span> {bookingData.patientEmail}
+                <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('emailLabel')}</span> {bookingData.patientEmail}
                 </p>
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-muted-foreground">{t('phoneLabel')}</span> {bookingData.patientPhone}
+                <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('phoneLabel')}</span> {bookingData.patientPhone}
                 </p>
                 {bookingData.patientAge && (
-                  <p className="text-xs text-foreground">
-                    <span className="font-semibold text-muted-foreground">{t('ageLabel')}</span> {bookingData.patientAge}
+                  <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('ageLabel')}</span> {bookingData.patientAge}
                   </p>
                 )}
                 {bookingData.patientGender && (
-                  <p className="text-xs text-foreground">
-                    <span className="font-semibold text-muted-foreground">{t('genderLabel')}</span> {bookingData.patientGender}
+                  <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('genderLabel')}</span> {bookingData.patientGender}
                   </p>
                 )}
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-muted-foreground">{t('visitTypeLabel')}</span> {bookingData.visitType === 'HOSPITAL' ? t('hospitalVisit') : t('homeVisit')}
+                <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('visitTypeLabel')}</span> {bookingData.visitType === 'HOSPITAL' ? t('hospitalVisit') : t('homeVisit')}
                 </p>
                 {bookingData.visitType === 'HOME' && (
                   <>
                     {bookingData.city && (
-                      <p className="text-xs text-foreground">
-                        <span className="font-semibold text-muted-foreground">{t('city')}:</span> {bookingData.city}
+                      <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                        <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('city')}:</span> {bookingData.city}
                       </p>
                     )}
                     {bookingData.subCity && (
-                      <p className="text-xs text-foreground">
-                        <span className="font-semibold text-muted-foreground">{t('subCity')}:</span> {bookingData.subCity}
+                      <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                        <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('subCity')}:</span> {bookingData.subCity}
                       </p>
                     )}
                     {bookingData.woreda && (
-                      <p className="text-xs text-foreground">
-                        <span className="font-semibold text-muted-foreground">{t('woreda')}:</span> {bookingData.woreda}
+                      <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                        <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('woreda')}:</span> {bookingData.woreda}
                       </p>
                     )}
                     {bookingData.homeAddress && (
-                      <p className="text-xs text-foreground">
-                        <span className="font-semibold text-muted-foreground">{t('detailedAddress')}:</span> {bookingData.homeAddress}
+                      <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                        <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('detailedAddress')}:</span> {bookingData.homeAddress}
                       </p>
                     )}
                     {bookingData.gpsPin && (
-                      <p className="text-xs text-foreground">
-                        <span className="font-semibold text-muted-foreground">{t('gpsPin')}:</span> {bookingData.gpsPin}
+                      <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                        <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('gpsPin')}:</span> {bookingData.gpsPin}
                       </p>
                     )}
                   </>
                 )}
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-muted-foreground">{t('dateLabel')}</span> {new Date().toLocaleDateString(isAm ? 'am-ET' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('dateLabel')}</span> {new Date().toLocaleDateString(isAm ? 'am-ET' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </p>
-                <p className="text-xs text-foreground">
-                  <span className="font-semibold text-muted-foreground">{t('timeLabel')}</span> {new Date().toLocaleTimeString(isAm ? 'am-ET' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                  <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('timeLabel')}</span> {new Date().toLocaleTimeString(isAm ? 'am-ET' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                 </p>
                 {createdAppointment && (
-                  <p className="text-xs text-foreground">
-                    <span className="font-semibold text-muted-foreground">{t('bookingIdLabel')}</span>{' '}
-                    <span className="font-mono text-blue-900 font-bold">
+                  <p className={`text-xs ${isDark ? 'text-gray-200' : 'text-foreground'}`}>
+                    <span className={`font-semibold ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>{t('bookingIdLabel')}</span>{' '}
+                    <span className={`font-mono font-bold ${isDark ? 'text-blue-400' : 'text-blue-900'}`}>
                       {createdAppointment.id?.slice(0, 8) || 'N/A'}
                     </span>
                   </p>
@@ -443,13 +444,19 @@ export default function HospitalBookingPage() {
               <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => router.push('/')}
-                  className="px-4 py-2 bg-blue-900 text-white font-semibold text-xs rounded-xl hover:bg-blue-800 transition-all shadow-md"
+                  className={`px-4 py-2 text-white font-semibold text-xs rounded-xl transition-all shadow-md
+                    ${isDark 
+                      ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                      : 'bg-blue-900 hover:bg-blue-800'}`}
                 >
                   {t('homeBtn')}
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-blue-100 text-blue-900 font-semibold text-xs rounded-xl hover:bg-blue-200 transition-all"
+                  className={`px-4 py-2 font-semibold text-xs rounded-xl transition-all
+                    ${isDark 
+                      ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                      : 'bg-blue-100 text-blue-900 hover:bg-blue-200'}`}
                 >
                   {t('printBtn')}
                 </button>
@@ -462,12 +469,17 @@ export default function HospitalBookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`min-h-screen transition-colors duration-300
+      ${isDark ? 'bg-gray-900 text-gray-100' : 'bg-background text-foreground'}`}>
       <Header />
       <div className="py-8 px-4 flex items-center justify-center pt-28 sm:pt-32 pb-12">
         <div className="w-full max-w-md">
-          <div className="bg-card text-card-foreground rounded-2xl shadow-xl border border-border overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-border bg-blue-900 text-white">
+          <div className={`rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300
+            ${isDark 
+              ? 'bg-gray-800 border-gray-700 text-gray-100' 
+              : 'bg-card text-card-foreground border-border'}`}>
+            <div className={`px-5 py-3.5 border-b text-white
+              ${isDark ? 'bg-[#4A5BCC] border-gray-700' : 'bg-blue-900 border-border'}`}>
               <h1 className="text-base font-bold text-center">
                 {t('title')}
               </h1>
@@ -479,50 +491,66 @@ export default function HospitalBookingPage() {
             <div className="p-4 sm:p-5">
               {loadingData ? (
                 <div className="flex items-center justify-center py-6">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-900" />
-                  <span className="ml-2.5 text-xs text-muted-foreground">{t('loadingText')}</span>
+                  <Loader2 className={`w-6 h-6 animate-spin ${isDark ? 'text-[#4A5BCC]' : 'text-blue-900'}`} />
+                  <span className={`ml-2.5 text-xs ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
+                    {t('loadingText')}
+                  </span>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                  {/* Step indicators */}
+                  {/* Step indicators - With dark mode support */}
                   <div className="flex items-center justify-between px-2">
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${currentStep >= 1 ? 'bg-blue-900 text-white shadow-sm' : 'bg-muted text-muted-foreground'}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors 
+                        ${currentStep >= 1 
+                          ? isDark 
+                            ? 'bg-[#4A5BCC] text-white shadow-sm' 
+                            : 'bg-blue-900 text-white shadow-sm' 
+                          : isDark 
+                            ? 'bg-gray-700 text-gray-500' 
+                            : 'bg-muted text-muted-foreground'}`}>
                         1
                       </div>
-                      <span className={`text-xs font-semibold ${currentStep === 1 ? 'text-foreground font-bold' : 'text-muted-foreground'}`}>
+                      <span className={`text-xs font-semibold ${currentStep === 1 ? (isDark ? 'text-white font-bold' : 'text-foreground font-bold') : (isDark ? 'text-gray-500' : 'text-muted-foreground')}`}>
                         {t('step1')}
                       </span>
                     </div>
-                    <div className="flex-1 h-0.5 mx-3 bg-border">
-                      <div className={`h-full bg-blue-900 transition-all duration-300 ${currentStep === 2 ? 'w-full' : 'w-0'}`} />
+                    <div className={`flex-1 h-0.5 mx-3 ${isDark ? 'bg-gray-700' : 'bg-border'}`}>
+                      <div className={`h-full ${isDark ? 'bg-[#4A5BCC]' : 'bg-blue-900'} transition-all duration-300 ${currentStep === 2 ? 'w-full' : 'w-0'}`} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${currentStep >= 2 ? 'bg-blue-900 text-white shadow-sm' : 'bg-muted text-muted-foreground'}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors 
+                        ${currentStep >= 2 
+                          ? isDark 
+                            ? 'bg-[#4A5BCC] text-white shadow-sm' 
+                            : 'bg-blue-900 text-white shadow-sm' 
+                          : isDark 
+                            ? 'bg-gray-700 text-gray-500' 
+                            : 'bg-muted text-muted-foreground'}`}>
                         2
                       </div>
-                      <span className={`text-xs font-semibold ${currentStep === 2 ? 'text-foreground font-bold' : 'text-muted-foreground'}`}>
+                      <span className={`text-xs font-semibold ${currentStep === 2 ? (isDark ? 'text-white font-bold' : 'text-foreground font-bold') : (isDark ? 'text-gray-500' : 'text-muted-foreground')}`}>
                         {t('step2')}
                       </span>
                     </div>
                   </div>
 
-                  {/* Step 1 */}
+                  {/* Step 1 - With dark mode support */}
                   {currentStep === 1 && (
                     <div className="space-y-3 pt-1">
-                      <div className="border-b border-border pb-1.5">
-                        <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                          <UserCircle className="w-4 h-4 text-blue-900" />
+                      <div className={`border-b pb-1.5 ${isDark ? 'border-gray-700' : 'border-border'}`}>
+                        <h3 className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-foreground'}`}>
+                          <UserCircle className={`w-4 h-4 ${isDark ? 'text-[#4A5BCC]' : 'text-blue-900'}`} />
                           {t('personalTitle')}
                         </h3>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                        <p className={`text-[11px] mt-0.5 ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
                           {t('personalSubtitle')}
                         </p>
                       </div>
 
                       <div className="space-y-2.5">
                         <div>
-                          <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                          <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                             {t('fullName')}
                           </label>
                           <input
@@ -530,7 +558,10 @@ export default function HospitalBookingPage() {
                             type="text"
                             placeholder={t('fullNamePlaceholder')}
                             dir="ltr"
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                            className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                              ${isDark 
+                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                : 'bg-background border-border text-foreground'}`}
                           />
                           {errors.patientName && (
                             <p className="mt-1 text-[10px] text-destructive font-medium">{errors.patientName.message}</p>
@@ -538,7 +569,7 @@ export default function HospitalBookingPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                          <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                             {t('phone')}
                           </label>
                           <input
@@ -546,7 +577,10 @@ export default function HospitalBookingPage() {
                             type="tel"
                             placeholder={t('phonePlaceholder')}
                             dir="ltr"
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                            className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                              ${isDark 
+                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                : 'bg-background border-border text-foreground'}`}
                           />
                           {errors.patientPhone && (
                             <p className="mt-1 text-[10px] text-destructive font-medium">{errors.patientPhone.message}</p>
@@ -554,7 +588,7 @@ export default function HospitalBookingPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                          <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                             {t('email')}
                           </label>
                           <input
@@ -562,7 +596,10 @@ export default function HospitalBookingPage() {
                             type="email"
                             placeholder={t('emailPlaceholder')}
                             dir="ltr"
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                            className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                              ${isDark 
+                                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                : 'bg-background border-border text-foreground'}`}
                           />
                           {errors.patientEmail && (
                             <p className="mt-1 text-[10px] text-destructive font-medium">{errors.patientEmail.message}</p>
@@ -571,7 +608,7 @@ export default function HospitalBookingPage() {
 
                         <div className="grid grid-cols-2 gap-2.5">
                           <div>
-                            <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                            <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                               {t('age')}
                             </label>
                             <input
@@ -581,17 +618,23 @@ export default function HospitalBookingPage() {
                               min="0"
                               max="150"
                               dir="ltr"
-                              className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                              className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                                ${isDark 
+                                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                  : 'bg-background border-border text-foreground'}`}
                             />
                           </div>
 
                           <div>
-                            <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                            <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                               {t('gender')}
                             </label>
                             <select
                               {...register('patientGender')}
-                              className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                              className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                                ${isDark 
+                                  ? 'bg-gray-700 border-gray-600 text-white' 
+                                  : 'bg-background border-border text-foreground'}`}
                             >
                               <option value="">{t('selectGender')}</option>
                               <option value="MALE">{t('male')}</option>
@@ -604,7 +647,10 @@ export default function HospitalBookingPage() {
                         <button
                           type="button"
                           onClick={nextStep}
-                          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-900 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all text-xs shadow-md mt-3"
+                          className={`w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-white font-semibold rounded-xl transition-all text-xs shadow-md mt-3
+                            ${isDark 
+                              ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                              : 'bg-blue-900 hover:bg-blue-800'}`}
                         >
                           {t('next')}
                           <ChevronRight className="w-4 h-4" />
@@ -613,28 +659,31 @@ export default function HospitalBookingPage() {
                     </div>
                   )}
 
-                  {/* Step 2 */}
+                  {/* Step 2 - With dark mode support */}
                   {currentStep === 2 && (
                     <div className="space-y-3 pt-1">
-                      <div className="border-b border-border pb-1.5">
-                        <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                          <Users className="w-4 h-4 text-blue-900" />
+                      <div className={`border-b pb-1.5 ${isDark ? 'border-gray-700' : 'border-border'}`}>
+                        <h3 className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-foreground'}`}>
+                          <Users className={`w-4 h-4 ${isDark ? 'text-[#4A5BCC]' : 'text-blue-900'}`} />
                           {t('visitTitle')}
                         </h3>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                        <p className={`text-[11px] mt-0.5 ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
                           {t('visitSubtitle')}
                         </p>
                       </div>
 
-                      {/* Department & Doctor Dropdowns */}
+                      {/* Department & Doctor Dropdowns - With dark mode support */}
                       <div className="space-y-2">
                         <div>
-                          <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                          <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                             {t('department')}
                           </label>
                           <select
                             {...register('departmentId')}
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                            className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                              ${isDark 
+                                ? 'bg-gray-700 border-gray-600 text-white' 
+                                : 'bg-background border-border text-foreground'}`}
                           >
                             <option value="">{t('selectDepartment')}</option>
                             {departments.map((dept) => (
@@ -646,12 +695,15 @@ export default function HospitalBookingPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                          <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                             {t('doctor')}
                           </label>
                           <select
                             {...register('doctorId')}
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                            className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                              ${isDark 
+                                ? 'bg-gray-700 border-gray-600 text-white' 
+                                : 'bg-background border-border text-foreground'}`}
                           >
                             <option value="">{t('selectDoctor')}</option>
                             {doctors.map((doc) => {
@@ -669,21 +721,33 @@ export default function HospitalBookingPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                        <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                           {t('visitType')}
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
                             onClick={() => setValue('visitType', 'HOSPITAL')}
-                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOSPITAL' ? 'border-blue-900 bg-blue-50 text-blue-900 shadow-sm' : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-blue-700'}`}
+                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOSPITAL' 
+                              ? isDark 
+                                ? 'border-[#4A5BCC] bg-[#4A5BCC]/20 text-[#4A5BCC] shadow-sm' 
+                                : 'border-blue-900 bg-blue-50 text-blue-900 shadow-sm' 
+                              : isDark 
+                                ? 'border-gray-600 bg-gray-700 text-gray-400 hover:text-gray-200 hover:border-gray-500' 
+                                : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-blue-700'}`}
                           >
                             {t('hospitalVisit')}
                           </button>
                           <button
                             type="button"
                             onClick={() => setValue('visitType', 'HOME')}
-                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOME' ? 'border-blue-900 bg-blue-50 text-blue-900 shadow-sm' : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-blue-700'}`}
+                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOME' 
+                              ? isDark 
+                                ? 'border-[#4A5BCC] bg-[#4A5BCC]/20 text-[#4A5BCC] shadow-sm' 
+                                : 'border-blue-900 bg-blue-50 text-blue-900 shadow-sm' 
+                              : isDark 
+                                ? 'border-gray-600 bg-gray-700 text-gray-400 hover:text-gray-200 hover:border-gray-500' 
+                                : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-blue-700'}`}
                           >
                             {t('homeVisit')}
                           </button>
@@ -694,53 +758,65 @@ export default function HospitalBookingPage() {
                       </div>
 
                       {visitType === 'HOME' && (
-                        <div className="space-y-2 p-3 bg-muted/40 rounded-xl border border-border">
-                          <div className="border-b border-border pb-1">
-                            <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                              <Home className="w-4 h-4 text-blue-900" />
+                        <div className={`space-y-2 p-3 rounded-xl border transition-colors duration-300
+                          ${isDark 
+                            ? 'bg-gray-700/50 border-gray-600' 
+                            : 'bg-muted/40 border-border'}`}>
+                          <div className={`border-b pb-1 ${isDark ? 'border-gray-600' : 'border-border'}`}>
+                            <h3 className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-white' : 'text-foreground'}`}>
+                              <Home className={`w-4 h-4 ${isDark ? 'text-[#4A5BCC]' : 'text-blue-900'}`} />
                               {t('homeAddressTitle')}
                             </h3>
-                            <p className="text-[10px] text-muted-foreground">
+                            <p className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
                               {t('homeAddressSubtitle')}
                             </p>
                           </div>
 
                           <div className="space-y-2">
                             <div>
-                              <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                              <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                                 {t('city')}
                               </label>
                               <input
                                 {...register('city')}
                                 type="text"
                                 placeholder={t('cityPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                                className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                                  ${isDark 
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                    : 'bg-background border-border text-foreground'}`}
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                              <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                                 {t('subCity')}
                               </label>
                               <input
                                 {...register('subCity')}
                                 type="text"
                                 placeholder={t('subCityPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                                className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                                  ${isDark 
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                    : 'bg-background border-border text-foreground'}`}
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                              <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                                 {t('woreda')}
                               </label>
                               <input
                                 {...register('woreda')}
                                 type="text"
                                 placeholder={t('woredaPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
+                                className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none
+                                  ${isDark 
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                    : 'bg-background border-border text-foreground'}`}
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                              <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                                 {t('gpsPin')}
                               </label>
                               <div className="relative">
@@ -748,32 +824,39 @@ export default function HospitalBookingPage() {
                                   {...register('gpsPin')}
                                   type="text"
                                   placeholder={t('gpsPlaceholder')}
-                                  className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 pr-9 transition outline-none"
+                                  className={`w-full px-3 py-2 text-xs border rounded-xl pr-9 transition outline-none
+                                    ${isDark 
+                                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                      : 'bg-background border-border text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900'}`}
                                   readOnly
                                 />
                                 <button
                                   type="button"
                                   onClick={getCurrentLocation}
-                                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-blue-900 transition-colors"
+                                  className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 transition-colors
+                                    ${isDark ? 'text-gray-400 hover:text-[#4A5BCC]' : 'text-muted-foreground hover:text-blue-900'}`}
                                   title={t('gpsHelp')}
                                 >
                                   <Crosshair className="w-4 h-4" />
                                 </button>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                                <Navigation className="w-3 h-3 text-blue-900" />
+                              <p className={`text-[10px] mt-1 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
+                                <Navigation className={`w-3 h-3 ${isDark ? 'text-[#4A5BCC]' : 'text-blue-900'}`} />
                                 {t('gpsHelp')}
                               </p>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                              <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                                 {t('detailedAddress')}
                               </label>
                               <textarea
                                 {...register('homeAddress')}
                                 rows={2}
                                 placeholder={t('detailedAddressPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none"
+                                className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none
+                                  ${isDark 
+                                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                                    : 'bg-background border-border text-foreground'}`}
                               />
                             </div>
                           </div>
@@ -781,26 +864,32 @@ export default function HospitalBookingPage() {
                       )}
 
                       <div>
-                        <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                        <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                           {t('symptoms')}
                         </label>
                         <textarea
                           {...register('symptoms')}
                           rows={2}
                           placeholder={t('symptomsPlaceholder')}
-                          className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none"
+                          className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none
+                            ${isDark 
+                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                              : 'bg-background border-border text-foreground'}`}
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-foreground/80 mb-1">
+                        <label className={`block text-xs font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-foreground/80'}`}>
                           {t('notes')}
                         </label>
                         <textarea
                           {...register('notes')}
                           rows={2}
                           placeholder={t('notesPlaceholder')}
-                          className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none"
+                          className={`w-full px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none
+                            ${isDark 
+                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC] focus:border-[#4A5BCC]' 
+                              : 'bg-background border-border text-foreground'}`}
                         />
                       </div>
 
@@ -808,7 +897,10 @@ export default function HospitalBookingPage() {
                         <button
                           type="button"
                           onClick={prevStep}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-100 text-blue-900 font-semibold rounded-xl hover:bg-blue-200 transition-all text-xs"
+                          className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 font-semibold rounded-xl transition-all text-xs
+                            ${isDark 
+                              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                              : 'bg-blue-100 text-blue-900 hover:bg-blue-200'}`}
                         >
                           <ChevronLeft className="w-4 h-4" />
                           {t('back')}
@@ -816,7 +908,10 @@ export default function HospitalBookingPage() {
                         <button
                           type="submit"
                           disabled={isSubmitting || loadingData}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-900 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                          className={`flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 text-white font-semibold rounded-xl transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-xs
+                            ${isDark 
+                              ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                              : 'bg-blue-900 hover:bg-blue-800'}`}
                         >
                           {isSubmitting ? (
                             <>
@@ -835,12 +930,14 @@ export default function HospitalBookingPage() {
                   )}
 
                   {errorDetails && (
-                    <div className="p-2.5 bg-destructive/10 border border-destructive/30 text-destructive rounded-xl">
+                    <div className={`p-2.5 border rounded-xl ${isDark 
+                      ? 'bg-red-900/20 border-red-800 text-red-400' 
+                      : 'bg-destructive/10 border-destructive/30 text-destructive'}`}>
                       <p className="text-[10px] font-medium">{errorDetails}</p>
                     </div>
                   )}
 
-                  <p className="text-center text-[10px] text-muted-foreground pt-1">
+                  <p className={`text-center text-[10px] pt-1 ${isDark ? 'text-gray-500' : 'text-muted-foreground'}`}>
                     {t('termsText')}
                   </p>
                 </form>

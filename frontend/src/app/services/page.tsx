@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { useLanguage } from "@/contexts/LanguageProvider";
+import { useTheme } from "@/contexts/ThemeProvider"; // ✅ Added theme import
 import { api } from "@/lib/api";
 import { 
   Stethoscope, 
@@ -99,11 +100,13 @@ const formatCurrency = (amount: number | null) => {
 };
 
 // ============================================================
-// SERVICE CARD COMPONENT
+// SERVICE CARD COMPONENT - With dark mode support
 // ============================================================
 
 function ServiceCard({ service }: { service: Service }) {
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const icon = getServiceIcon(service.category, service.name);
   const color = getServiceColor(service.category, service.name);
   const imageUrl = getImageUrl(service.image);
@@ -111,10 +114,13 @@ function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       href={`/services/${service.id}`}
-      className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-[#2A3380]/30 transition-all duration-300 hover:-translate-y-1"
+      className={`group rounded-xl border overflow-hidden transition-all duration-300 hover:-translate-y-1
+        ${isDark 
+          ? 'bg-gray-800 border-gray-700 hover:border-[#4A5BCC]/30 hover:shadow-[#4A5BCC]/20 hover:shadow-xl' 
+          : 'bg-white border-gray-200 hover:border-[#2A3380]/30 hover:shadow-xl'}`}
     >
       {/* Image */}
-      <div className="relative h-48 bg-gray-100 overflow-hidden">
+      <div className={`relative h-48 overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -127,15 +133,18 @@ function ServiceCard({ service }: { service: Service }) {
             }}
           />
         ) : (
-          <div className="flex items-center justify-center h-full bg-gray-100">
-            <span className="text-6xl text-gray-300">🏥</span>
+          <div className={`flex items-center justify-center h-full ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+            <span className={`text-6xl ${isDark ? 'text-gray-600' : 'text-gray-300'}`}>🏥</span>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
         
         {/* Category Badge */}
         <div className="absolute bottom-3 left-3">
-          <span className="text-[10px] px-2 py-1 bg-white/90 backdrop-blur-sm text-gray-700 font-medium rounded-full">
+          <span className={`text-[10px] px-2 py-1 font-medium rounded-full
+            ${isDark 
+              ? 'bg-gray-800/90 text-gray-200' 
+              : 'bg-white/90 text-gray-700'}`}>
             {service.category || 'General'}
           </span>
         </div>
@@ -151,25 +160,37 @@ function ServiceCard({ service }: { service: Service }) {
         )}
         
         {/* Icon Badge */}
-        <div className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center text-[#2A3380]">
+        <div className={`absolute top-3 right-3 w-10 h-10 rounded-full backdrop-blur-sm shadow-md flex items-center justify-center
+          ${isDark 
+            ? 'bg-gray-800/90 text-[#4A5BCC]' 
+            : 'bg-white/90 text-[#2A3380]'}`}>
           {icon}
         </div>
       </div>
       
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">{service.name}</h3>
-        <p className="text-sm text-gray-500 line-clamp-2">{service.description}</p>
+        <h3 className={`text-lg font-bold mb-1 line-clamp-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          {service.name}
+        </h3>
+        <p className={`text-sm line-clamp-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          {service.description}
+        </p>
         
         {/* Price */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+        <div className={`flex items-center justify-between mt-4 pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
           <div>
-            <p className="text-sm font-bold text-[#2A3380]">
+            <p className={`text-sm font-bold ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`}>
               {formatCurrency(service.price)}
             </p>
-            <p className="text-[10px] text-gray-400">{service.location || 'Adinas General Hospital'}</p>
+            <p className={`text-[10px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              {service.location || 'Adinas General Hospital'}
+            </p>
           </div>
-          <div className="text-sm font-medium text-[#2A3380] group-hover:text-[#0EA5E9] transition-colors">
+          <div className={`text-sm font-medium transition-colors
+            ${isDark 
+              ? 'text-[#4A5BCC] group-hover:text-[#5B6BD8]' 
+              : 'text-[#2A3380] group-hover:text-[#0EA5E9]'}`}>
             Learn More →
           </div>
         </div>
@@ -179,11 +200,13 @@ function ServiceCard({ service }: { service: Service }) {
 }
 
 // ============================================================
-// SERVICES CONTENT
+// SERVICES CONTENT - With dark mode support
 // ============================================================
 
 function ServicesContent() {
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const searchParams = useSearchParams();
   
   const [services, setServices] = useState<Service[]>([]);
@@ -215,13 +238,11 @@ function ServicesContent() {
           }
         }
         
-        // Filter active services
         servicesData = servicesData.filter(s => s.isActive !== false);
         
         setServices(servicesData);
         setFilteredServices(servicesData);
 
-        // Extract unique categories
         const uniqueCategories = [...new Set(servicesData.map(s => s.category).filter(Boolean))] as string[];
         setCategories(uniqueCategories);
       } catch (error: any) {
@@ -259,24 +280,26 @@ function ServicesContent() {
     setSelectedCategory("");
   };
 
-  // Loading state
+  // Loading state - With dark mode support
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <Loader2 className="w-12 h-12 text-[#2A3380] animate-spin" />
-        <p className="text-sm text-gray-500 mt-4">Loading services...</p>
+        <Loader2 className={`w-12 h-12 ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'} animate-spin`} />
+        <p className={`text-sm mt-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+          Loading services...
+        </p>
       </div>
     );
   }
 
-  // Error state
+  // Error state - With dark mode support
   if (error) {
     return (
       <div className="text-center py-16">
-        <p className="text-red-500 text-sm">{error}</p>
+        <p className={`text-sm ${isDark ? 'text-red-400' : 'text-red-500'}`}>{error}</p>
         <button 
           onClick={() => window.location.reload()} 
-          className="mt-4 text-[#2A3380] hover:underline"
+          className={`mt-4 ${isDark ? 'text-[#4A5BCC] hover:text-[#5B6BD8]' : 'text-[#2A3380] hover:underline'}`}
         >
           Try Again
         </button>
@@ -289,41 +312,54 @@ function ServicesContent() {
       {/* Navigation Header */}
       <Header />
 
-      <main className="bg-background text-foreground transition-colors duration-300 min-h-screen">
+      <main className={`min-h-screen transition-colors duration-300
+        ${isDark ? 'bg-gray-900 text-gray-100' : 'bg-background text-foreground'}`}>
+        
         {/* ==========================================================================
-           1. SERVICES HERO & DYNAMIC BREADCRUMBS SECTION
+           1. SERVICES HERO & DYNAMIC BREADCRUMBS - With dark mode support
            ========================================================================== */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-[#2A3380]/10 via-background to-background border-b border-border/50 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <section className={`relative overflow-hidden border-b transition-colors duration-300 py-12 sm:py-16 px-4 sm:px-6 lg:px-8
+          ${isDark 
+            ? 'bg-gradient-to-b from-[#4A5BCC]/10 via-gray-900 to-gray-900 border-gray-700' 
+            : 'bg-gradient-to-b from-[#2A3380]/10 via-background to-background border-border/50'}`}>
           {/* Ambient background light */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none overflow-hidden opacity-30">
-            <div className="absolute -top-24 left-1/4 w-96 h-96 bg-[#2A3380]/20 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
+            <div className={`absolute -top-24 left-1/4 w-96 h-96 rounded-full blur-3xl
+              ${isDark ? 'bg-[#4A5BCC]/10' : 'bg-[#2A3380]/20'}`} />
+            <div className={`absolute top-1/2 right-1/4 w-80 h-80 rounded-full blur-3xl
+              ${isDark ? 'bg-blue-500/5' : 'bg-blue-500/10'}`} />
           </div>
 
           <div className="max-w-7xl mx-auto relative z-10">
-            {/* Dynamic Breadcrumbs: Home > Services */}
-            <nav className="flex items-center space-x-2 text-xs sm:text-sm text-muted-foreground mb-6 flex-wrap">
-              <Link href="/" className="hover:text-[#2A3380] transition-colors">
+            {/* Dynamic Breadcrumbs - With dark mode support */}
+            <nav className={`flex items-center space-x-2 text-xs sm:text-sm mb-6 flex-wrap transition-colors duration-300
+              ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
+              <Link href="/" className={`transition-colors ${isDark ? 'hover:text-[#4A5BCC]' : 'hover:text-[#2A3380]'}`}>
                 {t("nav.home")}
               </Link>
               <ChevronRight className="w-3.5 h-3.5" />
-              <span className="text-foreground font-semibold">
+              <span className={`font-semibold ${isDark ? 'text-white' : 'text-foreground'}`}>
                 {t("nav.services")}
               </span>
             </nav>
 
-            {/* Badge & Headline */}
+            {/* Badge & Headline - With dark mode support */}
             <div className="text-center max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#2A3380]/10 border border-[#2A3380]/20 text-[#2A3380] text-xs sm:text-sm font-semibold mb-4">
+              <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold mb-4 border transition-colors duration-300
+                ${isDark 
+                  ? 'bg-[#4A5BCC]/20 border-[#4A5BCC]/30 text-[#4A5BCC]' 
+                  : 'bg-[#2A3380]/10 border-[#2A3380]/20 text-[#2A3380]'}`}>
                 <Stethoscope className="w-4 h-4" />
                 <span>{t("services.hero.badge") || "Complete Medical Care"}</span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4 sm:mb-6 leading-tight">
+              <h1 className={`text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-tight transition-colors duration-300
+                ${isDark ? 'text-white' : 'text-foreground'}`}>
                 {t("services.hero.title") || "Our Healthcare Services"}
               </h1>
 
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto transition-colors duration-300
+                ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
                 {t("services.hero.subtitle") || "Explore our comprehensive range of specialized medical services."}
               </p>
             </div>
@@ -331,20 +367,26 @@ function ServicesContent() {
         </section>
 
         {/* ==========================================================================
-           2. SEARCH AND FILTER SECTION
+           2. SEARCH AND FILTER SECTION - With dark mode support
            ========================================================================== */}
-        <section className="py-6 px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-card/40">
+        <section className={`py-6 px-4 sm:px-6 lg:px-8 border-b transition-colors duration-300
+          ${isDark 
+            ? 'border-gray-700 bg-gray-800/40' 
+            : 'border-border/40 bg-card/40'}`}>
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`} />
                   <input
                     type="text"
                     placeholder="Search services by name or description..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent text-sm"
+                    className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent text-sm transition-colors duration-300
+                      ${isDark 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-[#4A5BCC]' 
+                        : 'bg-white border-gray-300 text-gray-900'}`}
                   />
                 </div>
               </div>
@@ -354,7 +396,10 @@ function ServicesContent() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent appearance-none bg-white text-sm"
+                    className={`pl-3 pr-8 py-2 border rounded-lg focus:ring-2 focus:ring-[#2A3380] focus:border-transparent appearance-none text-sm transition-colors duration-300
+                      ${isDark 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'}`}
                   >
                     <option value="">All Categories</option>
                     {categories.map(cat => (
@@ -367,14 +412,15 @@ function ServicesContent() {
               {(searchTerm || selectedCategory) && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                  className={`flex items-center gap-1 text-sm transition-colors
+                    ${isDark ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'}`}
                 >
                   <X className="w-4 h-4" />
                   Clear
                 </button>
               )}
               
-              <div className="text-sm text-gray-500">
+              <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                 {filteredServices.length} service{filteredServices.length !== 1 ? 's' : ''} found
               </div>
             </div>
@@ -382,21 +428,26 @@ function ServicesContent() {
         </section>
 
         {/* ==========================================================================
-           3. SERVICES GRID
+           3. SERVICES GRID - With dark mode support
            ========================================================================== */}
         <section className="py-8 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             {filteredServices.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-                <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">No Services Found</h3>
-                <p className="text-sm text-gray-500">
+              <div className={`text-center py-16 rounded-xl border transition-colors duration-300
+                ${isDark 
+                  ? 'bg-gray-800 border-gray-700' 
+                  : 'bg-white border-gray-200'}`}>
+                <Building2 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-300'}`} />
+                <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                  No Services Found
+                </h3>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                   {searchTerm || selectedCategory ? 'Try adjusting your filters' : 'No services available at this time.'}
                 </p>
                 {(searchTerm || selectedCategory) && (
                   <button
                     onClick={clearFilters}
-                    className="mt-4 text-[#2A3380] hover:underline text-sm"
+                    className={`mt-4 text-sm hover:underline ${isDark ? 'text-[#4A5BCC]' : 'text-[#2A3380]'}`}
                   >
                     Clear Filters
                   </button>
@@ -413,31 +464,42 @@ function ServicesContent() {
         </section>
 
         {/* ==========================================================================
-           4. EMERGENCY & BOOKING QUICK CTA BANNER
+           4. EMERGENCY & BOOKING QUICK CTA BANNER - With dark mode support
            ========================================================================== */}
-        <section className="bg-[#2A3380]/5 border-t border-border py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <section className={`border-t transition-colors duration-300 py-12 sm:py-16 px-4 sm:px-6 lg:px-8
+          ${isDark 
+            ? 'bg-[#4A5BCC]/5 border-gray-700' 
+            : 'bg-[#2A3380]/5 border-border'}`}>
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
             <div className="max-w-xl">
-              <h3 className="text-2xl font-bold text-foreground mb-2">
+              <h3 className={`text-2xl font-bold mb-2 transition-colors duration-300
+                ${isDark ? 'text-white' : 'text-foreground'}`}>
                 Need Immediate Medical Care or Consultation?
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className={`text-sm leading-relaxed transition-colors duration-300
+                ${isDark ? 'text-gray-400' : 'text-muted-foreground'}`}>
                 Our emergency department and specialist doctors are available round-the-clock at Adinas General Hospital.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-4 shrink-0">
               <Link
                 href="/appointment"
-                className="inline-flex items-center gap-2 bg-[#2A3380] hover:bg-[#1E3A8A] text-white px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-md hover:shadow-lg active:scale-95"
+                className={`inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-md hover:shadow-lg active:scale-95 text-white
+                  ${isDark 
+                    ? 'bg-[#4A5BCC] hover:bg-[#5B6BD8]' 
+                    : 'bg-[#2A3380] hover:bg-[#1E3A8A]'}`}
               >
                 <Calendar className="w-4 h-4" />
                 <span>{t("cta.book_appointment") || "Book Appointment"}</span>
               </Link>
               <a
                 href="tel:+251983201998"
-                className="inline-flex items-center gap-2 border border-border bg-card text-foreground px-6 py-3 rounded-full text-sm font-semibold hover:bg-[#2A3380]/10 transition-all shadow-sm active:scale-95"
+                className={`inline-flex items-center gap-2 border px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-sm active:scale-95
+                  ${isDark 
+                    ? 'border-gray-600 bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                    : 'border-border bg-card text-foreground hover:bg-[#2A3380]/10'}`}
               >
-                <PhoneCall className="w-4 h-4 text-red-500" />
+                <PhoneCall className="w-4 h-4 text-red-500 dark:text-red-400" />
                 <span>{t("cta.emergency_call") || "Emergency Call"}</span>
               </a>
             </div>
@@ -451,11 +513,22 @@ function ServicesContent() {
   );
 }
 
+// ============================================================
+// MAIN EXPORT - With dark mode support for Suspense fallback
+// ============================================================
+
 export default function ServicesPage() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#2A3380] border-t-transparent rounded-full animate-spin" />
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300
+        ${isDark ? 'bg-gray-900' : 'bg-background'}`}>
+        <div className={`w-8 h-8 border-4 border-t-transparent rounded-full animate-spin
+          ${isDark 
+            ? 'border-[#4A5BCC]' 
+            : 'border-[#2A3380]'}`} />
       </div>
     }>
       <ServicesContent />
