@@ -1,3 +1,4 @@
+// backend/src/routes/blog.js - FIXED VIDEO URL VALIDATION
 const express = require('express');
 const { body, validationResult, param, query } = require('express-validator');
 const prisma = require('../lib/prisma');
@@ -31,7 +32,7 @@ function buildImageUrl(imagePath) {
 }
 
 // ============================================================
-// VALIDATION FUNCTIONS
+// 🔥 FIXED: VALIDATION FUNCTIONS
 // ============================================================
 
 const validateTitle = (value) => {
@@ -62,7 +63,7 @@ const validateContent = (value) => {
 
 const validateExcerpt = (value) => {
   if (!value || value.trim().length === 0) {
-    return null; // Excerpt is optional, will use content substring
+    return null;
   }
   if (value.trim().length < 10) {
     throw new Error('Excerpt must be at least 10 characters');
@@ -88,7 +89,7 @@ const validateAuthor = (value) => {
 
 const validateCategory = (value) => {
   if (!value || value.trim().length === 0) {
-    return 'General'; // Default category
+    return 'General';
   }
   if (value.trim().length > 50) {
     throw new Error('Category must be less than 50 characters');
@@ -98,7 +99,7 @@ const validateCategory = (value) => {
 
 const validateLocation = (value) => {
   if (!value || value.trim().length === 0) {
-    return 'Afilas General Hospital';
+    return 'Adinas General Hospital';
   }
   if (value.trim().length > 100) {
     throw new Error('Location must be less than 100 characters');
@@ -137,18 +138,26 @@ const validateImage = (value) => {
   return value.trim();
 };
 
+// 🔥 FIXED: More lenient video URL validation
 const validateVideoUrl = (value) => {
   if (!value || value.trim().length === 0) {
     return null;
   }
-  const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-  if (!urlPattern.test(value.trim())) {
+  
+  const url = value.trim();
+  
+  // Check if it's a valid URL format
+  try {
+    new URL(url);
+  } catch {
     throw new Error('Please enter a valid video URL');
   }
-  if (value.trim().length > 500) {
+  
+  if (url.length > 500) {
     throw new Error('Video URL must be less than 500 characters');
   }
-  return value.trim();
+  
+  return url;
 };
 
 const validateIsPublished = (value) => {
@@ -224,7 +233,6 @@ router.get('/', [
       prisma.news.count({ where }),
     ]);
 
-    // Build image URLs
     const mappedPosts = posts.map(post => ({
       ...post,
       image: buildImageUrl(post.image)
@@ -276,7 +284,6 @@ router.get('/slug/:slug', [
       });
     }
 
-    // Check if post is published (for public viewing)
     if (!post.isPublished) {
       const authHeader = req.headers.authorization;
       if (!authHeader) {
@@ -287,7 +294,6 @@ router.get('/slug/:slug', [
       }
     }
 
-    // Increment views
     await prisma.news.update({
       where: { id: post.id },
       data: { views: { increment: 1 } },
@@ -409,7 +415,6 @@ router.post('/',
       .optional()
       .isBoolean().withMessage('isPublished must be a boolean'),
     
-    // Accept mediaType but don't store it
     body('mediaType')
       .optional()
       .isString().withMessage('mediaType must be a string')
@@ -442,7 +447,6 @@ router.post('/',
         location,
         tags,
         isPublished,
-        // mediaType is destructured but not used in DB
       } = req.body;
 
       console.log('📝 Creating blog post with data:', { 
@@ -452,10 +456,10 @@ router.post('/',
         category,
         location,
         tagsCount: tags?.length,
-        isPublished 
+        isPublished,
+        videoUrl: videoUrl || 'none'
       });
 
-      // Validate data
       let validatedData = {};
       try {
         validatedData.title = validateTitle(title);
@@ -466,7 +470,14 @@ router.post('/',
         validatedData.location = validateLocation(location);
         validatedData.tags = validateTags(tags);
         validatedData.image = validateImage(image);
-        validatedData.videoUrl = validateVideoUrl(videoUrl);
+        
+        // 🔥 FIXED: Only validate videoUrl if it's provided and not empty
+        if (videoUrl && videoUrl.trim().length > 0) {
+          validatedData.videoUrl = validateVideoUrl(videoUrl);
+        } else {
+          validatedData.videoUrl = null;
+        }
+        
         validatedData.isPublished = validateIsPublished(isPublished);
       } catch (validationError) {
         console.error('❌ Validation error:', validationError.message);
@@ -623,7 +634,6 @@ router.put('/:id',
         });
       }
 
-      // Validate data
       let validatedData = {};
       try {
         if (title !== undefined) validatedData.title = validateTitle(title);
@@ -634,7 +644,16 @@ router.put('/:id',
         if (location !== undefined) validatedData.location = validateLocation(location);
         if (tags !== undefined) validatedData.tags = validateTags(tags);
         if (image !== undefined) validatedData.image = validateImage(image);
-        if (videoUrl !== undefined) validatedData.videoUrl = validateVideoUrl(videoUrl);
+        
+        // 🔥 FIXED: Only validate videoUrl if it's provided
+        if (videoUrl !== undefined) {
+          if (videoUrl && videoUrl.trim().length > 0) {
+            validatedData.videoUrl = validateVideoUrl(videoUrl);
+          } else {
+            validatedData.videoUrl = null;
+          }
+        }
+        
         if (isPublished !== undefined) validatedData.isPublished = validateIsPublished(isPublished);
       } catch (validationError) {
         return res.status(400).json({
@@ -645,10 +664,8 @@ router.put('/:id',
 
       let updateData = {};
 
-      // Update fields
       if (validatedData.title !== undefined) {
         updateData.title = validatedData.title;
-        // Update slug if title changed
         let slug = generateSlug(validatedData.title);
         let slugExists = await prisma.news.findFirst({
           where: { slug, id: { not: id } },
@@ -669,7 +686,6 @@ router.put('/:id',
       if (validatedData.image !== undefined) updateData.image = validatedData.image;
       if (validatedData.videoUrl !== undefined) updateData.videoUrl = validatedData.videoUrl;
 
-      // Handle publication status
       if (validatedData.isPublished !== undefined && validatedData.isPublished !== existing.isPublished) {
         updateData.isPublished = validatedData.isPublished;
         updateData.publishedAt = validatedData.isPublished ? new Date() : null;
@@ -735,7 +751,6 @@ router.patch('/:id',
         });
       }
 
-      // Handle publication status
       if (updates.isPublished !== undefined && updates.isPublished !== existing.isPublished) {
         updates.publishedAt = updates.isPublished ? new Date() : null;
       }

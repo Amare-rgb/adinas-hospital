@@ -1,3 +1,4 @@
+// routes/appointments.js - COMPLETE FIXED VERSION
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const prisma = require('../lib/prisma');
@@ -12,11 +13,11 @@ const router = express.Router();
 function mapAppointment(appointment) {
   return {
     id: appointment.id,
-    patientName: appointment.patientName,
-    patientEmail: appointment.patientEmail,
-    patientPhone: appointment.patientPhone,
-    patientAge: appointment.patientAge,
-    patientGender: appointment.patientGender,
+    patientName: appointment.patientName || 'Unknown Patient',
+    patientEmail: appointment.patientEmail || '',
+    patientPhone: appointment.patientPhone || '',
+    patientAge: appointment.patientAge || null,
+    patientGender: appointment.patientGender || null,
     serviceId: appointment.serviceId,
     service: appointment.service ? {
       id: appointment.service.id,
@@ -46,31 +47,43 @@ function mapAppointment(appointment) {
     doctorId: appointment.doctorId,
     doctor: appointment.doctor ? {
       id: appointment.doctor.id,
-      name: appointment.doctor.name,
-      specialization: appointment.doctor.specialization, // ✅ FIXED: specialty -> specialization
+      name: appointment.doctor.user ? 
+        `${appointment.doctor.user.firstName} ${appointment.doctor.user.lastName}` : 
+        appointment.doctor.name,
+      specialization: appointment.doctor.specialization,
+    } : null,
+    patientId: appointment.patientId,
+    patient: appointment.patient ? {
+      id: appointment.patient.id,
+      patientId: appointment.patient.patientId,
+      user: appointment.patient.user ? {
+        firstName: appointment.patient.user.firstName,
+        lastName: appointment.patient.user.lastName,
+        email: appointment.patient.user.email,
+        phone: appointment.patient.user.phone,
+      } : null,
+    } : null,
+    departmentId: appointment.departmentId,
+    department: appointment.department ? {
+      id: appointment.department.id,
+      name: appointment.department.name,
+      code: appointment.department.code,
     } : null,
   };
 }
 
 // ============================================================
-// Helper to validate Ethiopian phone number
-// ============================================================
-function isValidEthiopianPhone(phone) {
-  const phoneRegex = /^0[97]\d{8}$/;
-  return phoneRegex.test(phone);
-}
-
-// ============================================================
 // Helper to check time slot availability
 // ============================================================
-async function isTimeSlotAvailable(date, time, excludeAppointmentId = null) {
+async function isTimeSlotAvailable(date, time, doctorId, excludeAppointmentId = null) {
   try {
     const where = {
       date: new Date(date),
       time: time,
+      doctorId: doctorId,
       NOT: {
         status: {
-          in: ['CANCELLED', 'MISSED']
+          in: ['CANCELLED', 'NO_SHOW']
         }
       }
     };
@@ -91,20 +104,47 @@ async function isTimeSlotAvailable(date, time, excludeAppointmentId = null) {
 }
 
 // ============================================================
-// GET all appointments - 🔥 ADMIN and USER only
+// GET all appointments
 // ============================================================
-router.get('/', auth, authorize('ADMIN', 'USER'), async (req, res) => {
+router.get('/', auth, authorize('ADMIN', 'DOCTOR', 'PATIENT'), async (req, res) => {
   try {
-    const { status, startDate, endDate, location, doctorId } = req.query;
+    const { status, startDate, endDate, location, doctorId, patientId } = req.query;
     
     const where = {};
     
-    if (req.user.role === 'USER') {
-      where.userId = req.user.id;
+    if (req.user.role === 'PATIENT') {
+      const patient = await prisma.patient.findUnique({
+        where: { userId: req.user.id },
+        select: { id: true }
+      });
+      if (patient) {
+        where.patientId = patient.id;
+      } else {
+        return res.json({
+          success: true,
+          data: [],
+          count: 0,
+        });
+      }
+    } else if (req.user.role === 'DOCTOR') {
+      const doctor = await prisma.doctor.findUnique({
+        where: { userId: req.user.id },
+        select: { id: true }
+      });
+      if (doctor) {
+        where.doctorId = doctor.id;
+      } else {
+        return res.json({
+          success: true,
+          data: [],
+          count: 0,
+        });
+      }
     }
     
     if (status) where.status = status;
     if (doctorId) where.doctorId = doctorId;
+    if (patientId) where.patientId = patientId;
     if (location && location !== 'all' && location !== 'undefined') {
       where.location = location;
     }
@@ -129,16 +169,43 @@ router.get('/', auth, authorize('ADMIN', 'USER'), async (req, res) => {
         user: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },
         },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
         doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
           select: {
             id: true,
             name: true,
-            specialization: true, // ✅ FIXED: specialty -> specialization
+            code: true,
           },
         },
       },
@@ -162,9 +229,9 @@ router.get('/', auth, authorize('ADMIN', 'USER'), async (req, res) => {
 });
 
 // ============================================================
-// GET single appointment - 🔥 ADMIN and USER only
+// GET single appointment
 // ============================================================
-router.get('/:id', auth, authorize('ADMIN', 'USER'), async (req, res) => {
+router.get('/:id', auth, authorize('ADMIN', 'DOCTOR', 'PATIENT'), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -182,16 +249,43 @@ router.get('/:id', auth, authorize('ADMIN', 'USER'), async (req, res) => {
         user: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             phone: true,
           },
         },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
         doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
           select: {
             id: true,
             name: true,
-            specialization: true, // ✅ FIXED: specialty -> specialization
+            code: true,
           },
         },
       },
@@ -204,11 +298,30 @@ router.get('/:id', auth, authorize('ADMIN', 'USER'), async (req, res) => {
       });
     }
 
-    if (req.user.role === 'USER' && appointment.userId !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        error: 'You do not have permission to view this appointment',
+    if (req.user.role === 'PATIENT') {
+      const patient = await prisma.patient.findUnique({
+        where: { userId: req.user.id },
+        select: { id: true }
       });
+      if (!patient || appointment.patientId !== patient.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'You do not have permission to view this appointment',
+        });
+      }
+    }
+
+    if (req.user.role === 'DOCTOR') {
+      const doctor = await prisma.doctor.findUnique({
+        where: { userId: req.user.id },
+        select: { id: true }
+      });
+      if (!doctor || appointment.doctorId !== doctor.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'You do not have permission to view this appointment',
+        });
+      }
     }
 
     res.json({
@@ -225,18 +338,11 @@ router.get('/:id', auth, authorize('ADMIN', 'USER'), async (req, res) => {
 });
 
 // ============================================================
-// CREATE appointment - PUBLIC (no auth required)
+// CREATE appointment - FIXED
 // ============================================================
-router.post('/', [
-  body('patientName').trim().notEmpty().withMessage('Patient name is required'),
-  body('patientEmail').isEmail().withMessage('Valid email is required'),
-  body('patientPhone').trim().notEmpty().withMessage('Phone number is required')
-    .custom((value) => {
-      if (!isValidEthiopianPhone(value)) {
-        throw new Error('Invalid Ethiopian phone number (e.g., 0912345678)');
-      }
-      return true;
-    }),
+router.post('/', auth, authorize('ADMIN', 'DOCTOR', 'PATIENT'), [
+  body('patientId').optional().isString().withMessage('Invalid patient ID'),
+  body('doctorId').optional().isString().withMessage('Invalid doctor ID'),
   body('date').matches(/^\d{4}-\d{2}-\d{2}$/).withMessage('Valid date is required (YYYY-MM-DD)')
     .custom((value) => {
       const date = new Date(value);
@@ -248,20 +354,23 @@ router.post('/', [
       return true;
     }),
   body('time').matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage('Valid time is required (HH:MM)'),
-  body('serviceId').optional().isString(),
-  body('doctorId').optional().isString().withMessage('Invalid doctor ID'),
-  body('location').optional().isString(),
-  body('notes').optional().isString(),
+  body('reason').optional().isString(),
   body('symptoms').optional().isString(),
   body('isEmergency').optional().isBoolean(),
-  body('patientAge').optional().isInt({ min: 0, max: 150 }).withMessage('Age must be between 0 and 150'),
-  body('patientGender').optional().isIn(['MALE', 'FEMALE', 'OTHER']),
-  body('visitType').optional().isIn(['HOSPITAL', 'HOME']).withMessage('Visit type must be HOSPITAL or HOME'),
+  body('visitType').optional().isIn(['HOSPITAL', 'HOME', 'TELEMEDICINE']),
   body('city').optional().isString(),
   body('subCity').optional().isString(),
   body('woreda').optional().isString(),
-  body('gpsPin').optional().isString(),
   body('homeAddress').optional().isString(),
+  body('gpsPin').optional().isString(),
+  body('departmentId').optional().isString(),
+  body('serviceId').optional().isString(),
+  // Patient details for quick booking
+  body('patientName').optional().isString(),
+  body('patientEmail').optional().isEmail(),
+  body('patientPhone').optional().isString(),
+  body('patientAge').optional().isInt(),
+  body('patientGender').optional().isString(),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -273,10 +382,10 @@ router.post('/', [
     }
 
     const { 
-      patientName, patientEmail, patientPhone, patientAge,
-      patientGender, date, time, serviceId, doctorId,
-      notes, symptoms, isEmergency, location,
-      visitType, city, subCity, woreda, gpsPin, homeAddress
+      patientId, doctorId, date, time, reason, symptoms, 
+      isEmergency, visitType, city, subCity, woreda, homeAddress, gpsPin,
+      serviceId, departmentId,
+      patientName, patientEmail, patientPhone, patientAge, patientGender
     } = req.body;
 
     const appointmentDate = new Date(date);
@@ -288,21 +397,121 @@ router.post('/', [
       });
     }
 
-    // Check time slot availability
-    const isAvailable = await isTimeSlotAvailable(appointmentDate, time);
-    if (!isAvailable) {
-      return res.status(409).json({
+    let finalPatientId = patientId || null;
+    let finalDoctorId = doctorId || null;
+
+    // ============================================================
+    // STEP 1: Find or Create Patient
+    // ============================================================
+    if (patientId) {
+      const existingPatient = await prisma.patient.findUnique({
+        where: { id: patientId },
+        select: { id: true }
+      });
+      
+      if (existingPatient) {
+        finalPatientId = patientId;
+        console.log(`✅ Using existing patient: ${patientId}`);
+      } else {
+        return res.status(404).json({
+          success: false,
+          error: 'Patient not found with provided ID',
+        });
+      }
+    } else {
+      const existingPatient = await prisma.patient.findUnique({
+        where: { userId: req.user.id },
+        select: { id: true }
+      });
+      
+      if (existingPatient) {
+        finalPatientId = existingPatient.id;
+        console.log(`✅ Found existing patient: ${existingPatient.id} for user ${req.user.id}`);
+      } else {
+        console.log(`🔍 No patient found for user ${req.user.id}, creating one...`);
+        
+        const user = await prisma.user.findUnique({
+          where: { id: req.user.id }
+        });
+        
+        if (!user) {
+          return res.status(400).json({
+            success: false,
+            error: 'User not found. Please login again.',
+          });
+        }
+
+        const newPatient = await prisma.patient.create({
+          data: {
+            patientId: `P${Date.now().toString().slice(-6)}`,
+            userId: req.user.id,
+          },
+          select: { id: true }
+        });
+        
+        finalPatientId = newPatient.id;
+        console.log(`✅ Created new patient: ${newPatient.id} for user ${req.user.id}`);
+      }
+    }
+
+    if (!finalPatientId) {
+      return res.status(400).json({
         success: false,
-        error: 'This time slot is already booked. Please choose another time.',
+        error: 'Could not find or create patient profile. Please try again.',
       });
     }
 
-    let service = null;
-    if (serviceId) {
-      service = await prisma.service.findUnique({
-        where: { id: serviceId },
+    const patientExists = await prisma.patient.findUnique({
+      where: { id: finalPatientId },
+      select: { id: true }
+    });
+
+    if (!patientExists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Patient not found after creation. Please try again.',
+      });
+    }
+
+    // ============================================================
+    // STEP 2: Check if doctor exists and is available
+    // ============================================================
+    if (finalDoctorId) {
+      const doctor = await prisma.doctor.findUnique({
+        where: { id: finalDoctorId },
+        include: { user: true }
       });
 
+      if (!doctor) {
+        return res.status(404).json({
+          success: false,
+          error: 'Doctor not found',
+        });
+      }
+
+      if (!doctor.isAvailable) {
+        return res.status(400).json({
+          success: false,
+          error: 'Doctor is not available at this time',
+        });
+      }
+
+      const isAvailable = await isTimeSlotAvailable(appointmentDate, time, finalDoctorId);
+      if (!isAvailable) {
+        return res.status(409).json({
+          success: false,
+          error: 'This time slot is already booked. Please choose another time.',
+        });
+      }
+    }
+
+    // ============================================================
+    // STEP 3: Check service and department
+    // ============================================================
+    if (serviceId) {
+      const service = await prisma.service.findUnique({
+        where: { id: serviceId },
+      });
       if (!service || !service.isActive) {
         return res.status(400).json({
           success: false,
@@ -311,120 +520,109 @@ router.post('/', [
       }
     }
 
-    // Check doctor availability if doctorId is provided
-    if (doctorId) {
-      const doctor = await prisma.doctor.findUnique({
-        where: { id: doctorId },
+    if (departmentId) {
+      const department = await prisma.department.findUnique({
+        where: { id: departmentId },
       });
-
-      if (!doctor || !doctor.isAvailable) {
-        return res.status(400).json({
+      if (!department) {
+        return res.status(404).json({
           success: false,
-          error: 'Doctor is not available',
+          error: 'Department not found',
         });
       }
     }
 
-    // Find or create user
-    let userId = null;
-    if (req.user) {
-      userId = req.user.id;
-    } else {
-      const existingUser = await prisma.user.findUnique({
-        where: { email: patientEmail },
-        select: { id: true },
-      });
-      if (existingUser) {
-        userId = existingUser.id;
-      } else {
-        try {
-          const newUser = await prisma.user.create({
-            data: {
-              name: patientName,
-              email: patientEmail,
-              phone: patientPhone,
-              role: 'USER',
-              password: 'temporary_password_' + Date.now(),
-            },
-            select: { id: true },
-          });
-          userId = newUser.id;
-        } catch (createError) {
-          console.warn('Could not create user:', createError.message);
-        }
-      }
-    }
-
-    // Build appointment data
+    // ============================================================
+    // STEP 4: Build appointment data - ALL fields now exist in schema
+    // ============================================================
     const appointmentData = {
-      patientName,
-      patientEmail,
-      patientPhone,
-      patientAge: patientAge ? parseInt(patientAge) : null,
-      patientGender,
+      patientId: finalPatientId,
+      doctorId: finalDoctorId,
+      departmentId: departmentId || null,
+      serviceId: serviceId || null,
+      userId: req.user.id,
+      patientName: patientName || null,
+      patientEmail: patientEmail || null,
+      patientPhone: patientPhone || null,
+      patientAge: patientAge || null,
+      patientGender: patientGender || null,
       date: appointmentDate,
-      time,
-      notes: notes || '',
+      time: time,
+      reason: reason || '',
       symptoms: symptoms || '',
       isEmergency: isEmergency || false,
-      location: location || 'Afilas General Hospital',
       status: 'PENDING',
-      visitType: visitType || null,
+      visitType: visitType || 'HOSPITAL',
       city: city || null,
       subCity: subCity || null,
       woreda: woreda || null,
-      gpsPin: gpsPin || null,
       homeAddress: homeAddress || null,
+      gpsPin: gpsPin || null,
+      location: 'Adinas General Hospital',
     };
 
-    // Add relations if they exist
-    if (serviceId) {
-      appointmentData.serviceId = serviceId;
-    }
-    if (doctorId) {
-      appointmentData.doctorId = doctorId;
-    }
-    if (userId) {
-      appointmentData.userId = userId;
-    }
+    console.log('📝 Creating appointment with data:', JSON.stringify(appointmentData, null, 2));
 
-    // Build include options dynamically
-    const includeOptions = {
-      service: {
-        select: {
-          id: true,
-          name: true,
-          price: true,
-          duration: true,
-        },
-      },
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-        },
-      },
-    };
-
-    // Only include doctor if doctorId exists
-    if (doctorId) {
-      includeOptions.doctor = {
-        select: {
-          id: true,
-          name: true,
-          specialization: true, // ✅ FIXED: specialty -> specialization
-        },
-      };
-    }
-
+    // ============================================================
+    // STEP 5: Create appointment
+    // ============================================================
     const appointment = await prisma.appointment.create({
       data: appointmentData,
-      include: includeOptions,
+      include: {
+        service: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            duration: true,
+          },
+        },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
     });
 
-    console.log(`✅ Appointment created: ${appointment.id} for ${appointment.patientName}`);
+    console.log(`✅ Appointment created: ${appointment.id}`);
 
     // Send confirmation notification
     try {
@@ -442,7 +640,7 @@ router.post('/', [
       message: 'Appointment created successfully',
     });
   } catch (error) {
-    console.error('Create appointment error:', error);
+    console.error('❌ Create appointment error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create appointment: ' + error.message,
@@ -451,11 +649,13 @@ router.post('/', [
 });
 
 // ============================================================
-// UPDATE appointment status - 🔥 ADMIN only
+// UPDATE appointment status
 // ============================================================
-router.patch('/:id/status', auth, authorize('ADMIN'), [
-  body('status').isIn(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'MISSED']),
-  body('doctorId').optional().isString(),
+router.patch('/:id/status', auth, authorize('ADMIN', 'DOCTOR'), [
+  body('status').isIn(['PENDING', 'CONFIRMED', 'CHECKED_IN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'NO_SHOW']),
+  body('diagnosis').optional().isString(),
+  body('treatment').optional().isString(),
+  body('notes').optional().isString(),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -464,26 +664,18 @@ router.patch('/:id/status', auth, authorize('ADMIN'), [
     }
 
     const { id } = req.params;
-    const { status, doctorId } = req.body;
+    const { status, diagnosis, treatment, notes } = req.body;
 
     console.log(`📡 Updating appointment ${id} to status: ${status}`);
 
     const appointment = await prisma.appointment.findUnique({
       where: { id },
       include: {
-        service: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            duration: true,
-          },
+        patient: {
+          include: { user: true }
         },
         doctor: {
-          select: {
-            id: true,
-            name: true,
-          },
+          include: { user: true }
         },
       },
     });
@@ -495,18 +687,28 @@ router.patch('/:id/status', auth, authorize('ADMIN'), [
       });
     }
 
-    const updateData = { status };
-    if (doctorId) {
+    if (req.user.role === 'DOCTOR') {
       const doctor = await prisma.doctor.findUnique({
-        where: { id: doctorId },
+        where: { userId: req.user.id },
+        select: { id: true }
       });
-      if (!doctor || !doctor.isAvailable) {
-        return res.status(400).json({
+      if (!doctor || appointment.doctorId !== doctor.id) {
+        return res.status(403).json({
           success: false,
-          error: 'Doctor is not available',
+          error: 'You do not have permission to update this appointment',
         });
       }
-      updateData.doctorId = doctorId;
+    }
+
+    const updateData = { 
+      status,
+      diagnosis: diagnosis || appointment.diagnosis,
+      treatment: treatment || appointment.treatment,
+      notes: notes || appointment.notes,
+    };
+
+    if (status === 'COMPLETED') {
+      updateData.completedAt = new Date();
     }
 
     const oldStatus = appointment.status;
@@ -522,19 +724,46 @@ router.patch('/:id/status', auth, authorize('ADMIN'), [
             duration: true,
           },
         },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
           },
         },
         doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
           select: {
             id: true,
             name: true,
-            specialization: true, // ✅ FIXED: specialty -> specialization
+            code: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
           },
         },
       },
@@ -589,16 +818,16 @@ router.patch('/:id/status', auth, authorize('ADMIN'), [
 });
 
 // ============================================================
-// UPDATE appointment details - 🔥 ADMIN only
+// UPDATE appointment details
 // ============================================================
-router.put('/:id', auth, authorize('ADMIN'), async (req, res) => {
+router.put('/:id', auth, authorize('ADMIN', 'DOCTOR'), async (req, res) => {
   try {
     const { id } = req.params;
     const { 
-      patientName, patientEmail, patientPhone, 
-      patientAge, patientGender, date, time, 
-      serviceId, doctorId, notes, symptoms, isEmergency, location,
-      visitType, city, subCity, woreda, gpsPin, homeAddress
+      patientId, doctorId, date, time, reason, symptoms, 
+      diagnosis, treatment, notes, isEmergency, visitType,
+      city, subCity, woreda, homeAddress, serviceId, departmentId,
+      patientName, patientEmail, patientPhone, patientAge, patientGender
     } = req.body;
 
     const appointment = await prisma.appointment.findUnique({
@@ -612,9 +841,22 @@ router.put('/:id', auth, authorize('ADMIN'), async (req, res) => {
       });
     }
 
-    if (date && time) {
+    if (req.user.role === 'DOCTOR') {
+      const doctor = await prisma.doctor.findUnique({
+        where: { userId: req.user.id },
+        select: { id: true }
+      });
+      if (!doctor || appointment.doctorId !== doctor.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'You do not have permission to update this appointment',
+        });
+      }
+    }
+
+    if (date && time && doctorId) {
       const newDate = new Date(date);
-      const isAvailable = await isTimeSlotAvailable(newDate, time, id);
+      const isAvailable = await isTimeSlotAvailable(newDate, time, doctorId, id);
       if (!isAvailable) {
         return res.status(409).json({
           success: false,
@@ -626,24 +868,27 @@ router.put('/:id', auth, authorize('ADMIN'), async (req, res) => {
     const updated = await prisma.appointment.update({
       where: { id },
       data: {
-        patientName: patientName || appointment.patientName,
-        patientEmail: patientEmail || appointment.patientEmail,
-        patientPhone: patientPhone || appointment.patientPhone,
-        patientAge: patientAge !== undefined ? parseInt(patientAge) : appointment.patientAge,
-        patientGender: patientGender || appointment.patientGender,
+        patientId: patientId || appointment.patientId,
+        doctorId: doctorId || appointment.doctorId,
+        departmentId: departmentId !== undefined ? departmentId : appointment.departmentId,
+        serviceId: serviceId !== undefined ? serviceId : appointment.serviceId,
+        patientName: patientName !== undefined ? patientName : appointment.patientName,
+        patientEmail: patientEmail !== undefined ? patientEmail : appointment.patientEmail,
+        patientPhone: patientPhone !== undefined ? patientPhone : appointment.patientPhone,
+        patientAge: patientAge !== undefined ? patientAge : appointment.patientAge,
+        patientGender: patientGender !== undefined ? patientGender : appointment.patientGender,
         date: date ? new Date(date) : appointment.date,
         time: time || appointment.time,
-        serviceId: serviceId !== undefined ? serviceId : appointment.serviceId,
-        doctorId: doctorId !== undefined ? doctorId : appointment.doctorId,
-        notes: notes !== undefined ? notes : appointment.notes,
+        reason: reason !== undefined ? reason : appointment.reason,
         symptoms: symptoms !== undefined ? symptoms : appointment.symptoms,
+        diagnosis: diagnosis !== undefined ? diagnosis : appointment.diagnosis,
+        treatment: treatment !== undefined ? treatment : appointment.treatment,
+        notes: notes !== undefined ? notes : appointment.notes,
         isEmergency: isEmergency !== undefined ? isEmergency : appointment.isEmergency,
-        location: location || appointment.location || 'Afilas General Hospital',
         visitType: visitType !== undefined ? visitType : appointment.visitType,
         city: city !== undefined ? city : appointment.city,
         subCity: subCity !== undefined ? subCity : appointment.subCity,
         woreda: woreda !== undefined ? woreda : appointment.woreda,
-        gpsPin: gpsPin !== undefined ? gpsPin : appointment.gpsPin,
         homeAddress: homeAddress !== undefined ? homeAddress : appointment.homeAddress,
       },
       include: {
@@ -655,19 +900,46 @@ router.put('/:id', auth, authorize('ADMIN'), async (req, res) => {
             duration: true,
           },
         },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
           },
         },
         doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
           select: {
             id: true,
             name: true,
-            specialization: true, // ✅ FIXED: specialty -> specialization
+            code: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
           },
         },
       },
@@ -688,7 +960,7 @@ router.put('/:id', auth, authorize('ADMIN'), async (req, res) => {
 });
 
 // ============================================================
-// DELETE appointment - 🔥 ADMIN only
+// DELETE appointment
 // ============================================================
 router.delete('/:id', auth, authorize('ADMIN'), async (req, res) => {
   try {
@@ -723,14 +995,19 @@ router.delete('/:id', auth, authorize('ADMIN'), async (req, res) => {
 });
 
 // ============================================================
-// CANCEL appointment - 🔥 USER can cancel their own appointments
+// CANCEL appointment
 // ============================================================
-router.delete('/:id/cancel', auth, async (req, res) => {
+router.post('/:id/cancel', auth, authorize('PATIENT'), async (req, res) => {
   try {
     const { id } = req.params;
 
     const appointment = await prisma.appointment.findUnique({
       where: { id },
+      include: {
+        patient: {
+          include: { user: true }
+        }
+      }
     });
 
     if (!appointment) {
@@ -740,7 +1017,12 @@ router.delete('/:id/cancel', auth, async (req, res) => {
       });
     }
 
-    if (appointment.userId !== req.user.id && req.user.role === 'USER') {
+    const patient = await prisma.patient.findUnique({
+      where: { userId: req.user.id },
+      select: { id: true }
+    });
+
+    if (!patient || appointment.patientId !== patient.id) {
       return res.status(403).json({
         success: false,
         error: 'You do not have permission to cancel this appointment',
@@ -762,12 +1044,50 @@ router.delete('/:id/cancel', auth, async (req, res) => {
           select: {
             id: true,
             name: true,
+            price: true,
+            duration: true,
+          },
+        },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
           },
         },
         doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
           select: {
             id: true,
             name: true,
+            code: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
           },
         },
       },
@@ -797,13 +1117,20 @@ router.delete('/:id/cancel', auth, async (req, res) => {
 });
 
 // ============================================================
-// GET available time slots for a date
+// GET available time slots
 // ============================================================
 router.get('/available-slots/:date', async (req, res) => {
   try {
     const { date } = req.params;
     const { doctorId } = req.query;
     
+    if (!doctorId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Doctor ID is required',
+      });
+    }
+
     const appointmentDate = new Date(date);
     if (isNaN(appointmentDate.getTime())) {
       return res.status(400).json({
@@ -812,21 +1139,45 @@ router.get('/available-slots/:date', async (req, res) => {
       });
     }
 
-    const where = {
-      date: appointmentDate,
-      NOT: {
-        status: {
-          in: ['CANCELLED', 'MISSED']
-        }
-      }
-    };
+    const doctor = await prisma.doctor.findUnique({
+      where: { id: doctorId },
+      include: { workingHours: true }
+    });
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        error: 'Doctor not found',
+      });
+    }
+
+    if (!doctor.isAvailable) {
+      return res.status(400).json({
+        success: false,
+        error: 'Doctor is not available',
+      });
+    }
+
+    const dayOfWeek = appointmentDate.getDay();
+    const workingHour = doctor.workingHours.find(wh => wh.dayOfWeek === dayOfWeek && wh.isAvailable);
     
-    if (doctorId) {
-      where.doctorId = doctorId;
+    if (!workingHour) {
+      return res.status(400).json({
+        success: false,
+        error: 'Doctor is not available on this day',
+      });
     }
 
     const bookedAppointments = await prisma.appointment.findMany({
-      where,
+      where: {
+        doctorId: doctorId,
+        date: appointmentDate,
+        NOT: {
+          status: {
+            in: ['CANCELLED', 'NO_SHOW']
+          }
+        }
+      },
       select: {
         time: true,
       },
@@ -834,10 +1185,15 @@ router.get('/available-slots/:date', async (req, res) => {
 
     const bookedSlots = bookedAppointments.map(a => a.time);
 
-    // Define all possible time slots (9 AM to 5 PM, 30 min intervals)
     const allSlots = [];
-    for (let hour = 9; hour < 17; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+    const startHour = parseInt(workingHour.startTime.split(':')[0]);
+    const startMinute = parseInt(workingHour.startTime.split(':')[1]);
+    const endHour = parseInt(workingHour.endTime.split(':')[0]);
+    const endMinute = parseInt(workingHour.endTime.split(':')[1]);
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      for (let minute = (hour === startHour ? startMinute : 0); minute < 60; minute += 30) {
+        if (hour === endHour && minute >= endMinute) break;
         const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         allSlots.push(time);
       }
@@ -849,17 +1205,161 @@ router.get('/available-slots/:date', async (req, res) => {
       success: true,
       data: {
         date: date,
+        doctorId: doctorId,
+        doctorName: doctor.user ? 
+          `${doctor.user.firstName} ${doctor.user.lastName}` : 
+          'Unknown Doctor',
         availableSlots: availableSlots,
         bookedSlots: bookedSlots,
         totalSlots: allSlots.length,
         availableCount: availableSlots.length,
+        workingHours: {
+          start: workingHour.startTime,
+          end: workingHour.endTime,
+        },
       },
     });
   } catch (error) {
     console.error('Get available slots error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch available slots',
+      error: 'Failed to fetch available slots: ' + error.message,
+    });
+  }
+});
+
+// ============================================================
+// GET appointments by patient
+// ============================================================
+router.get('/patient/my-appointments', auth, authorize('PATIENT'), async (req, res) => {
+  try {
+    const patient = await prisma.patient.findUnique({
+      where: { userId: req.user.id },
+      select: { id: true }
+    });
+
+    if (!patient) {
+      return res.status(404).json({
+        success: false,
+        error: 'Patient profile not found',
+      });
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        patientId: patient.id,
+      },
+      include: {
+        service: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            duration: true,
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+      },
+      orderBy: { date: 'desc' },
+    });
+
+    res.json({
+      success: true,
+      data: appointments.map(mapAppointment),
+      count: appointments.length,
+    });
+  } catch (error) {
+    console.error('Get patient appointments error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch appointments',
+    });
+  }
+});
+
+// ============================================================
+// GET appointments by doctor
+// ============================================================
+router.get('/doctor/my-appointments', auth, authorize('DOCTOR'), async (req, res) => {
+  try {
+    const doctor = await prisma.doctor.findUnique({
+      where: { userId: req.user.id },
+      select: { id: true }
+    });
+
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        error: 'Doctor profile not found',
+      });
+    }
+
+    const appointments = await prisma.appointment.findMany({
+      where: {
+        doctorId: doctor.id,
+      },
+      include: {
+        service: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            duration: true,
+          },
+        },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    res.json({
+      success: true,
+      data: appointments.map(mapAppointment),
+      count: appointments.length,
+    });
+  } catch (error) {
+    console.error('Get doctor appointments error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch appointments',
     });
   }
 });

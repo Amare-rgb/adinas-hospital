@@ -69,7 +69,7 @@ export default function HospitalBookingPage() {
 
   const t = (key: string): string => {
     const dict: Record<string, { en: string; am: string }> = {
-      title: { en: 'Afilas General Hospital', am: 'አፊላስ አጠቃላይ ሆስፒታል' },
+      title: { en: 'Adinas General Hospital', am: 'አዲናስ አጠቃላይ ሆስፒታል' },
       subtitle: { en: 'Book your medical appointment', am: 'የሕክምና ቀጠሮዎን ይያዙ' },
       step1: { en: 'Personal Info', am: 'የግል መረጃ' },
       step2: { en: 'Visit Details', am: 'የጉብኝት ዝርዝር' },
@@ -129,8 +129,6 @@ export default function HospitalBookingPage() {
       printBtn: { en: 'Print', am: 'አትም' },
       termsText: { en: 'By booking, you agree to our terms and conditions', am: 'በመመዝገብ በውሎቻችን እና ሁኔታዎቻችን ይስማማሉ' },
       loadingText: { en: 'Loading...', am: 'በመጫን ላይ...' },
-      
-      // ADDED TRANSLATIONS
       selectDepartment: { en: 'Select Department', am: 'ክፍል ይምረጡ' },
       selectDoctor: { en: 'Select Doctor', am: 'ሐኪም ይምረጡ' },
       department: { en: 'Department', am: 'ክፍል' },
@@ -162,7 +160,7 @@ export default function HospitalBookingPage() {
 
   const visitType = watch('visitType');
 
-  // Fetch Departments & Doctors from Admin Page
+  // Fetch Departments & Doctors
   useEffect(() => {
     let isMounted = true;
 
@@ -170,7 +168,6 @@ export default function HospitalBookingPage() {
       try {
         setLoadingData(true);
         
-        // 1. Fetch Departments
         const deptRes = await fetch('http://localhost:5000/api/departments');
         if (deptRes.ok) {
           const deptData = await deptRes.json();
@@ -179,7 +176,6 @@ export default function HospitalBookingPage() {
           }
         }
 
-        // 2. Fetch Doctors
         const docRes = await fetch('http://localhost:5000/api/doctors');
         if (docRes.ok) {
           const docData = await docRes.json();
@@ -250,14 +246,23 @@ export default function HospitalBookingPage() {
   };
 
   // ============================================================
-  // ✅ SUBMIT WITH CHAPA PAYMENT INTEGRATION
+  // ✅ FIXED SUBMIT FUNCTION
   // ============================================================
   const onSubmit = async (data: HospitalBookingData) => {
     setIsSubmitting(true);
     setErrorDetails('');
 
     try {
-      const location = 'Afilas General Hospital';
+      // 🔥 STEP 1: Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const errorMsg = isAm ? 'እባክዎን መጀመሪያ ይግቡ' : 'Please login first';
+        toast.error(errorMsg);
+        router.push('/login');
+        return;
+      }
+
+      const location = 'Adinas General Hospital';
       const now = new Date();
       const appointmentDate = now.toISOString().split('T')[0];
       const hours = String(now.getHours()).padStart(2, '0');
@@ -275,8 +280,8 @@ export default function HospitalBookingPage() {
         symptoms: data.symptoms?.trim() || '',
         isEmergency: false,
         visitType: data.visitType,
-        departmentId: data.departmentId || null, // ✅ ADDED
-        doctorId: data.doctorId || null,         // ✅ ADDED
+        departmentId: data.departmentId || null,
+        doctorId: data.doctorId || null,
       };
 
       if (data.patientAge) payload.patientAge = parseInt(data.patientAge);
@@ -289,16 +294,22 @@ export default function HospitalBookingPage() {
         payload.homeAddress = data.homeAddress || null;
       }
 
-      // ✅ STEP 1: Create the appointment
-      const response = await api.post('/appointments', payload, false);
+      // 🔥 STEP 2: Create appointment with authentication
+      // api.post now sends token by default (auth = true)
+      const response = await api.post('/appointments', payload);
       const appointmentData = api.extractData<Appointment>(response);
 
-      // ✅ STEP 2: Initiate Payment with Chapa
+      console.log('✅ Appointment created:', appointmentData);
+
+      // 🔥 STEP 3: Initiate Payment with Chapa
       const payRes = await fetch('http://localhost:5000/api/payment/initiate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // 🔥 Add token here
+        },
         body: JSON.stringify({
-          amount: 500, // 👈 Adjust this fee as needed
+          amount: 500,
           email: data.patientEmail,
           first_name: data.patientName.split(' ')[0],
           last_name: data.patientName.split(' ').slice(1).join(' ') || 'Patient',
@@ -309,22 +320,38 @@ export default function HospitalBookingPage() {
       });
 
       const payData = await payRes.json();
+      console.log('💰 Payment response:', payData);
 
       if (payData.success && payData.checkout_url) {
         // ✅ REDIRECT TO CHAPA CHECKOUT
         window.location.href = payData.checkout_url;
       } else {
-        // Fallback: Show confirmation if payment fails (optional)
+        // Fallback: Show confirmation if payment fails
         setCreatedAppointment(appointmentData);
         setBookingData(data);
         setShowConfirmation(true);
         toast.success(isAm ? 'ቀጠሮዎ ተይዟል! 🎉' : 'Appointment booked successfully! 🎉');
       }
     } catch (error: any) {
-      console.error('Booking error:', error);
-      let errorMessage = isAm ? 'ቀጠሮ መያዝ አልተቻለም። እባክዎን ደግመው ይሞክሩ።' : 'Failed to book appointment. Please try again.';
-      if (error.message) errorMessage = error.message;
-      if (error.data && error.data.error) errorMessage = error.data.error;
+      console.error('❌ Booking error:', error);
+      
+      let errorMessage = isAm 
+        ? 'ቀጠሮ መያዝ አልተቻለም። እባክዎን ደግመው ይሞክሩ።' 
+        : 'Failed to book appointment. Please try again.';
+      
+      // 🔥 Better error handling
+      if (error.status === 401 || error.message?.includes('401')) {
+        errorMessage = isAm ? 'እባክዎን መጀመሪያ ይግቡ' : 'Please login first';
+        localStorage.removeItem('token');
+        router.push('/login');
+      } else if (error.message) {
+        errorMessage = error.message;
+      } else if (error.data?.error) {
+        errorMessage = error.data.error;
+      } else if (error.data?.message) {
+        errorMessage = error.data.message;
+      }
+      
       setErrorDetails(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -406,7 +433,7 @@ export default function HospitalBookingPage() {
                 {createdAppointment && (
                   <p className="text-xs text-foreground">
                     <span className="font-semibold text-muted-foreground">{t('bookingIdLabel')}</span>{' '}
-                    <span className="font-mono text-primary font-bold">
+                    <span className="font-mono text-blue-900 font-bold">
                       {createdAppointment.id?.slice(0, 8) || 'N/A'}
                     </span>
                   </p>
@@ -416,13 +443,13 @@ export default function HospitalBookingPage() {
               <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => router.push('/')}
-                  className="px-4 py-2 bg-primary text-primary-foreground font-semibold text-xs rounded-xl hover:bg-primary/90 transition-all shadow-md"
+                  className="px-4 py-2 bg-blue-900 text-white font-semibold text-xs rounded-xl hover:bg-blue-800 transition-all shadow-md"
                 >
                   {t('homeBtn')}
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-secondary text-secondary-foreground font-semibold text-xs rounded-xl hover:bg-secondary/80 transition-all"
+                  className="px-4 py-2 bg-blue-100 text-blue-900 font-semibold text-xs rounded-xl hover:bg-blue-200 transition-all"
                 >
                   {t('printBtn')}
                 </button>
@@ -440,12 +467,11 @@ export default function HospitalBookingPage() {
       <div className="py-8 px-4 flex items-center justify-center pt-28 sm:pt-32 pb-12">
         <div className="w-full max-w-md">
           <div className="bg-card text-card-foreground rounded-2xl shadow-xl border border-border overflow-hidden">
-            {/* Header Banner */}
-            <div className="px-5 py-3.5 border-b border-border bg-primary text-primary-foreground">
+            <div className="px-5 py-3.5 border-b border-border bg-blue-900 text-white">
               <h1 className="text-base font-bold text-center">
                 {t('title')}
               </h1>
-              <p className="text-xs text-primary-foreground/80 text-center mt-0.5">
+              <p className="text-xs text-white/80 text-center mt-0.5">
                 {t('subtitle')}
               </p>
             </div>
@@ -453,7 +479,7 @@ export default function HospitalBookingPage() {
             <div className="p-4 sm:p-5">
               {loadingData ? (
                 <div className="flex items-center justify-center py-6">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-900" />
                   <span className="ml-2.5 text-xs text-muted-foreground">{t('loadingText')}</span>
                 </div>
               ) : (
@@ -461,7 +487,7 @@ export default function HospitalBookingPage() {
                   {/* Step indicators */}
                   <div className="flex items-center justify-between px-2">
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${currentStep >= 1 ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted text-muted-foreground'}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${currentStep >= 1 ? 'bg-blue-900 text-white shadow-sm' : 'bg-muted text-muted-foreground'}`}>
                         1
                       </div>
                       <span className={`text-xs font-semibold ${currentStep === 1 ? 'text-foreground font-bold' : 'text-muted-foreground'}`}>
@@ -469,10 +495,10 @@ export default function HospitalBookingPage() {
                       </span>
                     </div>
                     <div className="flex-1 h-0.5 mx-3 bg-border">
-                      <div className={`h-full bg-primary transition-all duration-300 ${currentStep === 2 ? 'w-full' : 'w-0'}`} />
+                      <div className={`h-full bg-blue-900 transition-all duration-300 ${currentStep === 2 ? 'w-full' : 'w-0'}`} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${currentStep >= 2 ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted text-muted-foreground'}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${currentStep >= 2 ? 'bg-blue-900 text-white shadow-sm' : 'bg-muted text-muted-foreground'}`}>
                         2
                       </div>
                       <span className={`text-xs font-semibold ${currentStep === 2 ? 'text-foreground font-bold' : 'text-muted-foreground'}`}>
@@ -486,7 +512,7 @@ export default function HospitalBookingPage() {
                     <div className="space-y-3 pt-1">
                       <div className="border-b border-border pb-1.5">
                         <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                          <UserCircle className="w-4 h-4 text-primary" />
+                          <UserCircle className="w-4 h-4 text-blue-900" />
                           {t('personalTitle')}
                         </h3>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -504,7 +530,7 @@ export default function HospitalBookingPage() {
                             type="text"
                             placeholder={t('fullNamePlaceholder')}
                             dir="ltr"
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                           />
                           {errors.patientName && (
                             <p className="mt-1 text-[10px] text-destructive font-medium">{errors.patientName.message}</p>
@@ -520,7 +546,7 @@ export default function HospitalBookingPage() {
                             type="tel"
                             placeholder={t('phonePlaceholder')}
                             dir="ltr"
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                           />
                           {errors.patientPhone && (
                             <p className="mt-1 text-[10px] text-destructive font-medium">{errors.patientPhone.message}</p>
@@ -536,7 +562,7 @@ export default function HospitalBookingPage() {
                             type="email"
                             placeholder={t('emailPlaceholder')}
                             dir="ltr"
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                           />
                           {errors.patientEmail && (
                             <p className="mt-1 text-[10px] text-destructive font-medium">{errors.patientEmail.message}</p>
@@ -555,7 +581,7 @@ export default function HospitalBookingPage() {
                               min="0"
                               max="150"
                               dir="ltr"
-                              className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                              className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                             />
                           </div>
 
@@ -565,7 +591,7 @@ export default function HospitalBookingPage() {
                             </label>
                             <select
                               {...register('patientGender')}
-                              className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                              className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                             >
                               <option value="">{t('selectGender')}</option>
                               <option value="MALE">{t('male')}</option>
@@ -578,7 +604,7 @@ export default function HospitalBookingPage() {
                         <button
                           type="button"
                           onClick={nextStep}
-                          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all text-xs shadow-md mt-3"
+                          className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-900 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all text-xs shadow-md mt-3"
                         >
                           {t('next')}
                           <ChevronRight className="w-4 h-4" />
@@ -592,7 +618,7 @@ export default function HospitalBookingPage() {
                     <div className="space-y-3 pt-1">
                       <div className="border-b border-border pb-1.5">
                         <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                          <Users className="w-4 h-4 text-primary" />
+                          <Users className="w-4 h-4 text-blue-900" />
                           {t('visitTitle')}
                         </h3>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -600,7 +626,7 @@ export default function HospitalBookingPage() {
                         </p>
                       </div>
 
-                      {/* ✅ ADDED: Department & Doctor Dropdowns */}
+                      {/* Department & Doctor Dropdowns */}
                       <div className="space-y-2">
                         <div>
                           <label className="block text-xs font-semibold text-foreground/80 mb-1">
@@ -608,7 +634,7 @@ export default function HospitalBookingPage() {
                           </label>
                           <select
                             {...register('departmentId')}
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                           >
                             <option value="">{t('selectDepartment')}</option>
                             {departments.map((dept) => (
@@ -625,7 +651,7 @@ export default function HospitalBookingPage() {
                           </label>
                           <select
                             {...register('doctorId')}
-                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                            className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                           >
                             <option value="">{t('selectDoctor')}</option>
                             {doctors.map((doc) => {
@@ -650,14 +676,14 @@ export default function HospitalBookingPage() {
                           <button
                             type="button"
                             onClick={() => setValue('visitType', 'HOSPITAL')}
-                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOSPITAL' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/50'}`}
+                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOSPITAL' ? 'border-blue-900 bg-blue-50 text-blue-900 shadow-sm' : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-blue-700'}`}
                           >
                             {t('hospitalVisit')}
                           </button>
                           <button
                             type="button"
                             onClick={() => setValue('visitType', 'HOME')}
-                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOME' ? 'border-primary bg-primary/10 text-primary shadow-sm' : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/50'}`}
+                            className={`py-2 px-3 text-xs font-semibold rounded-xl border transition-all ${visitType === 'HOME' ? 'border-blue-900 bg-blue-50 text-blue-900 shadow-sm' : 'border-border bg-background text-muted-foreground hover:text-foreground hover:border-blue-700'}`}
                           >
                             {t('homeVisit')}
                           </button>
@@ -671,7 +697,7 @@ export default function HospitalBookingPage() {
                         <div className="space-y-2 p-3 bg-muted/40 rounded-xl border border-border">
                           <div className="border-b border-border pb-1">
                             <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                              <Home className="w-4 h-4 text-primary" />
+                              <Home className="w-4 h-4 text-blue-900" />
                               {t('homeAddressTitle')}
                             </h3>
                             <p className="text-[10px] text-muted-foreground">
@@ -688,7 +714,7 @@ export default function HospitalBookingPage() {
                                 {...register('city')}
                                 type="text"
                                 placeholder={t('cityPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                               />
                             </div>
                             <div>
@@ -699,7 +725,7 @@ export default function HospitalBookingPage() {
                                 {...register('subCity')}
                                 type="text"
                                 placeholder={t('subCityPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                               />
                             </div>
                             <div>
@@ -710,7 +736,7 @@ export default function HospitalBookingPage() {
                                 {...register('woreda')}
                                 type="text"
                                 placeholder={t('woredaPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none"
+                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none"
                               />
                             </div>
                             <div>
@@ -722,20 +748,20 @@ export default function HospitalBookingPage() {
                                   {...register('gpsPin')}
                                   type="text"
                                   placeholder={t('gpsPlaceholder')}
-                                  className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary pr-9 transition outline-none"
+                                  className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 pr-9 transition outline-none"
                                   readOnly
                                 />
                                 <button
                                   type="button"
                                   onClick={getCurrentLocation}
-                                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-primary transition-colors"
+                                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-blue-900 transition-colors"
                                   title={t('gpsHelp')}
                                 >
                                   <Crosshair className="w-4 h-4" />
                                 </button>
                               </div>
                               <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                                <Navigation className="w-3 h-3 text-primary" />
+                                <Navigation className="w-3 h-3 text-blue-900" />
                                 {t('gpsHelp')}
                               </p>
                             </div>
@@ -747,7 +773,7 @@ export default function HospitalBookingPage() {
                                 {...register('homeAddress')}
                                 rows={2}
                                 placeholder={t('detailedAddressPlaceholder')}
-                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none resize-none"
+                                className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none"
                               />
                             </div>
                           </div>
@@ -762,7 +788,7 @@ export default function HospitalBookingPage() {
                           {...register('symptoms')}
                           rows={2}
                           placeholder={t('symptomsPlaceholder')}
-                          className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none resize-none"
+                          className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none"
                         />
                       </div>
 
@@ -774,7 +800,7 @@ export default function HospitalBookingPage() {
                           {...register('notes')}
                           rows={2}
                           placeholder={t('notesPlaceholder')}
-                          className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-primary transition outline-none resize-none"
+                          className="w-full px-3 py-2 text-xs border border-border rounded-xl bg-background text-foreground focus:ring-2 focus:ring-blue-900 focus:border-blue-900 transition outline-none resize-none"
                         />
                       </div>
 
@@ -782,7 +808,7 @@ export default function HospitalBookingPage() {
                         <button
                           type="button"
                           onClick={prevStep}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all text-xs"
+                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-100 text-blue-900 font-semibold rounded-xl hover:bg-blue-200 transition-all text-xs"
                         >
                           <ChevronLeft className="w-4 h-4" />
                           {t('back')}
@@ -790,7 +816,7 @@ export default function HospitalBookingPage() {
                         <button
                           type="submit"
                           disabled={isSubmitting || loadingData}
-                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-xs"
+                          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-900 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-xs"
                         >
                           {isSubmitting ? (
                             <>

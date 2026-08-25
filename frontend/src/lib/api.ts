@@ -1,4 +1,4 @@
-// lib/api.ts
+// lib/api.ts - COMPLETE FIXED VERSION
 // Use port 5000 (your backend port)
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -40,16 +40,13 @@ async function request<T>(
     ...(options.headers as Record<string, string>),
   };
 
-  // Add auth token if required
-  if (options.auth) {
-    const token = getToken();
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-      console.log('🔑 Auth token added to request');
-    } else {
-      console.warn('⚠️ Auth required but no token found');
-    }
+  // 🔥 FIX: Always try to add token if available
+  const token = getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+    console.log('🔑 Auth token added to request');
+  } else {
+    console.warn('⚠️ No token found in localStorage');
   }
 
   const url = `${API_URL}${path}`;
@@ -110,15 +107,15 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T>(path: string, auth = false): Promise<T> => 
+  get: <T>(path: string, auth: boolean = true): Promise<T> => 
     request<T>(path, { method: 'GET', auth }),
   
-  post: <T>(path: string, body?: unknown, auth = false): Promise<T> => {
-    // 🔥 FIX: Handle FormData separately
+  post: <T>(path: string, body?: unknown, auth: boolean = true): Promise<T> => {  // 🔥 FIX: auth default = true
+    // Handle FormData separately
     if (body instanceof FormData) {
       const token = getToken();
       const headers: Record<string, string> = { 'Accept': 'application/json' };
-      if (auth && token) {
+      if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
@@ -144,12 +141,12 @@ export const api = {
     });
   },
   
-  put: <T>(path: string, body?: unknown, auth = false): Promise<T> => {
-    // 🔥 FIX: Handle FormData separately
+  put: <T>(path: string, body?: unknown, auth: boolean = true): Promise<T> => {  // 🔥 FIX: auth default = true
+    // Handle FormData separately
     if (body instanceof FormData) {
       const token = getToken();
       const headers: Record<string, string> = { 'Accept': 'application/json' };
-      if (auth && token) {
+      if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
@@ -174,12 +171,12 @@ export const api = {
     });
   },
   
-  patch: <T>(path: string, body?: unknown, auth = false): Promise<T> => {
-    // 🔥 FIX: Handle FormData separately
+  patch: <T>(path: string, body?: unknown, auth: boolean = true): Promise<T> => {  // 🔥 FIX: auth default = true
+    // Handle FormData separately
     if (body instanceof FormData) {
       const token = getToken();
       const headers: Record<string, string> = { 'Accept': 'application/json' };
-      if (auth && token) {
+      if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
@@ -204,7 +201,7 @@ export const api = {
     });
   },
   
-  delete: <T>(path: string, auth = false): Promise<T> => 
+  delete: <T>(path: string, auth: boolean = true): Promise<T> =>  // 🔥 FIX: auth default = true
     request<T>(path, { method: 'DELETE', auth }),
 
   // Helper to extract data from response
@@ -368,7 +365,7 @@ export const api = {
     endDate?: string;
     doctorId?: string;
     location?: string;
-  }, auth = true) => {
+  }, auth: boolean = true) => {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -383,40 +380,40 @@ export const api = {
   },
 
   // Get single appointment
-  getAppointment: (id: string, auth = true) => 
+  getAppointment: (id: string, auth: boolean = true) => 
     api.get(`/appointments/${id}`, auth),
 
-  // Create appointment (public or authenticated)
-  createAppointment: (data: any, auth = false) => 
+  // Create appointment - 🔥 NOW AUTH BY DEFAULT
+  createAppointment: (data: any, auth: boolean = true) =>   // 🔥 FIX: auth default = true
     api.post('/appointments', data, auth),
 
   // Update appointment status
-  updateAppointmentStatus: (id: string, status: string, auth = true) =>
+  updateAppointmentStatus: (id: string, status: string, auth: boolean = true) =>
     api.patch(`/appointments/${id}/status`, { status }, auth),
 
   // Update appointment details
-  updateAppointment: (id: string, data: any, auth = true) =>
+  updateAppointment: (id: string, data: any, auth: boolean = true) =>
     api.put(`/appointments/${id}`, data, auth),
 
   // Delete appointment
-  deleteAppointment: (id: string, auth = true) =>
+  deleteAppointment: (id: string, auth: boolean = true) =>
     api.delete(`/appointments/${id}`, auth),
 
   // Cancel appointment (user)
-  cancelAppointment: (id: string, auth = true) =>
+  cancelAppointment: (id: string, auth: boolean = true) =>
     api.delete(`/appointments/${id}/cancel`, auth),
 
   // ============ DEPARTMENT METHODS ============
   
-  getDepartments: (auth = false) => 
+  getDepartments: (auth: boolean = false) => 
     api.get('/departments', auth),
 
-  getDepartment: (id: string, auth = false) => 
+  getDepartment: (id: string, auth: boolean = false) => 
     api.get(`/departments/${id}`, auth),
 
   // ============ DOCTOR METHODS ============
   
-  getDoctors: (params?: { departmentId?: string; active?: boolean }, auth = false) => {
+  getDoctors: (params?: { departmentId?: string; active?: boolean }, auth: boolean = false) => {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -430,12 +427,12 @@ export const api = {
     return api.get(endpoint, auth);
   },
 
-  getDoctor: (id: string, auth = false) => 
+  getDoctor: (id: string, auth: boolean = false) => 
     api.get(`/doctors/${id}`, auth),
 
   // ============ SERVICE METHODS ============
   
-  getServices: (params?: { departmentId?: string; isActive?: boolean }, auth = false) => {
+  getServices: (params?: { departmentId?: string; isActive?: boolean }, auth: boolean = false) => {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -449,7 +446,7 @@ export const api = {
     return api.get(endpoint, auth);
   },
 
-  getService: (id: string, auth = false) => 
+  getService: (id: string, auth: boolean = false) => 
     api.get(`/services/${id}`, auth),
 
   // ============ AUTH METHODS ============
@@ -460,7 +457,7 @@ export const api = {
   register: (data: any) => 
     api.post('/auth/register', data),
 
-  getProfile: (auth = true) => 
+  getProfile: (auth: boolean = true) => 
     api.get('/auth/profile', auth),
 
   logout: () => {
@@ -471,7 +468,7 @@ export const api = {
 
   // ============ DASHBOARD METHODS ============
   
-  getDashboardSummary: (auth = true) => 
+  getDashboardSummary: (auth: boolean = true) => 
     api.get('/dashboard/summary', auth),
 };
 

@@ -1,3 +1,5 @@
+// src/lib/services/appointment.ts - UPDATED VERSION
+
 // src/lib/services/appointment.ts
 import api, { extractApiData, isApiSuccess, getApiErrorMessage } from '@/lib/api';
 import { Appointment } from '@/lib/types';
@@ -20,12 +22,19 @@ export interface CreateAppointmentData {
   patientGender?: string | null;
   date: string;
   time: string;
-  doctorId: string;
-  serviceId: string;
+  doctorId?: string;  // 🔥 Made optional for hospital booking
+  serviceId?: string; // 🔥 Made optional for hospital booking
   location?: string;
   notes?: string;
   symptoms?: string;
   isEmergency?: boolean;
+  visitType?: string;  // 🔥 Added for hospital booking
+  departmentId?: string; // 🔥 Added for hospital booking
+  city?: string;
+  subCity?: string;
+  woreda?: string;
+  homeAddress?: string;
+  gpsPin?: string;
 }
 
 export interface UpdateAppointmentData {
@@ -113,8 +122,9 @@ export const appointmentService = {
   /**
    * Create a new appointment
    * POST /api/appointments
+   * 🔥 FIX: auth now defaults to true
    */
-  async createAppointment(data: CreateAppointmentData, auth = false): Promise<Appointment> {
+  async createAppointment(data: CreateAppointmentData, auth = true): Promise<Appointment> {  // 🔥 CHANGED: false → true
     try {
       console.log('📡 Creating appointment:', data);
       
@@ -126,12 +136,19 @@ export const appointmentService = {
         patientGender: data.patientGender || null,
         date: data.date,
         time: data.time,
-        doctorId: data.doctorId,
-        serviceId: data.serviceId,
-        location: data.location || 'Afilas General Hospital',
+        doctorId: data.doctorId || null,  // 🔥 Make optional
+        serviceId: data.serviceId || null, // 🔥 Make optional
+        departmentId: data.departmentId || null, // 🔥 Added
+        location: data.location || 'Adinas General Hospital',
         notes: data.notes || '',
         symptoms: data.symptoms || '',
         isEmergency: data.isEmergency || false,
+        visitType: data.visitType || 'HOSPITAL', // 🔥 Added
+        city: data.city || null,
+        subCity: data.subCity || null,
+        woreda: data.woreda || null,
+        homeAddress: data.homeAddress || null,
+        gpsPin: data.gpsPin || null,
       };
 
       const response = await api.post('/appointments', payload, auth);
@@ -255,24 +272,24 @@ export const appointmentService = {
   },
 
   /**
-   * Get appointments for Afilas General Hospital
+   * Get appointments for Adinas General Hospital
    */
   async getGeneralHospitalAppointments(filters: Omit<AppointmentFilters, 'location'> = {}, auth = true): Promise<Appointment[]> {
-    return this.getAppointmentsByLocation('Afilas General Hospital', filters, auth);
+    return this.getAppointmentsByLocation('Adinas General Hospital', filters, auth);
   },
 
   /**
    * Get appointments for Diagnosis Center
    */
   async getDiagnosisCenterAppointments(filters: Omit<AppointmentFilters, 'location'> = {}, auth = true): Promise<Appointment[]> {
-    return this.getAppointmentsByLocation('Afilas Diagnosis Center', filters, auth);
+    return this.getAppointmentsByLocation('Adinas Diagnosis Center', filters, auth);
   },
 
   /**
    * Get appointments for Drug Manufacturing
    */
   async getDrugManufacturingAppointments(filters: Omit<AppointmentFilters, 'location'> = {}, auth = true): Promise<Appointment[]> {
-    return this.getAppointmentsByLocation('Afilas Drug Manufacturing', filters, auth);
+    return this.getAppointmentsByLocation('Adinas Drug Manufacturing', filters, auth);
   },
 
   /**

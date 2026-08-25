@@ -4,9 +4,8 @@
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { GeneralSec } from "@/components/generalsec";
-import DiagnosisCenterSection from "@/components/DiagnosisCenterSection";
 
-import DrugManufacturingSection from "@/components/DrugManufacturingSection";
+
 import { UnifiedPillarsSection } from "@/components/Shared Essential";
 
 export function PageContent() {
@@ -24,10 +23,9 @@ export function PageContent() {
         <GeneralSec />
 
         {/* Diagnosis Center Summary Section */}
-        <DiagnosisCenterSection />
-
+       
         {/* Drug Manufacturing Section */}
-        <DrugManufacturingSection />
+      
 
         {/* Three Pillars - Summary Cards */}
         {/* <UnifiedPillarsSection /> */}

@@ -17,36 +17,28 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
+    // Hospital Names
+    "hospital.name.full": "Adinas General Hospital",
+    "hospital.name.short": "Adinas Hospital",
+    "hospital.name.general": "General Hospital",
+    "hospital.name.adinas": "Adinas",
+    "hospital.name.afilas": "Adinas",
+
     // Navigation & Topbar
     "nav.home": "Home",
     "nav.hospital": "Hospital",
-    "nav.diagnostics": "Diagnostics",
-    "nav.pharma": "Pharmacy",
     "nav.about": "About",
     "nav.contact": "Contact",
     "nav.service": "Services",
+    "nav.services": "Services",
     "nav.blog": "Blog",
-    "nav.group": "Afilas Group",
-    "nav.group_dropdown_title": "Explore Our Divisions",
     "nav.about_us": "About Us",
     "nav.contact_emergency": "Contact & Emergency",
-    "nav.select_division": "Select Division",
-    "nav.division.group": "Afilas Group",
-    "nav.division.hospital": "Afilas General Hospital",
-    "nav.division.hospital_desc":
-      "Compassionate, specialized patient care available 24/7.",
-    "nav.division.diagnostics": "Afilas Diagnosis Center",
-    "nav.division.diagnostics_desc":
-      "High-precision imaging and automated laboratory testing.",
-    "nav.division.pharma": "Afilas Drug Manufacturing",
-    "nav.division.pharma_desc":
-      "Quality-driven, accessible pharmaceutical production meeting international standards.",
     "nav.toggle_menu": "Toggle navigation",
     "topbar.emergency_available": "Emergency Care Available 24/7",
     "topbar.call": "Call:",
     "cta.emergency_call": "Emergency Call",
     "cta.book_appointment": "Book Appointment",
-    "cta.get_lab_results": "Get Lab Results",
 
     "nav.selected": "Selected",
     "nav.menu": "Menu",
@@ -57,135 +49,49 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.register": "Register",
     "nav.book": "Book",
     "nav.book_services": "Book Services",
-    "nav.book_hospital_desc": "Book at Afilas General Hospital",
-    "nav.book_diagnosis_desc": "Book lab tests & scans",
-    "nav.book_pharma_desc": "Order medications & supplies",
+    "nav.book_hospital_desc": "Book at Adinas General Hospital",
+    "nav.book_appointment": "Book at Adinas General Hospital",  // Added this line
     "nav.branch_links": "Branch Links",
 
     // Hero Section
-    "hero.company_subtitle": "Afilas Share Company",
-    "hero.headline": "Complete Healthcare Solutions Under One Umbrella.",
-    "hero.subheadline":
-      "From advanced clinical care and precision diagnostics to local pharmaceutical manufacturing, Afilas is dedicated to elevating health standards across the region.",
+    "hero.headline": "Welcome to Adinas General Hospital",
+    "hero.subheadline": "Excellence in healthcare services — from advanced clinical care to specialized medical treatments.",
     "hero.find_doctor": "Find a Doctor",
-    "hero.book_test": "Book Diagnostic Test",
-    "hero.explore_pharma": "Explore Pharma Division",
     "hero.hospital_subtitle": "24/7 Patient Care",
-    "hero.diagnostic_subtitle": "Precision Testing",
-    "hero.pharma_subtitle": "GMP Certified",
-
-    // Three Pillars / Shared Essential Section
-    "pillars.header_badge": "Our Divisions",
-    "pillars.header_title": "Three Pillars of Afilas",
-    "pillars.header_subtitle":
-      "Integrated healthcare solutions across hospital, diagnostic, and pharmaceutical services.",
-    "pillars.title": "Integrated Excellence Across Healthcare",
-    "pillars.subtitle":
-      "Discover how our three dedicated divisions work together to deliver comprehensive care and reliable pharmaceutical solutions.",
-    "pillars.card1_title": "Afilas General Hospital",
-    "pillars.card1_tag": "24/7 Care",
-    "pillars.card1_desc":
-      "Afilas General Hospital is a multi-specialty healthcare facility near Felege Hiwot Hospital, offering breathtaking views of Lake Tana. With 10+ specialty centers, it provides compassionate, patient-centered care 24/7.",
-    "pillars.card1_highlight1": "Inpatient/Outpatient",
-    "pillars.card1_highlight2": "Emergency & Surgery",
-    "pillars.card1_highlight3": "Maternal & Child Health",
-    "pillars.card1_cta": "Explore Hospital",
-    "pillars.card2_title": "Afilas Diagnostic Center",
-    "pillars.card2_tag": "Precision",
-    "pillars.card2_desc":
-      "Afilas Diagnostic Center is a state-of-the-art facility delivering fast, precise, and reliable diagnostic results through advanced lab testing and digital access.",
-    "pillars.card2_highlight1": "Lab Services",
-    "pillars.card2_highlight2": "Imaging & Radiology",
-    "pillars.card2_highlight3": "Digital Results",
-    "pillars.card2_cta": "Book a Test",
-    "pillars.card3_title": "Afilas Drug Manufacturing",
-    "pillars.card3_tag": "GMP Certified",
-    "pillars.card3_desc":
-      "Afilas Drug Manufacturing is committed to producing high-quality, affordable pharmaceutical products meeting international standards with GMP certification.",
-    "pillars.card3_highlight1": "Quality Assurance",
-    "pillars.card3_highlight2": "Product Catalog",
-    "pillars.card3_highlight3": "B2B Partnership",
-    "pillars.card3_cta": "View Products",
+    "hero.welcome": "Welcome to Adinas General Hospital",
+    "hero.description": "We are committed to providing exceptional healthcare services with compassion, innovation, and excellence. Our dedicated team of medical professionals ensures the highest quality care for every patient.",
+    "hero.book_appointment": "Book Appointment",
 
     // General Hospital Section
-    "general.title": "Afilas General Hospital",
-    "general.subtitle":
-      "Compassionate, specialized patient care available 24/7.",
-    "general.intro":
-      "Afilas hospital is a multi-specialty hospital located around Felege Hiwot Hospital, in front of Amhara public health institute, with a breathtaking view of Lake Tana.",
+    "general.title": "Adinas General Hospital",
+    "general.hospital": "General Hospital",
+    "general.subtitle": "Compassionate, specialized patient care available 24/7.",
     "general.feature1": "Over 10 specialty centers under one roof",
     "general.feature2": "State-of-the-art diagnostic and therapeutic care",
     "general.feature3": "Convenient one-stop medical center",
     "general.feature4": "Private hospital with high-quality standards",
     "general.feature5": "Experienced medical professionals",
     "general.location": "Location",
-    "general.location_address":
-      "Felege Hiwot Area, Amhara Public Health Institute, Lake Tana Shore",
+    "general.location_address": "Addis Ababa, Ethiopia",
     "general.emergency_services": "Emergency Services",
     "general.emergency_desc": "24/7 Emergency Care & Ambulance Services",
-    "general.cta": "Explore Hospital Services",
+    "general.cta": "Discover Our Services",
+    "general.why_choose_us": "Why Choose Us?",
+    "general.why_choose_1": "Medical excellence with highly experienced specialists.",
+    "general.why_choose_2": "Comprehensive Care - A full range of medical services.",
+    "general.why_choose_3": "Advanced Technology - State-of-the-art medical equipment.",
+    "general.why_choose_4": "Patient-Centered Approach - Compassionate, personalized care.",
+    "general.why_choose_5": "24/7 Availability - Emergency and critical care services.",
+    "general.why_choose_6": "High-Quality Facilities - Modern inpatient rooms and ICUs.",
+    "general.hospital_description": "Our hospital has been delivering compassionate, expert medical care to our community. Our legacy of excellence is built on experience, innovation, and an unwavering commitment to patient well-being.",
+    "general.learn_more": "Learn More",
 
-    // Diagnostic Center Section
-    "diagnostic.title": "Afilas Diagnostic Center",
-    "diagnostic.subtitle":
-      "Fast, precise, and reliable diagnostic results driving accurate medical decisions.",
-    "diagnostic.about_title": "About Afilas Diagnostic Center",
-    "diagnostic.about_desc":
-      "Afilas Diagnostic Center is a state-of-the-art diagnostic facility dedicated to providing accurate, timely, and reliable diagnostic services to support better healthcare outcomes.",
-    "diagnostic.feature1_title": "Comprehensive Testing",
-    "diagnostic.feature1_desc":
-      "From routine blood work to specialized diagnostic tests.",
-    "diagnostic.feature2_title": "Quick Turnaround",
-    "diagnostic.feature2_desc":
-      "Results delivered within 24-48 hours with digital access.",
-    "diagnostic.feature3_title": "Quality Assurance",
-    "diagnostic.feature3_desc":
-      "Advanced equipment with international quality standards.",
-    "diagnostic.feature4_title": "Digital Convenience",
-    "diagnostic.feature4_desc":
-      "Secure online access to reports anytime, anywhere.",
-    "diagnostic.cta": "Go To Diagnostic Center",
-    "diagnostic.packages_title": "Specialized Health Check Packages",
-    "diagnostic.packages_subtitle":
-      "Comprehensive screening for every life stage",
-    "diagnostic.package1_name": "Executive Wellness",
-    "diagnostic.package1_desc":
-      "A full-body baseline for busy schedules — bloodwork, imaging, and a same-week consult.",
-    "diagnostic.package2_name": "Diabetic Care",
-    "diagnostic.package2_desc":
-      "Glucose, HbA1c, kidney and eye screening tracked together for ongoing management.",
-    "diagnostic.package3_name": "Women's / Men's Health",
-    "diagnostic.package3_desc":
-      "Comprehensive screening built around the checks that matter most at each life stage.",
-
-    // Drug Manufacturing Section
-    "pharma.title": "Afilas Drug Manufacturing",
-    "pharma.subtitle":
-      "Safeguarding community health through local, high-quality, and compliant medicine production.",
-    "pharma.description":
-      "Afilas Drug Manufacturing is committed to producing high-quality pharmaceutical products that meet international standards. With state-of-the-art manufacturing facilities and strict adherence to GMP guidelines, we ensure every product is safe, effective, and reliable for patient use.",
-    "pharma.card1_title": "Manufacturing Capabilities",
-    "pharma.card1_desc":
-      "Dosage forms produced include Tablets, Capsules, Liquids, and Ointments designed for safe, reliable patient use.",
-    "pharma.card1_tag": "GMP",
-    "pharma.card2_title": "Quality Assurance & Compliance",
-    "pharma.card2_desc":
-      "Strict adherence to GMP standards and regulatory approvals ensures every product meets international safety and quality benchmarks.",
-    "pharma.card2_tag": "Certified",
-    "pharma.card3_title": "Product Catalog",
-    "pharma.card3_desc":
-      "A searchable directory for healthcare providers, pharmacies, and distributors to quickly find suitable formulations and products.",
-    "pharma.card3_tag": "Searchable",
-    "pharma.card4_title": "Partnership & B2B Inquiry",
-    "pharma.card4_desc":
-      "Support for supply requests, contract manufacturing, and institutional distribution across public and private health networks.",
-    "pharma.card4_tag": "Contact",
-    "pharma.cta": "Go to Pharma Page",
-
-    // Doctor Finder Section
+    // Doctor Finder Section - Added translations
+    "doctors.hero.badge": "Find a Doctor",
+    "doctors.hero.title": "Our Expert Doctors",
+    "doctors.hero.subtitle": "Connect with experienced specialists across key medical disciplines.",
     "doctors.headline": "Find a Doctor",
-    "doctors.subtitle":
-      "Connect with experienced specialists across key medical disciplines.",
+    "doctors.subtitle": "Connect with experienced specialists across key medical disciplines.",
     "doctors.filter_specialty": "Select Specialty",
     "doctors.filter_availability": "Select Availability",
     "doctors.filter_search": "Search Doctor by Name...",
@@ -199,203 +105,61 @@ const translations: Record<Language, Record<string, string>> = {
     "doctors.no_doctors": "No doctors found matching your criteria.",
 
     // About Us Section
-    "about.title": "About Afilas",
-    "about.subtitle":
-      "Unifying clinical expertise, technology, and local manufacturing for accessible healthcare.",
-    "about.vision_title": "Vision",
-    "about.vision_desc":
-      "Aspiring to provide the perfect patient experience through innovative and compassionate care in the region by 2030.",
-    "about.mission_title": "Mission",
-    "about.mission_1":
-      "To provide cost effective, compassionate, respectful, and high quality healthcare to the community.",
-    "about.mission_2":
-      "To offer highly equitable corporate social responsibility.",
-    "about.mission_3": "To enhance the culture of Employee engagement.",
-    "about.mission_4": "To promote Customer satisfaction, health and wellness.",
-    "about.core_values_title": "Statement of Core Values",
-    "about.core_value_1": "Compassion",
-    "about.core_value_1_desc":
-      "We treat every patient with kindness, empathy, and genuine care.",
-    "about.core_value_2": "Excellence",
-    "about.core_value_2_desc":
-      "We pursue the highest standards of medical practice and service delivery.",
-    "about.core_value_3": "Integrity",
-    "about.core_value_3_desc":
-      "We uphold honesty, transparency, and ethical conduct in all operations.",
-    "about.core_value_4": "Innovation",
-    "about.core_value_4_desc":
-      "We embrace modern medical technologies and continuously improve our processes.",
-    "about.core_value_5": "Teamwork",
-    "about.core_value_5_desc":
-      "We work collaboratively to deliver comprehensive, patient-centered care.",
-    "about.core_value_6": "Accountability",
-    "about.core_value_6_desc":
-      "We take responsibility for our actions and strive for measurable results.",
-    "about.quality_title": "Quality & Safety Commitment",
-    "about.quality_1": "Infection Control",
-    "about.quality_2": "Standard Operating Procedures",
-    "about.quality_3": "Regulatory Certifications",
-    "about.page_title": "About Afilas Hospital",
+    "about.page_title": "About Adinas Hospital",
+    "about.meaning_text": "Adinas — a name built on trust, health, and compassionate care.",
+    "about.meaning": "Meaning",
     "about.toc_title": "On This Page",
-    "about.what_is_afilas": "What is Afilas",
-    "about.what_is_afilas_p1":
-      "Afilas Pharmaceuticals Manufacturing and Medical Services S.C. was established in June 2017 by a group of committed, visionary, team-oriented, and considerate health science and related scholars.",
-    "about.what_is_afilas_p2":
-      "The first business firm of Afilas, which opened in January 2018, was Afilas Health Center, which grew into Afilas General Hospital (AGH).",
-    "about.what_is_afilas_p3":
-      "In 2022, we opened our second business firm, Afilas Pharmaceuticals Wholesale (APW) and we have opened Afilas diagnostics center in 2026.",
-    "about.board_title": "Afilas PMMS S.C. Board of Directors",
-    "about.inspectors_title": "Inspectors / Internal Auditors",
-    "about.ceo_title": "Afilas PMMS S.C. Chief Executive Officer (CEO)",
-    "about.directors_title": "Directors",
+    "about.what_is_afilas": "What is Adinas Hospital",
+    "about.what_is_afilas_p1": "Adinas General Hospital is a multi-specialty healthcare institution committed to providing exceptional medical services to the community.",
+    "about.what_is_afilas_p2": "With a focus on patient-centered care, we combine advanced medical technology with compassionate service to ensure the best outcomes for every patient.",
+    "about.what_is_afilas_p3": "Our hospital is dedicated to excellence in healthcare delivery, medical education, and community health initiatives.",
     "about.established": "Established",
-    "about.established_year": "June 2017",
-    "about.meaning": "Name Meaning",
-    "about.meaning_text": "The voice of scholars is heard",
+    "about.established_year": "2024",
+    "about.vision_title": "Vision",
+    "about.vision_text": "To be the leading healthcare provider in Ethiopia, recognized for excellence in patient care, medical innovation, and community service.",
+    "about.mission_title": "Mission",
+    "about.mission_1": "To provide accessible, affordable, and high-quality healthcare services to all patients.",
+    "about.mission_2": "To foster a culture of continuous learning and professional development among our staff.",
+    "about.mission_3": "To embrace innovation and technology in healthcare delivery.",
+    "about.mission_4": "To promote health and wellness through community engagement and education.",
+    "about.core_values_title": "Our Core Values",
     "about.core_value_1_title": "Compassion",
+    "about.core_value_1_desc": "We treat every patient with kindness, empathy, and genuine care.",
     "about.core_value_2_title": "Excellence",
+    "about.core_value_2_desc": "We pursue the highest standards of medical practice and service delivery.",
     "about.core_value_3_title": "Integrity",
+    "about.core_value_3_desc": "We uphold honesty, transparency, and ethical conduct in all operations.",
     "about.core_value_4_title": "Innovation",
+    "about.core_value_4_desc": "We embrace modern medical technologies and continuously improve our processes.",
     "about.core_value_5_title": "Teamwork",
+    "about.core_value_5_desc": "We work collaboratively to deliver comprehensive, patient-centered care.",
     "about.core_value_6_title": "Accountability",
-    
+    "about.core_value_6_desc": "We take responsibility for our actions and strive for measurable results.",
+
     // Footer
-    "footer.tagline":
-      "Elevating health through care, precision, and production.",
-    "footer.address": "Address: Felege Hiwot Area, Lake Tana Shore, Bahir Dar",
+    "footer.tagline": "Elevating health through care and precision.",
+    "footer.address": "Address: Addis Ababa, Ethiopia",
     "footer.phone": "Phone: +251 98 320 1998",
-    "footer.email": "Email: info@afilas.com",
+    "footer.email": "Email: info@adinashospital.com",
     "footer.quick_links": "Quick Links",
     "footer.hospital_departments": "Hospital Departments",
-    "footer.diagnostic_packages": "Diagnostic Packages",
-    "footer.pharma_catalog": "Pharma Catalog",
     "footer.careers_news": "Careers & News",
     "footer.emergency_support": "Emergency & Support",
     "footer.emergency_hotline": "Emergency Hotline: +251 98 320 1998",
-    "footer.lab_results": "Lab Results Portal",
-    "footer.lab_results_link": "Login / Access Link",
-    "footer.pharma_inquiries": "Pharma Commercial Inquiries",
-    "footer.pharma_inquiries_contact": "Contact B2B Team",
     "footer.rights_reserved": "All Rights Reserved.",
     "footer.emergency_hotline_label": "Emergency Hotline",
     "footer.available_24_7": "24/7 Available",
-    "footer.copyright": "© 2026 Afilas Group.",
+    "footer.copyright": "© 2026 Adinas General Hospital.",
     "footer.privacy_policy": "Privacy Policy",
     "footer.terms_of_use": "Terms of Use",
 
-    "diagnostics.hero.title": "Afilas Diagnostics Center",
-    "diagnostics.hero.subtitle":
-      "High-precision imaging and fully automated laboratory testing.",
-    "diagnostics.hero.cta1": "View Services",
-    "diagnostics.hero.cta2": "Book a Test",
-    "diagnostics.hero.scroll": "Scroll to explore",
-    "diagnostics.hero.social_proof": "Over 10,000 tests processed monthly",
-
-    // pharma page
-    "pharma.hero.title": "Afilas Drug Share sales",
-    "pharma.hero.subtitle":
-      "Quality-driven, accessible pharmaceutical production meeting international standards.",
-    "pharma.hero.cta1": "View Products",
-    "pharma.hero.cta2": "B2B Inquiries",
-    "pharma.hero.scroll": "Scroll to explore",
-    "pharma.hero.social_proof": "ISO/GMP Certified Manufacturing",
-
-    "pharma.why.badge": "Value Proposition",
-    "pharma.why.title": "Why Choose Afilas Group?",
-    "pharma.why.subtitle":
-      "From manufacturing to patient care — discover what makes Afilas Drug Manufacturing a trusted partner.",
-    "pharma.why.cta": "Request a B2B Quote",
-    "pharma.why.card1_title": "End-to-End Healthcare",
-    "pharma.why.card1_desc":
-      "Seamless integration from manufacturing pharmaceuticals down to patient care.",
-    "pharma.why.card1_h1":
-      "From raw material sourcing to finished dosage forms",
-    "pharma.why.card1_h2":
-      "Integrated hospital & pharmacy distribution pipeline",
-    "pharma.why.card1_h3": "Post-treatment pharmaceutical follow-up support",
-    "pharma.why.card2_title": "Cutting-Edge Technology",
-    "pharma.why.card2_desc":
-      "Equipped with automated pharmaceutical machinery and modern formulation facilities.",
-    "pharma.why.card2_h1": "Fully automated tablet & capsule production lines",
-    "pharma.why.card2_h2": "Modern formulation & quality testing laboratories",
-    "pharma.why.card2_h3": "Real-time batch tracking & production monitoring",
-    "pharma.why.card3_title": "Uncompromising Quality & Safety",
-    "pharma.why.card3_desc":
-      "Full compliance with Good Manufacturing Practice (GMP) and ISO standards.",
-    "pharma.why.card3_h1": "GMP-certified manufacturing environment",
-    "pharma.why.card3_h2": "ISO 9001 quality management system",
-    "pharma.why.card3_h3": "Multi-stage quality control & assurance testing",
-
-    "pharma.catalog.badge": "Our Products & Services",
-    "pharma.catalog.title": "Pharmaceutical Manufacturing Services",
-    "pharma.catalog.subtitle":
-      "High-precision pharmaceutical manufacturing, formulation, and laboratory services.",
-    "pharma.catalog.price": "Price:",
-    "pharma.catalog.active": "Active",
-    "pharma.catalog.days": "days",
-    "pharma.catalog.book_btn": "Book Service",
-    "pharma.catalog.view_all_btn": "View All Services",
-
-    "pharma.b2b.badge": "B2B Commercial",
-    "pharma.b2b.title": "Partner With Afilas Pharma",
-    "pharma.b2b.subtitle":
-      "Whether you're a hospital network, pharmacy chain, or pharmaceutical distributor — get tailored pricing and quotes.",
-    "pharma.b2b.phone_label": "B2B Commercial Hotline",
-    "pharma.b2b.email_label": "Commercial Email",
-    "pharma.b2b.location_label": "Manufacturing Facility",
-    "pharma.b2b.location_value":
-      "Afilas Drug Share company, Amhara Region, Ethiopia",
-    "pharma.b2b.hours_label": "Business Hours",
-    "pharma.b2b.hours_value": "Mon – Sat, 8:00 AM – 6:00 PM (EAT)",
-    "pharma.b2b.stat1": "Partner Institutions",
-    "pharma.b2b.stat2": "Response Time",
-    "pharma.b2b.form_title": "Request a Quote",
-    "pharma.b2b.form_subtitle":
-      "Fill in your details and our B2B team will respond within 24 hours.",
-    "pharma.b2b.field_company": "Company / Institution Name",
-    "pharma.b2b.field_company_ph": "e.g., National Hospital Network",
-    "pharma.b2b.field_contact": "Contact Person",
-    "pharma.b2b.field_contact_ph": "Full name",
-    "pharma.b2b.field_email": "Business Email",
-    "pharma.b2b.field_email_ph": "you@company.com",
-    "pharma.b2b.field_phone": "Phone Number",
-    "pharma.b2b.field_phone_ph": "+251 ...",
-    "pharma.b2b.field_company_type": "Organization Type",
-    "pharma.b2b.select_placeholder": "Select an option",
-    "pharma.b2b.type_hospital": "Hospital / Health Center",
-    "pharma.b2b.type_pharmacy": "Pharmacy / Drug Store",
-    "pharma.b2b.type_distributor": "Distributor / Wholesaler",
-    "pharma.b2b.type_clinic": "Clinic / Medical Center",
-    "pharma.b2b.type_government": "Government / Public Institution",
-    "pharma.b2b.type_other": "Other",
-    "pharma.b2b.field_inquiry_type": "Inquiry Type",
-    "pharma.b2b.inquiry_bulk": "Bulk Order",
-    "pharma.b2b.inquiry_contract": "Contract Manufacturing",
-    "pharma.b2b.inquiry_distribution": "Distribution Partnership",
-    "pharma.b2b.inquiry_custom": "Custom Formulation",
-    "pharma.b2b.field_product": "Product(s) of Interest",
-    "pharma.b2b.field_product_ph": "e.g., Amoxicillin, Paracetamol",
-    "pharma.b2b.field_volume": "Estimated Volume",
-    "pharma.b2b.field_volume_ph": "e.g., 10,000 units/month",
-    "pharma.b2b.field_message": "Additional Details",
-    "pharma.b2b.field_message_ph": "Tell us more about your requirements...",
-    "pharma.b2b.submit": "Submit Inquiry",
-    "pharma.b2b.submitting": "Submitting...",
-    "pharma.b2b.success_title": "Inquiry Received!",
-    "pharma.b2b.success_desc":
-      "Thank you for your interest. Our B2B commercial team will contact you within 24 business hours.",
-    "pharma.b2b.disclaimer":
-      "By submitting this form you agree to be contacted by the Afilas B2B commercial team.",
-
+    // Blog
     "blog.title": "Health & Medical Insights",
-    "blog.subtitle":
-      "Stay informed with the latest medical research and healthcare updates from Afilas Group.",
+    "blog.subtitle": "Stay informed with the latest medical research and healthcare updates.",
     "blog.search_placeholder": "Search articles, research, tags...",
     "blog.filter_all": "All Articles",
     "blog.filter_categories": "Categories",
-    "blog.filter_locations": "Divisions",
     "blog.read_more": "Read Article",
-    "blog.watch_video": "Watch Video",
     "blog.published_on": "Published on",
     "blog.by_author": "By",
     "blog.views": "views",
@@ -411,130 +175,70 @@ const translations: Record<Language, Record<string, string>> = {
     "blog.back_to_blogs": "Back to Articles",
     "blog.featured": "Featured Article",
 
-    // =========================================================================
-    // GENERAL HOSPITAL PAGE TRANSLATIONS
-    // =========================================================================
-    "hospital.hero.headline_prefix": "Afilas General Hospital & ",
-    "hospital.hero.headline_span": "Healthcare Network",
+    // General Hospital Page
     "hospital.hero.book_btn": "Book Appointment",
     "hospital.hero.view_services_btn": "View Medical Services",
-    "hospital.hero.img_alt": "Afilas General Hospital Facility",
-
-    "hospital.trust.headline":
-      "TRUSTED BY LEADING HEALTHCARE PARTNERS & 50,000+ PATIENTS",
-    "hospital.trust.item1_name": "24/7 Emergency Care",
-    "hospital.trust.item1_badge": "Always Available",
-    "hospital.trust.item2_name": "ISO/GMP Compliant",
-    "hospital.trust.item2_badge": "Certified Quality",
-    "hospital.trust.item3_name": "Advanced Automated Lab",
-    "hospital.trust.item3_badge": "Best In Class",
-    "hospital.trust.item4_name": "Maternal & Child Health Care",
-    "hospital.trust.item4_badge": "Quality Care",
-
-    "hospital.welcome.title": "Welcome to Afilas General Hospital",
-    "hospital.welcome.desc":
-      "Afilas hospital is a multi-specialty hospital located around Felege Hiwot Hospital, in front of Amhara public health institute, offshore Lake Tana with breathtaking view. It is one of the private hospitals in the city, with over 10 specialty centers. Afilas offers state-of-the-art diagnostic and therapeutic care in a one-stop medical center.",
-
+    "hospital.welcome.title": "Welcome to Adinas General Hospital",
+    "hospital.welcome.desc": "Adinas General Hospital is a multi-specialty hospital committed to providing exceptional healthcare services.",
     "hospital.dept.badge": "Clinical Excellence",
     "hospital.dept.overlay_title_1": "World-Class Medical",
     "hospital.dept.overlay_title_2": "Departments",
     "hospital.dept.title": "Specialized Medical Departments",
-    "hospital.dept.subtitle":
-      "Our multidisciplinary teams of specialized physicians, surgeons, and healthcare practitioners deliver world-class medical outcomes using cutting-edge technologies.",
+    "hospital.dept.subtitle": "Our multidisciplinary teams deliver world-class medical outcomes using cutting-edge technologies.",
     "hospital.dept.cardiology.name": "Cardiology",
-    "hospital.dept.cardiology.desc":
-      "Heart and cardiovascular system care with advanced interventional procedures",
+    "hospital.dept.cardiology.desc": "Heart and cardiovascular system care",
     "hospital.dept.pediatrics.name": "Pediatrics",
-    "hospital.dept.pediatrics.desc":
-      "Specialized care for children and infants in a child-friendly environment",
+    "hospital.dept.pediatrics.desc": "Specialized care for children and infants",
     "hospital.dept.neurology.name": "Neurology",
-    "hospital.dept.neurology.desc":
-      "Brain and nervous system treatment with advanced diagnostic technology",
+    "hospital.dept.neurology.desc": "Brain and nervous system treatment",
     "hospital.dept.orthopedics.name": "Orthopedics",
-    "hospital.dept.orthopedics.desc":
-      "Bone and joint health management including surgical and non-surgical care",
-    "hospital.dept.oncology.name": "Oncology",
-    "hospital.dept.oncology.desc":
-      "Cancer diagnosis and specialized treatment with comprehensive patient support",
+    "hospital.dept.orthopedics.desc": "Bone and joint health management",
     "hospital.dept.emergency.name": "Emergency Medicine",
-    "hospital.dept.emergency.desc":
-      "24/7 emergency and trauma care with rapid response medical teams",
+    "hospital.dept.emergency.desc": "24/7 emergency and trauma care",
 
     "hospital.amenity.main_title": "World-Class Hospital Amenities",
     "hospital.amenity.item1.title": "ICU / CCU",
-    "hospital.amenity.item1.desc":
-      "Intensive care units with advanced monitoring and life support systems.",
+    "hospital.amenity.item1.desc": "Intensive care units with advanced monitoring.",
     "hospital.amenity.item2.title": "Surgery Suites",
-    "hospital.amenity.item2.desc":
-      "Modern operating rooms with robotic-assisted surgical technology.",
+    "hospital.amenity.item2.desc": "Modern operating rooms.",
     "hospital.amenity.item3.title": "Diagnostic Center",
-    "hospital.amenity.item3.desc":
-      "Advanced imaging and laboratory services including MRI, CT, and X-ray.",
+    "hospital.amenity.item3.desc": "Advanced imaging and laboratory services.",
     "hospital.amenity.item4.title": "Pharmacy",
-    "hospital.amenity.item4.desc":
-      "In-house pharmacy with comprehensive stock available 24/7.",
+    "hospital.amenity.item4.desc": "In-house pharmacy available 24/7.",
     "hospital.amenity.item5.title": "Blood Bank",
-    "hospital.amenity.item5.desc":
-      "Safe and tested blood transfusion services around the clock.",
+    "hospital.amenity.item5.desc": "Safe blood transfusion services.",
     "hospital.amenity.item6.title": "Emergency Room",
-    "hospital.amenity.item6.desc":
-      "24/7 emergency and trauma care with rapid response teams.",
+    "hospital.amenity.item6.desc": "24/7 emergency and trauma care.",
 
     "hospital.sec_services.title": "Our Medical Services",
-    "hospital.sec_services.subtitle":
-      "Comprehensive care tailored to your health needs",
+    "hospital.sec_services.subtitle": "Services",
     "hospital.sec_services.price_label": "Price: ETB",
     "hospital.sec_services.duration_label": "Duration:",
     "hospital.sec_services.min_unit": "min",
     "hospital.sec_services.location_label": "Location:",
-    "hospital.sec_services.default_location": "Afilas General Hospital",
+    "hospital.sec_services.default_location": "Adinas General Hospital",
     "hospital.sec_services.book_btn": "Book",
     "hospital.sec_services.view_all_btn": "View All Services",
-    "hospital.sec_services.empty_msg": "No services available at the moment.",
 
     "hospital.sec_doc.title": "Meet Our Expert Doctors",
-    "hospital.sec_doc.subtitle":
-      "Highly qualified specialists dedicated to your health and well-being",
+    "hospital.sec_doc.subtitle": "Highly qualified specialists dedicated to your health",
     "hospital.sec_doc.experience_label": "Experience",
     "hospital.sec_doc.yrs_suffix": "+ yrs",
     "hospital.sec_doc.available_label": "Available",
     "hospital.sec_doc.view_all_btn": "View All Doctors",
-    "hospital.sec_doc.empty_msg": "No doctors available.",
 
     // Services Page
     "services.hero.badge": "Complete Medical Care",
     "services.hero.title": "Our Healthcare Services",
-    "services.hero.subtitle":
-      "Explore our comprehensive range of specialized medical, diagnostic, and clinical services delivered by leading healthcare experts.",
+    "services.hero.subtitle": "Explore our comprehensive range of specialized medical services.",
     "services.search.placeholder": "Search services by name or description...",
     "services.search.results_count": "services found",
     "services.search.clear": "Clear Search",
     "services.search.no_results": "No services match your search",
-    "services.search.no_results_desc":
-      "Try searching with a different term or browse all our available services.",
+    "services.search.no_results_desc": "Try searching with a different term.",
     "services.search.showing_all": "Showing all available services",
     "services.stat.available": "24/7 Care Available",
     "services.stat.specialists": "50+ Medical Specialists",
-    "services.stat.accredited": "JCI Quality Standards",
-
-    // Doctors Page & Location Filters
-    "doctors.hero.badge": "Specialist Directory",
-    "doctors.hero.title": "Meet Our Medical Specialists",
-    "doctors.hero.subtitle":
-      "Find highly qualified physicians, surgeons, and healthcare experts across all Afilas divisions and locations.",
-    "doctors.location.filter_title": "Filter Doctors by Location & Division",
-    "doctors.location.filter_subtitle":
-      "Select a division pillar to view specialized medical professionals",
-    "doctors.location.all": "All Divisions",
-    "doctors.location.all_desc":
-      "View specialists across all Afilas facilities",
-    "doctors.location.hospital": "Afilas General Hospital",
-    "doctors.location.hospital_desc": "Clinical, Surgical & Emergency Care",
-    "doctors.location.diagnostics": "Afilas Diagnostic Center",
-    "doctors.location.diagnostics_desc": "Radiology, Pathology & Testing",
-    "doctors.location.pharma": "Afilas Drug Manufacturing",
-    "doctors.location.pharma_desc": "Pharmacology & R&D Specialists",
-    "doctors.location.active_badge": "Selected Location",
 
     // Doctor Details Modal
     "doctors.modal.title": "Doctor Details",
@@ -550,116 +254,7 @@ const translations: Record<Language, Record<string, string>> = {
     "doctors.modal.active_status": "Active & Available",
     "doctors.modal.free_fee": "Standard Rate",
 
-    // =========================================================================
-    // DIAGNOSTICS PAGE TRANSLATIONS
-    // =========================================================================
-    "diagnostics.packages.badge": "Comprehensive Health Packages",
-    "diagnostics.packages.section_title":
-      "Proactive Screening for Peace of Mind",
-    "diagnostics.packages.section_subtitle":
-      "Early detection saves lives. Choose from our specialized, evidence-based health packages designed for thorough risk assessment, routine monitoring, and clinical care.",
-    "diagnostics.packages.best_for_label": "Best For:",
-    "diagnostics.packages.included_tests_heading":
-      "Included Tests & Screenings",
-    "diagnostics.packages.consultation_label": "Clinical Consultation:",
-
-    "diagnostics.packages.executive.name": "EXECUTIVE HEALTH",
-    "diagnostics.packages.executive.tag": "Annual Evaluation",
-    "diagnostics.packages.executive.best_for":
-      "Professionals, busy adults, and individuals seeking a comprehensive annual wellness evaluation to detect early signs of lifestyle diseases, organ strain, or systemic imbalances.",
-    "diagnostics.packages.executive.sec1_title": "Blood & Organ Panels",
-    "diagnostics.packages.executive.sec1_t1":
-      "Complete Blood Count (CBC): Checks for anemia, infections, and blood disorders.",
-    "diagnostics.packages.executive.sec1_t2":
-      "Comprehensive Liver Function Test (LFT): ALT, AST, ALP, Total Bilirubin, Direct Bilirubin, Total Protein, Serum Albumin.",
-    "diagnostics.packages.executive.sec1_t3":
-      "Comprehensive Kidney Function Test (KFT): Blood Urea Nitrogen (BUN), Serum Creatinine, Uric Acid, Serum Electrolytes (Sodium, Potassium, Chloride).",
-    "diagnostics.packages.executive.sec2_title": "Metabolic & Routine",
-    "diagnostics.packages.executive.sec2_t1":
-      "Complete Lipid Profile: Total Cholesterol, HDL, LDL, Triglycerides, VLDL.",
-    "diagnostics.packages.executive.sec2_t2":
-      "Metabolic & Thyroid Panel: Fasting Blood Sugar (FBS), Thyroid Stimulating Hormone (TSH).",
-    "diagnostics.packages.executive.sec2_t3":
-      "Urine Routine & Microscopy: Checks for protein, glucose, microscopic blood, and UTIs.",
-    "diagnostics.packages.executive.sec3_title": "Imaging & Diagnostics",
-    "diagnostics.packages.executive.sec3_t1": "Digital Chest X-Ray (PA View)",
-    "diagnostics.packages.executive.sec3_t2": "Abdominal & Pelvic Ultrasound",
-    "diagnostics.packages.executive.sec3_t3":
-      "12-Lead Resting Electrocardiogram (ECG)",
-    "diagnostics.packages.executive.consultation":
-      "Full physical examination and final result review with a Senior Internal Medicine Consultant.",
-    "diagnostics.packages.executive.primary_cta": "Book Executive Package",
-
-    "diagnostics.packages.diabetic.name": "DIABETIC CARE",
-    "diagnostics.packages.diabetic.tag": "Specialized Care",
-    "diagnostics.packages.diabetic.best_for":
-      "Individuals with pre-diabetes, diagnosed diabetes, or a strong family history of metabolic disorders looking to assess glycemic control and screen for diabetes-related organ complications.",
-    "diagnostics.packages.diabetic.sec1_title":
-      "Glycemic Control & Long-Term Monitoring",
-    "diagnostics.packages.diabetic.sec1_t1": "Fasting Blood Sugar (FBS)",
-    "diagnostics.packages.diabetic.sec1_t2":
-      "Postprandial Blood Sugar (PPBS - 2 hours post-meal)",
-    "diagnostics.packages.diabetic.sec1_t3":
-      "HbA1c (Glycated Hemoglobin - 3-month glycemic average)",
-    "diagnostics.packages.diabetic.sec2_title": "Diabetic Organ Risk Panels",
-    "diagnostics.packages.diabetic.sec2_t1":
-      "Diabetic Renal Risk Panel: Serum Creatinine, Blood Urea Nitrogen (BUN), Urine Microalbumin-to-Creatinine Ratio.",
-    "diagnostics.packages.diabetic.sec2_t2":
-      "Cardiovascular Risk Assessment: Complete Lipid Profile (Total Cholesterol, HDL, LDL, Triglycerides).",
-    "diagnostics.packages.diabetic.sec3_title": "Target Organ Screenings",
-    "diagnostics.packages.diabetic.sec3_t1":
-      "12-Lead Resting ECG (Screening for silent ischemia)",
-    "diagnostics.packages.diabetic.sec3_t2":
-      "Diabetic Retinopathy Screening Consultation (Ophthalmology referral / Fundoscopy)",
-    "diagnostics.packages.diabetic.sec3_t3":
-      "Diabetic Peripheral Neuropathy Screening (Foot nerve/vessel evaluation)",
-    "diagnostics.packages.diabetic.consultation":
-      "Specialized consultation with an Endocrinologist / Diabetes Specialist & Nutrition/Dietetics Counseling.",
-    "diagnostics.packages.diabetic.primary_cta": "Book Diabetic Package",
-
-    "diagnostics.packages.cardiac.name": "ADVANCED CARDIAC",
-    "diagnostics.packages.cardiac.tag": "Cardiac Screening",
-    "diagnostics.packages.cardiac.best_for":
-      "Adults with risk factors such as high blood pressure, elevated cholesterol, high stress, smoking history, family history of heart disease, or unexplained chest discomfort and fatigue.",
-    "diagnostics.packages.cardiac.sec1_title":
-      "Cardiovascular Biomarkers & Risk Panels",
-    "diagnostics.packages.cardiac.sec1_t1":
-      "Complete Lipid Profile (High-density and low-density cholesterol fractionations)",
-    "diagnostics.packages.cardiac.sec1_t2":
-      "High-Sensitivity C-Reactive Protein (hs-CRP) — Key marker for arterial inflammation",
-    "diagnostics.packages.cardiac.sec1_t3": "Fasting Blood Sugar (FBS) & HbA1c",
-    "diagnostics.packages.cardiac.sec1_t4":
-      "Renal & Electrolyte Balance: Serum Creatinine, BUN, Sodium, Potassium",
-    "diagnostics.packages.cardiac.sec2_title":
-      "Advanced Non-Invasive Cardiac Imaging & Diagnostics",
-    "diagnostics.packages.cardiac.sec2_t1":
-      "12-Lead Resting Electrocardiogram (ECG): Evaluates cardiac rhythm, conduction, and acute ischemia.",
-    "diagnostics.packages.cardiac.sec2_t2":
-      "Echocardiogram (ECHO / Doppler Ultrasound): Detailed 2D ultrasound of cardiac muscle structure, ejection fraction, and valves.",
-    "diagnostics.packages.cardiac.sec2_t3":
-      "Treadmill Stress Test (TMT / Exercise ECG): Evaluates heart function and arterial blood flow under exertion.",
-    "diagnostics.packages.cardiac.sec2_t4":
-      "Digital Chest X-Ray: Evaluates cardiomegaly (enlarged heart) and pulmonary vascularity.",
-    "diagnostics.packages.cardiac.consultation":
-      "In-depth evaluation and risk stratification by a Senior Consultant Cardiologist.",
-    "diagnostics.packages.cardiac.primary_cta": "Book Cardiac Package",
-
-    "diagnostics.prep.title": "Patient Preparation Guidelines",
-    "diagnostics.prep.subtitle":
-      "Important instructions to follow before visiting our center for testing.",
-    "diagnostics.prep.fasting.title": "Fasting Instructions",
-    "diagnostics.prep.fasting.content":
-      "Please fast for 10–12 hours prior to your morning blood sample collection (plain water is allowed).",
-    "diagnostics.prep.medication.title": "Medication Rules",
-    "diagnostics.prep.medication.content":
-      "Continue routine blood pressure medications unless advised otherwise by your doctor. Diabetic medications should generally be taken after fasting blood draws.",
-    "diagnostics.prep.cardiac_footwear.title": "Footwear for Cardiac Package",
-    "diagnostics.prep.cardiac_footwear.content":
-      "If undergoing a Treadmill Stress Test (TMT), please wear comfortable athletic clothing and running/walking shoes.",
-
-    // ======================================================================
-    // NEW KEYS ADDED FOR HEADER (THEME, MORE, ACCOUNT)
-    // ======================================================================
+    // Theme & Account
     "nav.more": "More",
     "nav.sign_in": "Sign In",
     "nav.create_account": "Create Account",
@@ -669,104 +264,90 @@ const translations: Record<Language, Record<string, string>> = {
     "theme.light": "Light",
     "theme.dark": "Dark",
     "theme.system": "System",
-    "webchat.chat_with_us": "Chat with us",
-    "webchat.online": "Online",
-    "webchat.offline": "Offline",
-    "webchat.type_message": "Type your message...",
-    "webchat.send": "Send",
 
-    // Payment Page Translations - Add to en object
-"payment.verifying": "Verifying Payment...",
-"payment.pleaseWait": "Please wait while we confirm your transaction",
-"payment.success": "Payment Successful! 🎉",
-"payment.successMessage": "Your payment has been confirmed successfully.",
-"payment.failed": "Payment Failed ❌",
-"payment.failedMessage": "We could not verify your payment. Please try again or contact support.",
-"payment.noReference": "No transaction reference found",
-"payment.verificationFailed": "Payment verification failed",
-"payment.transactionId": "Transaction ID:",
-"payment.reference": "Reference:",
-"payment.amount": "Amount:",
-"payment.status": "Status:",
-"payment.returnHome": "Return to Home",
-"payment.viewAppointments": "View My Appointments",
-"payment.tryAgain": "Try Again",
+    // Payment
+    "payment.verifying": "Verifying Payment...",
+    "payment.pleaseWait": "Please wait while we confirm your transaction",
+    "payment.success": "Payment Successful! 🎉",
+    "payment.successMessage": "Your payment has been confirmed successfully.",
+    "payment.failed": "Payment Failed ❌",
+    "payment.failedMessage": "We could not verify your payment. Please try again.",
+    "payment.noReference": "No transaction reference found",
+    "payment.verificationFailed": "Payment verification failed",
+    "payment.transactionId": "Transaction ID:",
+    "payment.reference": "Reference:",
+    "payment.amount": "Amount:",
+    "payment.status": "Status:",
+    "payment.returnHome": "Return to Home",
+    "payment.viewAppointments": "View My Appointments",
+    "payment.tryAgain": "Try Again",
 
-"nav.departments": "Departments",
+    "nav.departments": "Departments",
 
+    // Departments Page
+    "departments.loading": "Loading Departments...",
+    "departments.loading_message": "Please wait while we fetch the departments",
+    "departments.error_title": "Something went wrong",
+    "departments.error_message": "Could not load departments. Please try again later.",
+    "departments.try_again": "Try Again",
+    "departments.badge": "Medical Services",
+    "departments.title": "Our Departments",
+    "departments.subtitle": "Explore our specialized medical departments",
+    "departments.empty_title": "No Departments Yet",
+    "departments.empty_message": "Departments will appear here once added.",
+    "departments.total": "Total",
+    "departments.departments": "Departments",
+    "departments.default_description": "department providing specialized care",
+    "departments.learn_more": "Learn More",
 
-// Departments Page
-"departments.loading": "Loading Departments...",
-"departments.loading_message": "Please wait while we fetch the departments",
-"departments.error_title": "Something went wrong",
-"departments.error_message": "Could not load departments. Please try again later.",
-"departments.try_again": "Try Again",
-"departments.badge": "Medical Services",
-"departments.title": "Our Departments",
-"departments.subtitle": "Explore our specialized medical departments staffed by expert healthcare professionals",
-"departments.empty_title": "No Departments Yet",
-"departments.empty_message": "Departments will appear here once added.",
-"departments.total": "Total",
-"departments.departments": "Departments",
-"departments.default_description": "department providing specialized care",
-"departments.learn_more": "Learn More",
-
-
-// Departments Detail Page
-"departments.back": "Back to Departments",
-"departments.back_to_all": "Back to All Departments",
-"departments.department": "Department",
-"departments.about": "About",
-"departments.providing_care": "department providing specialized medical care",
-"departments.about_description": "department provides comprehensive medical care for patients requiring specialized treatment. Our team of experienced healthcare professionals is dedicated to delivering the highest quality care using the latest medical technologies.",
-"departments.not_found": "Department Not Found",
-"departments.not_found_message": "The department you're looking for doesn't exist or has been removed.",
-"departments.services": "Our Services",
-"departments.service_1": "Specialized consultations",
-"departments.service_2": "Advanced diagnostics",
-"departments.service_3": "Treatment plans",
-"departments.service_4": "Follow-up care",
-"departments.hours": "Working Hours",
-"departments.weekdays": "Monday - Friday",
-"departments.saturday": "Saturday",
-"departments.sunday": "Sunday",
-"departments.closed": "Closed",
-"departments.emergency": "Emergency",
-"departments.contact_location": "Contact & Location",
-"departments.location": "Felege Hiwot Area, Lake Tana Shore, Bahir Dar",
-"departments.book_appointment": "Book Appointment",
+    // Departments Detail Page
+    "departments.back": "Back to Departments",
+    "departments.back_to_all": "Back to All Departments",
+    "departments.department": "Department",
+    "departments.about": "About",
+    "departments.providing_care": "department providing specialized medical care",
+    "departments.about_description": "department provides comprehensive medical care for patients requiring specialized treatment.",
+    "departments.not_found": "Department Not Found",
+    "departments.not_found_message": "The department you're looking for doesn't exist.",
+    "departments.services": "Our Services",
+    "departments.service_1": "Specialized consultations",
+    "departments.service_2": "Advanced diagnostics",
+    "departments.service_3": "Treatment plans",
+    "departments.service_4": "Follow-up care",
+    "departments.hours": "Working Hours",
+    "departments.weekdays": "Monday - Friday",
+    "departments.saturday": "Saturday",
+    "departments.sunday": "Sunday",
+    "departments.closed": "Closed",
+    "departments.emergency": "Emergency",
+    "departments.contact_location": "Contact & Location",
+    "departments.location": "Addis Ababa, Ethiopia",
+    "departments.book_appointment": "Book Appointment",
   },
 
   am: {
+    // Hospital Names
+    "hospital.name.full": "አዲናስ ጠቅላላ ሆስፒታል",
+    "hospital.name.short": "አዲናስ ሆስፒታል",
+    "hospital.name.general": "ጠቅላላ ሆስፒታል",
+    "hospital.name.adinas": "አዲናስ",
+    "hospital.name.afilas": "አዲናስ",
+
     // Navigation & Topbar
     "nav.home": "መነሻ",
     "nav.hospital": "ሆስፒታል",
-    "nav.diagnostics": "ምርመራ",
-    "nav.pharma": "ፋርማሲ",
     "nav.about": "ስለ እኛ",
     "nav.contact": "ግንኙነት",
     "nav.service": "አገልግሎቶች",
+    "nav.services": "አገልግሎቶች",
     "nav.blog": "ብሎግ",
-    "nav.group": "የአፊላስ ቡድን",
-    "nav.group_dropdown_title": "ክፍሎቻችንን ያግኙ",
     "nav.about_us": "ስለ እኛ",
-    "nav.contact_emergency": "ግንኙነት & ድንገተኛ",
-    "nav.select_division": "ክፍል ይምረጡ",
-    "nav.division.group": "የአፊላስ ቡድን",
-    "nav.division.hospital": "አፊላስ ጠቅላላ ሆስፒታል",
-    "nav.division.hospital_desc": "ርህሩህ፣ ልዩ የታካሚ እንክብካቤ በ24 ሰዓት ይገኛል።",
-    "nav.division.diagnostics": "አፊላስ የምርመራ ማዕከል",
-    "nav.division.diagnostics_desc":
-      "ከፍተኛ ትክክለኛነት ያለው ምስል እና አውቶማቲክ የላብራቶሪ ምርመራ።",
-    "nav.division.pharma": "አፊላስ መድሃኒት ማምረቻ",
-    "nav.division.pharma_desc":
-      "በጥራት የሚመራ፣ ተደራሽ የሆነ የመድኃኒት ምርት አለም አቀፍ ደረጃዎችን የሚያሟላ።",
+    "nav.contact_emergency": "ግንኙነት እና ድንገተኛ",
     "nav.toggle_menu": "ማውጫ ቀይር",
     "topbar.emergency_available": "የድንገተኛ እንክብካቤ 24/7 ይገኛል",
     "topbar.call": "ይደውሉ:",
     "cta.emergency_call": "የድንገተኛ ጥሪ",
     "cta.book_appointment": "ቀጠሮ ይያዙ",
-    "cta.get_lab_results": "የላብ ውጤት ይውሰዱ",
 
     "nav.selected": "ተመርጧል",
     "nav.menu": "ምናሌ",
@@ -777,125 +358,47 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.register": "ተመዝገብ",
     "nav.book": "አስይዝ",
     "nav.book_services": "አገልግሎቶችን ያስይዙ",
-    "nav.book_hospital_desc": "በአፊላስ ጠቅላላ ሆስፒታል ያስይዙ",
-    "nav.book_diagnosis_desc": "የላብራቶሪ ምርመራዎችን ያስይዙ",
-    "nav.book_pharma_desc": "መድሃኒቶችን እና አቅርቦቶችን ያዙ",
+    "nav.book_hospital_desc": "በአዲናስ ጠቅላላ ሆስፒታል ያስይዙ",
+    "nav.book_appointment": "በአዲናስ ጠቅላላ ሆስፒታል ቀጠሮ ይያዙ",  // Added this line
     "nav.branch_links": "የቅርንጫፍ አገናኞች",
 
     // Hero Section
-    "hero.company_subtitle": "አፊላስ አክሲዮን ማህበር",
-    "hero.headline": "አጠቃላይ የጤና አገልግሎቶች በአንድ ጥላ ስር",
-    "hero.subheadline":
-      "ከፍተኛ ደረጃ ካለው የህክምና አገልግሎት እና ትክክለኛ የምርመራ አቅም አንስቶ እስከ አካባቢያዊ የመድኃኒት ምርት ድረስ፣ አፊላስ በክልሉ የጤና አጠባበቅ ደረጃዎችን ከፍ ለማድረግ ቁርጠኛ ነው",
+    "hero.headline": "እንኳን ወደ አዲናስ ጠቅላላ ሆስፒታል በደህና መጡ",
+    "hero.subheadline": "ከፍተኛ ደረጃ ያለው የህክምና አገልግሎት እና ልዩ የህክምና አገልግሎቶች።",
     "hero.find_doctor": "ሐኪም ያግኙ",
-    "hero.book_test": "የምርመራ አገልግሎት ያስይዙ",
-    "hero.explore_pharma": "የመድኃኒት ክፍልን ያስሱ",
     "hero.hospital_subtitle": "የ24 ሰዓት የታካሚ እንክብካቤ",
-    "hero.diagnostic_subtitle": "ትክክለኛ የምርመራ አገልግሎት",
-    "hero.pharma_subtitle": "የGMP ማረጋገጫ ያለው",
-
-    // Three Pillars / Shared Essential Section
-    "pillars.header_badge": "ክፍሎቻችን",
-    "pillars.header_title": "ሶስቱ የአፊላስ ምስሶዎች",
-    "pillars.header_subtitle":
-      "በሆስፒታል፣ በምርመራ እና በመድሃኒት አገልግሎቶች ውስጥ የተቀናጁ የጤና አጠባበቅ መፍትሄዎች።",
-    "pillars.title": "በጤናው ዘርፍ የተዋሃደ የብቃት ደረጃ",
-    "pillars.subtitle":
-      "ሁሌ አስተማማኝ እንክብካቤ እና አስተማማኝ የመድኃኒት መፍትሄዎችን ለመስጠት ሶስቱ የተሰጡን ዘርፎች እንዴት አብረው እንደሚሰሩ ይወቁ።",
-    "pillars.card1_title": "አፊላስ ጠቅላላ ሆስፒታል",
-    "pillars.card1_tag": "24/7 እንክብካቤ",
-    "pillars.card1_desc":
-      "አፊላስ ጠቅላላ ሆስፒታል በፈለገ ህይወት ሆስፒታል አቅራቢያ የሚገኝ፣ የታና ሀይቅ አስደናቂ እይታ ያለው የተለያዩ የህክምና ዘርፎች ያሉት የጤና ተቋም ነው። ከ10 በላይ ልዩ የህክምና ማዕከላት ጋር፣ ርህራሄ የተሞላበት፣ በታካሚ ዙሪያ ያተኮረ እንክብካቤ በ24 ሰዓት ይሰጣል።",
-    "pillars.card1_highlight1": "የውስጥ እና የውጭ ህሙማን",
-    "pillars.card1_highlight2": "ድንገተኛ እና ቀዶ ጥገና",
-    "pillars.card1_highlight3": "የእናት እና ህጻናት ጤና",
-    "pillars.card1_cta": "ሆስፒታል ያስሱ",
-    "pillars.card2_title": "አፊላስ የምርመራ ማዕከል",
-    "pillars.card2_tag": "ትክክለኛነት",
-    "pillars.card2_desc":
-      "አፊላስ የምርመራ ማዕከል ፈጣን፣ ትክክለኛ እና አስተማማኝ የምርመራ ውጤቶችን ለማቅረብ የተዘጋጀ ዘመናዊ ተቋም ነው።",
-    "pillars.card2_highlight1": "የላብራቶሪ አገልግሎቶች",
-    "pillars.card2_highlight2": "ምስል እና ራዲዮሎጂ",
-    "pillars.card2_highlight3": "ዲጂታል ውጤቶች",
-    "pillars.card2_cta": "ምርመራ ያስይዙ",
-    "pillars.card3_title": "አፊላስ መድሃኒት ማምረቻ",
-    "pillars.card3_tag": "የGMP ማረጋገጫ",
-    "pillars.card3_desc":
-      "አፊላስ መድሃኒት ማምረቻ አለም አቀፍ ደረጃዎችን የሚያሟሉ ከፍተኛ ጥራት ያላቸው፣ ተመጣጣኝ የመድኃኒት ምርቶችን ለማምረት ቁርጠኛ ነው።",
-    "pillars.card3_highlight1": "የጥራት ማረጋገጫ",
-    "pillars.card3_highlight2": "የምርት ካታሎግ",
-    "pillars.card3_highlight3": "B2B ሽርክና",
-    "pillars.card3_cta": "ምርቶችን ይመልከቱ",
+    "hero.welcome": "እንኳን ወደ አዲናስ ጠቅላላ ሆስፒታል በደህና መጡ",
+    "hero.description": "ርህራሄ፣ ፈጠራ እና ልቀት ባለው ልዩ የጤና አገልግሎት ለመስጠት ቁርጠኞች ነን። የተሰጠ የህክምና ባለሙያዎች ቡድናችን ለእያንዳንዱ ታካሚ ከፍተኛ ጥራት ያለው እንክብካቤ ያረጋግጣል።",
+    "hero.book_appointment": "ቀጠሮ ይያዙ",
 
     // General Hospital Section
-    "general.title": "አፊላስ ጠቅላላ ሆስፒታል",
+    "general.title": "አዲናስ ጠቅላላ ሆስፒታል",
+    "general.hospital": "ጠቅላላ ሆስፒታል",
     "general.subtitle": "ርህራሄ ያለው፣ ልዩ የታካሚ እንክብካቤ በ24/7 ይገኛል።",
-    "general.intro":
-      "አፊላስ ሆስፒታል በፈለገ ህይወት ሆስፒታል አካባቢ፣ ከአማራ ህዝብ ጤና ኢንስቲትዩት ፊት ለፊት፣ በታና ሐይቅ ዳርቻ ላይ የሚገኝ የተለያዩ ልዩ ልዩ የሕክምና አገልግሎቶች ያሉት ሆስፒታል ነው።",
     "general.feature1": "ከ10 በላይ ልዩ ልዩ የሕክምና ማዕከላት በአንድ ቦታ",
     "general.feature2": "ዘመናዊ የምርመራ እና የህክምና አገልግሎቶች",
     "general.feature3": "ምቹ የሆነ አንድ ቦታ ላይ የሚገኝ የሕክምና ማዕከል",
     "general.feature4": "ከፍተኛ ጥራት ያለው የግል ሆስፒታል",
     "general.feature5": "ልምድ ያላቸው የሕክምና ባለሙያዎች",
     "general.location": "አድራሻ",
-    "general.location_address": "ፈለገ ህይወት አካባቢ፣ አማራ ህዝብ ጤና ኢንስቲትዩት፣ የታና ሐይቅ ዳር",
+    "general.location_address": "አዲስ አበባ፣ ኢትዮጵያ",
     "general.emergency_services": "የአደጋ ጊዜ አገልግሎት",
     "general.emergency_desc": "24/7 የአደጋ ጊዜ እንክብካቤ እና አምቡላንስ አገልግሎት",
-    "general.cta": "የሆስፒታል አገልግሎቶችን ያስሱ",
+    "general.cta": "አገልግሎቶቻችንን ያስሱ",
+    "general.why_choose_us": "ለምን እኛን ይምረጡ?",
+    "general.why_choose_1": "ከፍተኛ ልምድ ባላቸው ስፔሻሊስቶች የህክምና ልቀት።",
+    "general.why_choose_2": "ሁሉን አቀፍ እንክብካቤ - ሙሉ የህክምና አገልግሎቶች።",
+    "general.why_choose_3": "ዘመናዊ ቴክኖሎጂ - ዘመናዊ የህክምና መሳሪያዎች።",
+    "general.why_choose_4": "በታካሚ ላይ ያተኮረ አቀራረብ - ርህራሄ ያለው፣ ግላዊ እንክብካቤ።",
+    "general.why_choose_5": "24/7 ተገኝነት - የድንገተኛ እና ወሳኝ እንክብካቤ አገልግሎቶች።",
+    "general.why_choose_6": "ከፍተኛ ጥራት ያላቸው መገልገያዎች - ዘመናዊ የታካሚ ክፍሎች እና ICUs።",
+    "general.hospital_description": "ሆስፒታላችን ርህራሄ ያለው እና ልምድ ያለው የህክምና እንክብካቤ ለማህበረሰባችን ሲሰጥ ቆይቷል። የልቀት ቅርሳችን በልምድ፣ በፈጠራ እና ለታካሚ ደህንነት ባለን የማያቋርጥ ቁርጠኝነት ላይ የተገነባ ነው።",
+    "general.learn_more": "ተጨማሪ ይወቁ",
 
-    // Diagnostic Center Section
-    "diagnostic.title": "አፊላስ የምርመራ ማዕከል",
-    "diagnostic.subtitle":
-      "ፈጣን፣ ትክክለኛ እና አስተማማኝ የምርመራ ውጤቶች ትክክለኛ የህክምና ውሳኔዎችን ያመጣሉ።",
-    "diagnostic.about_title": "ስለ አፊላስ የምርመራ ማዕከል",
-    "diagnostic.about_desc":
-      "አፊላስ የምርመራ ማዕከል ትክክለኛ፣ ወቅታዊ እና አስተማማኝ የምርመራ አገልግሎቶችን ለማቅረብ የተዘጋጀ ዘመናዊ የምርመራ ተቋም ነው።",
-    "diagnostic.feature1_title": "አጠቃላይ ምርመራ",
-    "diagnostic.feature1_desc": "ከመደበኛ የደም ምርመራ እስከ ልዩ የምርመራ ሙከራዎች",
-    "diagnostic.feature2_title": "ፈጣን ውጤት",
-    "diagnostic.feature2_desc": "ውጤቶች በ24-48 ሰዓታት ውስጥ በዲጂታል መዳረሻ ይሰጣሉ።",
-    "diagnostic.feature3_title": "የጥራት ማረጋገጫ",
-    "diagnostic.feature3_desc": "አለም አቀፍ የጥራት ደረጃዎች ያላቸው ዘመናዊ መሳሪያዎች።",
-    "diagnostic.feature4_title": "ዲጂታል ምቹነት",
-    "diagnostic.feature4_desc": "ደህንነቱ የተጠበቀ የመስመር ላይ ሪፖርቶች በማንኛውም ጊዜ እና ቦታ",
-    "diagnostic.cta": "ወደ ምርመራ ማዕከል ይሂዱ",
-    "diagnostic.packages_title": "ልዩ የጤና ምርመራ ፓኬጆች",
-    "diagnostic.packages_subtitle": "ለእያንዳንዱ የህይወት ደረጃ አጠቃላይ ምርመራ",
-    "diagnostic.package1_name": "የስራ አስፈጻሚ ጤና",
-    "diagnostic.package1_desc":
-      "ለስራ የበዛባቸው ሰዎች ሙሉ የሰውነት መደበኛ ምርመራ - የደም ምርመራ፣ ምስል እና በተመሳሳይ ሳምንት ምክክር።",
-    "diagnostic.package2_name": "የስኳር ህመም እንክብካቤ",
-    "diagnostic.package2_desc":
-      "ግሉኮስ፣ HbA1c፣ የኩላሊት እና የአይን ምርመራ ለቀጣይ አስተዳደር አብረው ይከታተላሉ።",
-    "diagnostic.package3_name": "የሴቶች / የወንዶች ጤና",
-    "diagnostic.package3_desc":
-      "በእያንዳንዱ የህይወት ደረጃ በጣም አስፈላጊ በሆኑ ምርመራዎች ዙሪያ የተገነባ አጠቃላይ ምርመራ።",
-
-    // Drug Manufacturing Section
-    "pharma.title": "አፊላስ መድሃኒት ማምረቻ",
-    "pharma.subtitle":
-      "በአካባቢው ከፍተኛ ጥራት ባለው እና ተገዢ በሆነ የመድኃኒት ምርት የማህበረሰብ ጤናን መጠበቅ።",
-    "pharma.description":
-      "አፊላስ መድሃኒት ማምረቻ አለም አቀፍ ደረጃዎችን የሚያሟሉ ከፍተኛ ጥራት ያላቸውን የመድኃኒት ምርቶች ለማምረት ቁርጠኛ ነው። በዘመናዊ የማምረቻ ተቋማት እና በGMP መመሪያዎች ጥብቅ አክባሪነት፣ እያንዳንዱ ምርት ደህንነቱ የተጠበቀ፣ ውጤታማ እና ለታካሚ አገልግሎት አስተማማኝ መሆኑን እናረጋግጣለን።",
-    "pharma.card1_title": "የማምረት አቅም",
-    "pharma.card1_desc":
-      "የሚመረቱ የመድኃኒት ቅርጾች ታብሌቶች፣ ካፕሱሎች፣ ፈሳሾች እና ቅባቶች ለደህንነት እና አስተማማኝ የታካሚ አገልግሎት የተነደፉ ናቸው።",
-    "pharma.card1_tag": "GMP",
-    "pharma.card2_title": "የጥራት ማረጋገጫ እና ተገዢነት",
-    "pharma.card2_desc":
-      "የGMP ደረጃዎች እና የቁጥጥር ፈቃዶች ጥብቅ አክባሪነት እያንዳንዱ ምርት አለም አቀፍ የደህንነት እና የጥራት መለኪያዎችን እንደሚያሟላ ያረጋግጣል።",
-    "pharma.card2_tag": "የተረጋገጠ",
-    "pharma.card3_title": "የምርት ካታሎግ",
-    "pharma.card3_desc":
-      "ለጤና አገልግሎት ሰጪዎች፣ ፋርማሲዎች እና አከፋፋዮች ተስማሚ ቅመሞችን እና ምርቶችን በፍጥነት ለማግኘት የሚቻል ማውጫ።",
-    "pharma.card3_tag": "የሚፈለግ",
-    "pharma.card4_title": "ሽርክና እና B2B ጥያቄ",
-    "pharma.card4_desc":
-      "በህዝብ እና በግል የጤና አውታረመረቦች ውስጥ ለአቅርቦት ጥያቄዎች፣ ለኮንትራት ማምረቻ እና ለተቋማዊ ስርጭት ድጋፍ።",
-    "pharma.card4_tag": "አግኙን",
-    "pharma.cta": "ወደ ፋርማ ገጽ ይሂዱ",
-
-    // Doctor Finder Section
+    // Doctor Finder Section - Added Amharic translations
+    "doctors.hero.badge": "ሐኪም ያግኙ",
+    "doctors.hero.title": "የኛ ባለሙያ ሀኪሞች",
+    "doctors.hero.subtitle": "በዋና ዋና የሕክምና ዘርፎች ውስጥ ልምድ ካላቸው ስፔሻሊስቶች ጋር ይገናኙ።",
     "doctors.headline": "ሐኪም ያግኙ",
     "doctors.subtitle": "በዋና ዋና የሕክምና ዘርፎች ውስጥ ልምድ ካላቸው ስፔሻሊስቶች ጋር ይገናኙ።",
     "doctors.filter_specialty": "ስፔሻሊቲ ይምረጡ",
@@ -906,218 +409,66 @@ const translations: Record<Language, Record<string, string>> = {
     "doctors.email": "ኢሜይል",
     "doctors.available": "ይገኛል",
     "doctors.status_loading": "በመጫን ላይ...",
-    "doctors.status_offline": "Internet የለም !",
+    "doctors.status_offline": "መስመር የለም!",
     "doctors.status_live": "የቀጥታ ውሂብ",
     "doctors.no_doctors": "ከመስፈርትዎ ጋር የሚስማማ ምንም ሐኪም አልተገኘም።",
 
     // About Us Section
-    "about.title": "ስለ አፊላስ",
-    "about.subtitle":
-      "ለተደራሽ የጤና እንክብካቤ ክሊኒካዊ እውቀትን፣ ቴክኖሎጂን እና የአካባቢ ማምረቻን ማጣመር።",
-    "about.vision_title": "ራዕይ",
-    "about.vision_desc":
-      "እስከ 2030 ድረስ በክልሉ ፈጠራ እና ርህራሄ ባለው እንክብካቤ ፍጹም የታካሚ ተሞክሮ ለመስጠት መጓጓት።",
-    "about.mission_title": "ተልዕኮ",
-    "about.mission_1":
-      "ለማህበረሰቡ ወጪ ቆጣቢ፣ ርህሩህ፣ አክባሪ እና ከፍተኛ ጥራት ያለው የጤና እንክብካቤ መስጠት።",
-    "about.mission_2": "ከፍተኛ ፍትሃዊ የድርጅት ማህበራዊ ኃላፊነት መስጠት።",
-    "about.mission_3": "የሰራተኛ ተሳትፎ ባህልን ማጎልበት።",
-    "about.mission_4": "የደንበኛ እርካታን፣ ጤናን እና ደህንነትን ማስተዋወቅ።",
-    "about.core_values_title": "የዋና እሴቶች መግለጫ",
-    "about.core_value_1": "ርህራሄ",
-    "about.core_value_1_desc":
-      "ሁሉንም ታካሚዎች በደግነት፣ በመተሳሰብ እና በእውነተኛ እንክብካቤ እናስተናግዳለን።",
-    "about.core_value_2": "ብቃት",
-    "about.core_value_2_desc":
-      "ከፍተኛ ደረጃ ያላቸው የህክምና ልምዶች እና የአገልግሎት አሰጣጥ እናከተላለን።",
-    "about.core_value_3": "ታማኝነት",
-    "about.core_value_3_desc":
-      "በሁሉም ተግባራት ውስጥ ታማኝነትን፣ ግልጽነትን እና ሥነ-ምግባራዊ ስነ-ምግባርን እናስጠብቃለን።",
-    "about.core_value_4": "ፈጠራ",
-    "about.core_value_4_desc":
-      "ዘመናዊ የህክምና ቴክኖሎጂዎችን እንቀበላለን እና ሂደቶቻችንን ያለማቋረጥ እናሻሽላለን።",
-    "about.core_value_5": "የቡድን ስራ",
-    "about.core_value_5_desc":
-      "አጠቃላይ፣ በታካሚ ዙሪያ ያተኮረ እንክብካቤ ለመስጠት በትብብር እንሰራለን።",
-    "about.core_value_6": "ተጠያቂነት",
-    "about.core_value_6_desc": "ለድርጊቶቻችን ኃላፊነት እንወስዳለን እና ለሚለካ ውጤት እንጥራለን።",
-    "about.quality_title": "የጥራት እና ደህንነት ቁርጠኝነት",
-    "about.quality_1": "የኢንፌክሽን መቆጣጠሪያ",
-    "about.quality_2": "መደበኛ የስራ ሂደቶች",
-    "about.quality_3": "የቁጥጥር ሰርተፊኬቶች",
-    "about.page_title": "ስለ አፊላስ ሆስፒታል",
+    "about.page_title": "ስለ አዲናስ ሆስፒታል",
+    "about.meaning_text": "አዲናስ — በመተማመን፣ በጤና እና በርህራሄ እንክብካቤ ላይ የተገነባ ስም።",
+    "about.meaning": "ትርጉም",
     "about.toc_title": "በዚህ ገጽ ላይ",
-    "about.what_is_afilas": "አፊላስ ምንድን ነው",
-    "about.what_is_afilas_p1":
-      "አፊላስ ፋርማሲዩቲካልስ ማኑፋክቸሪንግ እና ሜዲካል ሰርቪስ ኤስ.ሲ. በሰኔ 2017 የተመሰረተው በጤና ሳይንስ ባለሙያዎች ነው።",
-    "about.what_is_afilas_p2":
-      "የመጀመሪያው የአፊላስ ንግድ ድርጅት በጥር 2018 የተከፈተው የአፊላስ ጤና ጣቢያ ነው፣ ይህም ወደ አፊላስ ጠቅላላ ሆስፒታል አድጓል።",
-    "about.what_is_afilas_p3":
-      "በ2022 ሁለተኛውን የንግድ ድርጅታችንን አፊላስ ፋርማሲዩቲካልስ ጅምላ እና በ2026 የምርመራ ማዕከል ከፍተናል።",
-    "about.board_title": "የአፊላስ PMMS ኤስ.ሲ. የዳይሬክተሮች ቦርድ",
-    "about.inspectors_title": "ኦዲተሮች / ውስጣዊ ኦዲተሮች",
-    "about.ceo_title": "የአፊላስ PMMS ኤስ.ሲ. ዋና ሥራ አስፈጻሚ (CEO)",
-    "about.directors_title": "ዳይሬክተሮች",
+    "about.what_is_afilas": "አዲናስ ሆስፒታል ምንድን ነው",
+    "about.what_is_afilas_p1": "አዲናስ ጠቅላላ ሆስፒታል ለማህበረሰቡ ልዩ የህክምና አገልግሎቶችን ለመስጠት የተሰጠ የተለያዩ ልዩ ልዩ የህክምና ተቋም ነው።",
+    "about.what_is_afilas_p2": "በታካሚ ላይ ያተኮረ እንክብካቤ ላይ በማተኮር፣ ዘመናዊ የህክምና ቴክኖሎጂን ከርህራሄ አገልግሎት ጋር በማጣመር ለእያንዳንዱ ታካሚ ምርጥ ውጤት እናረጋግጣለን።",
+    "about.what_is_afilas_p3": "ሆስፒታላችን በህክምና አገልግሎት፣ በህክምና ትምህርት እና በማህበረሰብ ጤና ተነሳሽነቶች ላይ ለልቀት የተሰጠ ነው።",
     "about.established": "የተመሰረተ",
-    "about.established_year": "ሰኔ 2017",
-    "about.meaning": "የስም ትርጉም",
-    "about.meaning_text": "የእውቀት ድምጽ ተሰማ",
+    "about.established_year": "2024",
+    "about.vision_title": "ራዕይ",
+    "about.vision_text": "በኢትዮጵያ መሪ የጤና አገልግሎት አቅራቢ ለመሆን፣ በታካሚ እንክብካቤ፣ በህክምና ፈጠራ እና በማህበረሰብ አገልግሎት ለልቀት እውቅና የተሰጠው።",
+    "about.mission_title": "ተልዕኮ",
+    "about.mission_1": "ለሁሉም ታካሚዎች ተደራሽ፣ ተመጣጣኝ እና ከፍተኛ ጥራት ያለው የጤና አገልግሎት መስጠት።",
+    "about.mission_2": "በሰራተኞቻችን ዘንድ ቀጣይነት ያለው ትምህርት እና ሙያዊ እድገት ባህልን ማሳደግ።",
+    "about.mission_3": "በጤና አገልግሎት አሰጣጥ ውስጥ ፈጠራን እና ቴክኖሎጂን መቀበል።",
+    "about.mission_4": "በማህበረሰብ ተሳትፎ እና ትምህርት ጤናን እና ደህንነትን ማስተዋወቅ።",
+    "about.core_values_title": "የኛ ዋና እሴቶች",
     "about.core_value_1_title": "ርህራሄ",
-    "about.core_value_2_title": "ብቃት",
+    "about.core_value_1_desc": "ሁሉንም ታካሚዎች በደግነት፣ በመተሳሰብ እና በእውነተኛ እንክብካቤ እናስተናግዳለን።",
+    "about.core_value_2_title": "ልቀት",
+    "about.core_value_2_desc": "ከፍተኛ ደረጃ ያላቸውን የህክምና ልምዶች እና የአገልግሎት አሰጣጥ እናከተላለን።",
     "about.core_value_3_title": "ታማኝነት",
+    "about.core_value_3_desc": "በሁሉም ተግባራት ውስጥ ሐቀኝነትን፣ ግልጽነትን እና ሥነ ምግባራዊ ስነ ምግባርን እናስጠብቃለን።",
     "about.core_value_4_title": "ፈጠራ",
+    "about.core_value_4_desc": "ዘመናዊ የህክምና ቴክኖሎጂዎችን እንቀበላለን እና ሂደቶቻችንን ያለማቋረጥ እናሻሽላለን።",
     "about.core_value_5_title": "የቡድን ስራ",
+    "about.core_value_5_desc": "አጠቃላይ፣ በታካሚ ዙሪያ ያተኮረ እንክብካቤ ለመስጠት በትብብር እንሰራለን።",
     "about.core_value_6_title": "ተጠያቂነት",
+    "about.core_value_6_desc": "ለድርጊቶቻችን ኃላፊነት እንወስዳለን እና ለሚለካ ውጤት እንጥራለን።",
 
     // Footer
-    "footer.tagline": "በእንክብካቤ፣ ትክክለኛነት እና ምርት ጤናን ማሳደግ።",
-    "footer.address": "አድራሻ፡ ፈለገ ህይወት አካባቢ፣ የታና ሐይቅ ዳር፣ ባሕር ዳር",
+    "footer.tagline": "በእንክብካቤ እና ትክክለኛነት ጤናን ማሳደግ።",
+    "footer.address": "አድራሻ፡ አዲስ አበባ፣ ኢትዮጵያ",
     "footer.phone": "ስልክ፡ +251 98 320 1998",
-    "footer.email": "ኢሜይል፡ info@afilas.com",
+    "footer.email": "ኢሜይል፡ info@adinashospital.com",
     "footer.quick_links": "ፈጣን አገናኞች",
     "footer.hospital_departments": "የሆስፒታል ክፍሎች",
-    "footer.diagnostic_packages": "የምርመራ ፓኬጆች",
-    "footer.pharma_catalog": "የመድኃኒት ካታሎግ",
     "footer.careers_news": "ስራዎች እና ዜናዎች",
     "footer.emergency_support": "ድንገተኛ እና ድጋፍ",
     "footer.emergency_hotline": "የድንገተኛ ጊዜ መስመር፡ +251 98 320 1998",
-    "footer.lab_results": "የላብራቶሪ ውጤት መግቢያ",
-    "footer.lab_results_link": "ግባ / አገናኝ ይድረሱ",
-    "footer.pharma_inquiries": "የመድኃኒት ንግድ ጥያቄዎች",
-    "footer.pharma_inquiries_contact": "የB2B ቡድን ያግኙ",
     "footer.rights_reserved": "ሁሉም መብቶች የተጠበቁ ናቸው።",
     "footer.emergency_hotline_label": "የድንገተኛ ጊዜ መስመር",
     "footer.available_24_7": "በ24 ሰዓት ይገኛል",
-    "footer.copyright": "© 2026 የአፊላስ ቡድን።",
+    "footer.copyright": "© 2026 አዲናስ ጠቅላላ ሆስፒታል።",
     "footer.privacy_policy": "የግላዊነት ፖሊሲ",
     "footer.terms_of_use": "የአጠቃቀም ደንቦች",
 
-    // Division Specific Pages
-    "hospital.hero.title": "አፊላስ ሆስፒታል ክፍል",
-    "hospital.hero.subtitle":
-      "ዘመናዊ መገልገያዎች እና በተለያዩ የህክምና ዘርፎች ልምድ ያላቸው ባለሙያዎች።",
-    "hospital.hero.cta1": "ክፍሎችን ያስሱ",
-    "hospital.hero.cta2": "ቀጠሮ ይያዙ",
-    "hospital.hero.scroll": "ለማሰስ ይሸብልሉ",
-    "hospital.hero.social_proof": "በየዓመቱ ከ5,000+ ታካሚዎች ታማኝነት",
-    "hospital.hero.roller_1": "ርህሩህ እንክብካቤ",
-    "hospital.hero.roller_2": "ባለሙያ ስፔሻሊስቶች",
-    "hospital.hero.roller_3": "24/7 ድንገተኛ",
-    "hospital.hero.roller_4": "ጤናዎ፣ ቅድሚያችን",
-    "hospital.services.title": "የእኛ የህክምና አገልግሎቶች",
-    "hospital.services.subtitle": "ለጤናዎ የተዘጋጀ አጠቃላይ እንክብካቤ",
-    "hospital.services.per_visit": "በእያንዳንዱ ጉብኝት",
-    "hospital.services.book": "ቀጠሮ ይያዙ",
-
-    "diagnostics.hero.title": "አፊላስ ምርመራ ማዕከል",
-    "diagnostics.hero.subtitle":
-      "ከፍተኛ ትክክለኛነት ያለው ምስል እና ሙሉ በሙሉ አውቶማቲክ የላብራቶሪ ምርመራ።",
-    "diagnostics.hero.cta1": "አገልግሎቶችን ይመልከቱ",
-    "diagnostics.hero.cta2": "ምርመራ ያስይዙ",
-    "diagnostics.hero.scroll": "ለማሰስ ይሸብልሉ",
-    "diagnostics.hero.social_proof": "በየወሩ ከ10,000 በላይ ምርመራዎች ይከናወናሉ",
-
-    "pharma.hero.title": "አፊላስ መድሃኒት ማምረቻ",
-    "pharma.hero.subtitle":
-      "ጥራትን ያማከለ፣ ተደራሽ የሆነ ዓለም አቀፍ ደረጃዎችን የሚያሟላ የመድኃኒት ማምረቻ።",
-    "pharma.hero.cta1": "ምርቶችን ይመልከቱ",
-    "pharma.hero.cta2": "B2B ጥያቄዎች",
-    "pharma.hero.scroll": "ለማሰስ ይሸብልሉ",
-    "pharma.hero.social_proof": "ISO/GMP የተረጋገጠ ማምረቻ",
-
-    "pharma.why.badge": "የእሴት ሀሳብ",
-    "pharma.why.title": "ለምን የአፊላስ ቡድንን ይመርጣሉ?",
-    "pharma.why.subtitle":
-      "ከማምረት እስከ ታካሚ እንክብካቤ — አፊላስ መድሃኒት ማምረቻ ታማኝ አጋር ያደርገዋል።",
-    "pharma.why.cta": "B2B ዋጋ ጠይቅ",
-    "pharma.why.card1_title": "ከጅምር እስከ ፍጻሜ የጤና እንክብካቤ",
-    "pharma.why.card1_desc":
-      "ከህክምና በኋላ መድሃኒቶችን ከማምረት እስከ ታካሚ እንክብካቤ ድረስ ያለምንም እንቅፋት ውህደት።",
-    "pharma.why.card1_h1": "ከጥሬ ዕቃ አቅርቦት እስከ ዝግጁ የመድሃኒት ቅርጾች",
-    "pharma.why.card1_h2": "የተቀናጀ ሆስፒታል እና ፋርማሲ ስርጭት",
-    "pharma.why.card1_h3": "ከህክምና በኋላ የመድሃኒት ክትትል ድጋፍ",
-    "pharma.why.card2_title": "ዘመናዊ ቴክኖሎጂ",
-    "pharma.why.card2_desc":
-      "ወጥ የሆነ ከፍተኛ ጥራት ያለው ምርት ለማረጋገጥ በአውቶማቲክ የመድሃኒት ማሽነሪ የተዘጋጀ።",
-    "pharma.why.card2_h1": "ሙሉ በሙሉ አውቶማቲክ ታብሌት እና ካፕሱል ምርት",
-    "pharma.why.card2_h2": "ዘመናዊ ቅንብር እና የጥራት ሙከራ ላብራቶሪዎች",
-    "pharma.why.card2_h3": "በእውነተኛ ጊዜ የባች ክትትል እና የምርት ቁጥጥር",
-    "pharma.why.card3_title": "የማያሻማ ጥራት እና ደህንነት",
-    "pharma.why.card3_desc":
-      "በጥሩ የማምረቻ ልምምድ (GMP)፣ ISO ደረጃዎች እና ጥብቅ የጥራት ቁጥጥር ፕሮቶኮሎች ሙሉ ተገዢነት።",
-    "pharma.why.card3_h1": "GMP-የተረጋገጠ የማምረቻ አካባቢ",
-    "pharma.why.card3_h2": "ISO 9001 የጥራት አስተዳደር ስርዓት",
-    "pharma.why.card3_h3": "ባለብዙ-ደረጃ የጥራት ቁጥጥር እና ማረጋገጫ ሙከራ",
-
-    "pharma.b2b.badge": "B2B ንግድ",
-    "pharma.b2b.title": "ከአፊላስ ፋርማ ጋር ይተባበሩ",
-    "pharma.b2b.subtitle":
-      "ሆስፒታል አውታረመረብ፣ ፋርማሲ ሰንሰለት ወይም የመድሃኒት አከፋፋይ ከሆኑ — ብጁ ዋጋ እና ጥቅሶችን ያግኙ።",
-    "pharma.b2b.phone_label": "B2B የንግድ ስልክ",
-    "pharma.b2b.email_label": "የንግድ ኢሜይል",
-    "pharma.b2b.location_label": "የማምረቻ ተቋም",
-    "pharma.b2b.location_value": "አፊላስ መድሃኒት ማምረቻ፣ አማራ ክልል፣ ኢትዮጵያ",
-    "pharma.b2b.hours_label": "የስራ ሰዓት",
-    "pharma.b2b.hours_value": "ሰኞ – ቅዳሜ፣ 8:00 ጥዋት – 6:00 ምሽት (EAT)",
-    "pharma.b2b.stat1": "አጋር ተቋማት",
-    "pharma.b2b.stat2": "የምላሽ ጊዜ",
-    "pharma.b2b.form_title": "ዋጋ ጠይቅ",
-    "pharma.b2b.form_subtitle":
-      "ዝርዝሮችዎን ይሙሉ እና የB2B ቡድናችን በ24 ሰዓት ውስጥ ምላሽ ይሰጣል።",
-    "pharma.b2b.field_company": "የድርጅት / ተቋም ስም",
-    "pharma.b2b.field_company_ph": "ለምሳሌ፣ ብሔራዊ ሆስፒታል አውታረመረብ",
-    "pharma.b2b.field_contact": "ተገናኝ ሰው",
-    "pharma.b2b.field_contact_ph": "ሙሉ ስም",
-    "pharma.b2b.field_email": "የንግድ ኢሜይል",
-    "pharma.b2b.field_email_ph": "you@company.com",
-    "pharma.b2b.field_phone": "ስልክ ቁጥር",
-    "pharma.b2b.field_phone_ph": "+251 ...",
-    "pharma.b2b.field_company_type": "የድርጅት ዓይነት",
-    "pharma.b2b.select_placeholder": "አማራጭ ይምረጡ",
-    "pharma.b2b.type_hospital": "ሆስፒታል / ጤና ጣቢያ",
-    "pharma.b2b.type_pharmacy": "ፋርማሲ / መድሃኒት ቤት",
-    "pharma.b2b.type_distributor": "አከፋፋይ / ጅምላ ነጋዴ",
-    "pharma.b2b.type_clinic": "ክሊኒክ / ህክምና ማዕከል",
-    "pharma.b2b.type_government": "መንግስት / የህዝብ ተቋም",
-    "pharma.b2b.type_other": "ሌላ",
-    "pharma.b2b.field_inquiry_type": "የጥያቄ ዓይነት",
-    "pharma.b2b.inquiry_bulk": "የጅምላ ትዕዛዝ",
-    "pharma.b2b.inquiry_contract": "የኮንትራት ማምረቻ",
-    "pharma.b2b.inquiry_distribution": "የስርጭት ሽርክና",
-    "pharma.b2b.inquiry_custom": "ብጁ ቅንብር",
-    "pharma.b2b.field_product": "የሚፈለግ ምርት(ቶች)",
-    "pharma.b2b.field_product_ph": "ለምሳሌ፣ Amoxicillin፣ Paracetamol",
-    "pharma.b2b.field_volume": "የሚገመት መጠን",
-    "pharma.b2b.field_volume_ph": "ለምሳሌ፣ 10,000 ዩኒት/ወር",
-    "pharma.b2b.field_message": "ተጨማሪ ዝርዝሮች",
-    "pharma.b2b.field_message_ph":
-      "ስለ መስፈርቶችዎ፣ ጊዜ ሰሌዳ ወይም ልዩ ፍላጎቶች ይበልጥ ይንገሩን...",
-    "pharma.b2b.submit": "ጥያቄ ያስገቡ",
-    "pharma.b2b.submitting": "በማስገባት ላይ...",
-    "pharma.b2b.success_title": "ጥያቄው ደርሷል!",
-    "pharma.b2b.success_desc":
-      "ለፍላጎትዎ እናመሰግናለን። የB2B ቡድናችን በ24 የስራ ሰዓት ውስጥ ያገኙዎታል።",
-    "pharma.b2b.disclaimer":
-      "ይህን ቅጽ በማስገባት ስለ ጥያቄዎ በአፊላስ B2B የንግድ ቡድን ሊገናኙ ይስማማሉ።",
-
-    "pharma.catalog.badge": "የእኛ ምርቶች እና አገልግሎቶች",
-    "pharma.catalog.title": "የመድኃኒት ማምረቻ አገልግሎቶች",
-    "pharma.catalog.subtitle":
-      "ከፍተኛ ትክክለኛነት ያለው የመድኃኒት ማምረት፣ ቀመር እና ላብራቶሪ አገልግሎቶች።",
-    "pharma.catalog.price": "ዋጋ፡",
-    "pharma.catalog.active": "ንቁ",
-    "pharma.catalog.days": "ቀናት",
-    "pharma.catalog.book_btn": "አገልግሎት ያስይዙ",
-    "pharma.catalog.view_all_btn": "ሁሉንም አገልግሎቶች ይመልከቱ",
-
+    // Blog
     "blog.title": "የጤና እና ህክምና ግንዛቤዎች",
-    "blog.subtitle": "ከአፊላስ ቡድን የቅርብ ጊዜ የህክምና ምርምር እና የጤና መረጃዎችን ይከታተሉ።",
-    "blog.search_placeholder": "ጽሑፎችን፣ ምርምሮችን፣ ታጎችን ይፈልጉ...",
+    "blog.subtitle": "የቅርብ ጊዜ የህክምና ምርምር እና የጤና መረጃዎችን ይከታተሉ።",
+    "blog.search_placeholder": "ጽሑፎችን፣ ምርምሮችን ይፈልጉ...",
     "blog.filter_all": "ሁሉም ጽሑፎች",
     "blog.filter_categories": "ምድቦች",
-    "blog.filter_locations": "ክፍሎች",
     "blog.read_more": "ጽሑፉን ያንብቡ",
-    "blog.watch_video": "ቪዲዮ ይመልከቱ",
     "blog.published_on": "የታተመበት",
     "blog.by_author": "በ",
     "blog.views": "እይታዎች",
@@ -1133,220 +484,71 @@ const translations: Record<Language, Record<string, string>> = {
     "blog.back_to_blogs": "ወደ ጽሑፎች ተመለስ",
     "blog.featured": "ልዩ ጽሑፍ",
 
-    // =========================================================================
-    // GENERAL HOSPITAL PAGE TRANSLATIONS (NEW)
-    // =========================================================================
-    "hospital.hero.headline_prefix": "አፊላስ ጠቅላላ ሆስፒታል እና ",
-    "hospital.hero.headline_span": "የጤና አውታረመረብ",
+    // General Hospital Page
     "hospital.hero.book_btn": "ቀጠሮ ይያዙ",
     "hospital.hero.view_services_btn": "የሕክምና አገልግሎቶችን ይመልከቱ",
-    "hospital.hero.img_alt": "የአፊላስ ጠቅላላ ሆስፒታል ተቋም",
-
-    "hospital.trust.headline": "በቀዳሚ የጤና አጋሮች እና በ50,000+ ታካሚዎች የታመነ",
-    "hospital.trust.item1_name": "24/7 የድንገተኛ ህክምና",
-    "hospital.trust.item1_badge": "ሁልጊዜ ዝግጁ",
-    "hospital.trust.item2_name": "ISO/GMP መመዘኛ የተጠበቀ",
-    "hospital.trust.item2_badge": "የተረጋገጠ ጥራት",
-    "hospital.trust.item3_name": "ዘመናዊ አውቶሜትድ ላብራቶሪ",
-    "hospital.trust.item3_badge": "ምርጥ ደረጃ",
-    "hospital.trust.item4_name": "የእናት እና ህጻናት ጤና እንክብካቤ",
-    "hospital.trust.item4_badge": "ጥራት ያለው እንክብካቤ",
-
-    "hospital.welcome.title": "እንኳን ወደ አፊላስ ጠቅላላ ሆስፒታል በደህና መጡ",
-    "hospital.welcome.desc":
-      "አፊላስ ሆስፒታል በፈለገ ህይወት ሆስፒታል አካባቢ፣ ከአማራ ህዝብ ጤና ኢንስቲትዩት ፊት ለፊት፣ በታና ሐይቅ ዳርቻ ላይ የሚገኝ አስደናቂ እይታ ያለው በብዙ የህክምና ዘርፎች የተሰማራ ሆስፒታል ነው። በከተማዋ ከሚገኙ የግል ሆስፒታሎች አንዱ ሲሆን ከ10 በላይ ልዩ የህክምና ማዕከላት አሉት። አፊላስ በአንድ ቦታ ዘመናዊ የምርመራ እና የህክምና እንክብካቤ ይሰጣል።",
+    "hospital.welcome.title": "እንኳን ወደ አዲናስ ጠቅላላ ሆስፒታል በደህና መጡ",
+    "hospital.welcome.desc": "አዲናስ ጠቅላላ ሆስፒታል ልዩ የህክምና አገልግሎቶችን ለመስጠት የተሰጠ ሆስፒታል ነው።",
 
     "hospital.dept.badge": "ክሊኒካዊ ብቃት",
     "hospital.dept.overlay_title_1": "ዓለም አቀፍ ደረጃ ያላቸው የህክምና",
     "hospital.dept.overlay_title_2": "ክፍሎች",
     "hospital.dept.title": "ልዩ የህክምና ክፍሎች",
-    "hospital.dept.subtitle":
-      "ልዩ ልዩ የህክምና ባለሙያዎቻችን፣ ሀኪሞቻችን እና የቀዶ ጥገና ስፔሻሊስቶቻችን ዘመናዊ ቴክኖሎጂዎችን በመጠቀም ጥራት ያለው የህክምና ውጤት ያቀርባሉ።",
+    "hospital.dept.subtitle": "የባለሙያ ቡድኖቻችን ዘመናዊ ቴክኖሎጂዎችን በመጠቀም ጥራት ያለው የህክምና ውጤት ያቀርባሉ።",
     "hospital.dept.cardiology.name": "ካርዲዮሎጂ (የልብ ህክምና)",
-    "hospital.dept.cardiology.desc":
-      "የልብ እና የደም ዝውውር ስርዓት እንክብካቤ ከዘመናዊ ህክምና ጋር",
+    "hospital.dept.cardiology.desc": "የልብ እና የደም ዝውውር ስርዓት እንክብካቤ",
     "hospital.dept.pediatrics.name": "ፔዲያትሪክስ (የህፃናት ህክምና)",
-    "hospital.dept.pediatrics.desc":
-      "ለህፃናት እና ለጨቅላ ህፃናት የተመቸ የህፃናት ህክምና እንክብካቤ",
+    "hospital.dept.pediatrics.desc": "ለህፃናት እና ለጨቅላ ህፃናት ልዩ እንክብካቤ",
     "hospital.dept.neurology.name": "ኒውሮሎጂ (የነርቭ ህክምና)",
-    "hospital.dept.neurology.desc": "የአእምሮ እና የነርቭ ስርዓት ህክምና በዘመናዊ የምርመራ ቴክኖሎጂ",
+    "hospital.dept.neurology.desc": "የአእምሮ እና የነርቭ ስርዓት ህክምና",
     "hospital.dept.orthopedics.name": "ኦርቶፔዲክስ (የአጥንት ህክምና)",
-    "hospital.dept.orthopedics.desc":
-      "የአጥንት እና የመገጣጠሚያ ህክምና በቀዶ ጥገና እና ያለ ቀዶ ጥገና",
-    "hospital.dept.oncology.name": "ኦንኮሎጂ (የካንሰር ህክምና)",
-    "hospital.dept.oncology.desc": "የካንሰር ምርመራ እና ልዩ ህክምና ከአጠቃላይ የታካሚ ድጋፍ ጋር",
+    "hospital.dept.orthopedics.desc": "የአጥንት እና የመገጣጠሚያ ጤና አስተዳደር",
     "hospital.dept.emergency.name": "የድንገተኛ ህክምና",
-    "hospital.dept.emergency.desc":
-      "የ24/7 የድንገተኛ እና የአደጋ ጊዜ ህክምና በፈጣን ምላሽ ሰጪ ቡድን",
+    "hospital.dept.emergency.desc": "የ24/7 የድንገተኛ እና የአደጋ ጊዜ ህክምና",
 
     "hospital.amenity.main_title": "ዓለም አቀፍ ደረጃ ያላቸው የሆስፒታል መገልገያዎች",
     "hospital.amenity.item1.title": "ጽኑ ህሙማን መከታተያ (ICU / CCU)",
-    "hospital.amenity.item1.desc":
-      "ከፍተኛ ደረጃ ያለው ህይወት አድን እና መከታተያ መሳሪያዎች ያሉት የጽኑ ህሙማን ክፍል",
+    "hospital.amenity.item1.desc": "ከፍተኛ ደረጃ ያለው የጽኑ ህሙማን ክፍል",
     "hospital.amenity.item2.title": "የቀዶ ጥገና ክፍሎች",
-    "hospital.amenity.item2.desc": "በዘመናዊ ቴክኖሎጂ የተደገፉ የቀዶ ጥገና ክፍሎች",
+    "hospital.amenity.item2.desc": "ዘመናዊ የቀዶ ጥገና ክፍሎች",
     "hospital.amenity.item3.title": "የምርመራ ማዕከል",
-    "hospital.amenity.item3.desc":
-      "ኤም.አር.አይ (MRI)፣ ሲቲ ስካን (CT) እና ኤክስሬይ ጨምሮ ዘመናዊ የምስል እና ላብራቶሪ አገልግሎቶች",
+    "hospital.amenity.item3.desc": "ዘመናዊ የምስል እና ላብራቶሪ አገልግሎቶች",
     "hospital.amenity.item4.title": "ፋርማሲ",
-    "hospital.amenity.item4.desc":
-      "አጠቃላይ የመድኃኒት አቅርቦት ያለው በ24 ሰዓት ክፍት የሆነ የውስጥ ፋርማሲ",
+    "hospital.amenity.item4.desc": "በ24 ሰዓት ክፍት የሆነ የውስጥ ፋርማሲ",
     "hospital.amenity.item5.title": "የደም ባንክ",
-    "hospital.amenity.item5.desc":
-      "የተረጋገጠና ደህንነቱ የተጠበቀ የደም ልገሳና አገልግሎት በ24 ሰዓት",
+    "hospital.amenity.item5.desc": "ደህንነቱ የተጠበቀ የደም ልገሳ አገልግሎት",
     "hospital.amenity.item6.title": "የድንገተኛ ህክምና ክፍል",
-    "hospital.amenity.item6.desc":
-      "የ24/7 የድንገተኛ እና የአደጋ ጊዜ ህክምና በፈጣን ምላሽ ሰጪ ቡድን",
+    "hospital.amenity.item6.desc": "የ24/7 የድንገተኛ እንክብካቤ",
 
     "hospital.sec_services.title": "የእኛ የህክምና አገልግሎቶች",
-    "hospital.sec_services.subtitle": "ለጤናዎ የተዘጋጀ አጠቃላይ እንክብካቤ",
+    "hospital.sec_services.subtitle": "አገልግሎቶች",
     "hospital.sec_services.price_label": "ዋጋ፡ ETB",
     "hospital.sec_services.duration_label": "የሚወስደው ጊዜ፡",
     "hospital.sec_services.min_unit": "ደቂቃ",
     "hospital.sec_services.location_label": "ቦታ፡",
-    "hospital.sec_services.default_location": "አፊላስ ጠቅላላ ሆስፒታል",
+    "hospital.sec_services.default_location": "አዲናስ ጠቅላላ ሆስፒታል",
     "hospital.sec_services.book_btn": "ቀጠሮ ያዙ",
     "hospital.sec_services.view_all_btn": "ሁሉንም አገልግሎቶች ይመልከቱ",
-    "hospital.sec_services.empty_msg": "በአሁኑ ጊዜ ምንም አይነት አገልግሎት አልተገኘም።",
-
-    // Services Page
-    "services.hero.badge": "ሙሉ የህክምና እንክብካቤ",
-    "services.hero.title": "የእኛ የጤና እንክብካቤ አገልግሎቶች",
-    "services.hero.subtitle":
-      "በከፍተኛ የህክምና ባለሙያዎች የሚሰጡ አጠቃላይ እና ልዩ የህክምና፣ የምርመራ እና የክሊኒካል አገልግሎቶችን ይመርምሩ።",
-    "services.search.placeholder": "አገልግሎቶችን በስም ወይም በገለጻ ይፈልጉ...",
-    "services.search.results_count": "አገልግሎቶች ተገኝተዋል",
-    "services.search.clear": "ፍለጋን አጽዳ",
-    "services.search.no_results": "ከፍለጋዎ ጋር የሚጣጣም ምንም አገልግሎት አልተገኘም",
-    "services.search.no_results_desc":
-      "በሌላ ቃል ፈልገው ይሞክሩ ወይም ያሉትን ሁሉንም አገልግሎቶች ይመልከቱ።",
-    "services.search.showing_all": "ሁሉንም የህክምና አገልግሎቶች በማሳየት ላይ",
-    "services.stat.available": "የ24/7 ህክምና ዝግጁነት",
-    "services.stat.specialists": "50+ የህክምና ስፔሻሊስቶች",
-    "services.stat.accredited": "JCI የጥራት ደረጃ",
-
-    // Doctors Page & Location Filters
-    "doctors.hero.badge": "የስፔሻሊስት ማውጫ",
-    "doctors.hero.title": "የህክምና ስፔሻሊስቶቻችንን ያግኙ",
-    "doctors.hero.subtitle":
-      "በሁሉም የአፊላስ ዘርፎች እና ቦታዎች ከፍተኛ ብቃት ያላቸውን ሀኪሞች፣ ቀዶ ጥገና ሀኪሞች እና የጤና ባለሙያዎችን ያግኙ።",
-    "doctors.location.filter_title": "ሀኪሞችን በቦታ እና በዘርፍ ይለዩ",
-    "doctors.location.filter_subtitle":
-      "የተወሰኑ የህክምና ባለሙያዎችን ለማየት የአፊላስን የልህቀት ማዕከል ይምረጡ",
-    "doctors.location.all": "ሁሉም ዘርፎች",
-    "doctors.location.all_desc": "በሁሉም የአፊላስ ማዕከላት ያሉ ባለሙያዎችን ይመልከቱ",
-    "doctors.location.hospital": "አፊላስ ጠቅላላ ሆስፒታል",
-    "doctors.location.hospital_desc": "ክሊኒካል፣ ቀዶ ጥገና እና ድንገተኛ ህክምና",
-    "doctors.location.diagnostics": "አፊላስ የምርመራ ማዕከል",
-    "doctors.location.diagnostics_desc": "ሬዲዮሎጂ፣ ፓቶሎጂ እና ምርመራዎች",
-    "doctors.location.pharma": "አፊላስ መድሃኒት ማምረቻ",
-    "doctors.location.pharma_desc": "ፋርማኮሎጂ እና ምርምር ስፔሻሊስቶች",
-    "doctors.location.active_badge": "የተመረጠ ቦታ",
-
-    // =========================================================================
-    // DIAGNOSTICS PAGE TRANSLATIONS (AMHARIC)
-    // =========================================================================
-    "diagnostics.packages.badge": "አጠቃላይ የጤና ምርመራ ፓኬጆች",
-    "diagnostics.packages.section_title": "ለእርጋታ እና ሰላም ቅድመ ምርመራ",
-    "diagnostics.packages.section_subtitle":
-      "ቅድመ ምርመራ ህይወትን ያድናል። ለበሽታዎች ስጋት ግምገማ እና መደበኛ ክትትል ከተዘጋጁት ልዩ የጤና ምርመራ ፓኬጆቻችን ይምረጡ።",
-    "diagnostics.packages.best_for_label": "ለማን ይመረጣል፡",
-    "diagnostics.packages.included_tests_heading": "የተካተቱ ምርመራዎች",
-    "diagnostics.packages.consultation_label": "የክሊኒካል ህክምና ምክክር፡",
-
-    "diagnostics.packages.executive.name": "የስራ አስፈጻሚ ጤና",
-    "diagnostics.packages.executive.tag": "ዓመታዊ ግምገማ",
-    "diagnostics.packages.executive.best_for":
-      "የስራ ባለሙያዎች፣ ስራ የበዛባቸው አዋቂዎች እና የህይወት ዘይቤ በሽታዎችን እና የውስጥ አካላት ጫናን በቅድሚያ ለመለየት አጠቃላይ ዓመታዊ የጤና ግምገማ የሚፈልጉ ግለሰቦች።",
-    "diagnostics.packages.executive.sec1_title": "የደም እና የውስጥ አካላት ምርመራዎች",
-    "diagnostics.packages.executive.sec1_t1":
-      "ሙሉ የደም ምርመራ (CBC)፡ የደም ማነስን፣ ኢንፌክሽኖችን እና የደም ህመሞችን ይፈትሻል።",
-    "diagnostics.packages.executive.sec1_t2":
-      "አጠቃላይ የጉበት ተግባር ምርመራ (LFT)፡ ALT, AST, ALP, ጠቅላላ ቢሊሩቢን, ጠቅላላ ፕሮቲን።",
-    "diagnostics.packages.executive.sec1_t3":
-      "አጠቃላይ የኩላሊት ተግባር ምርመራ (KFT)፡ ክሬያቲኒን፣ ዩሪክ አሲድ፣ የደም ኤሌክትሮላይቶች።",
-    "diagnostics.packages.executive.sec2_title": "ሜታቦሊክ እና መደበኛ ምርመራዎች",
-    "diagnostics.packages.executive.sec2_t1":
-      "አጠቃላይ የኮሌስትሮል እና ስብ መጠን ምርመራ (Lipid Profile)",
-    "diagnostics.packages.executive.sec2_t2":
-      "የስኳር መጠን (FBS) እና የታይሮይድ እጢ ሆርሞን ምርመራ (TSH)",
-    "diagnostics.packages.executive.sec2_t3":
-      "መደበኛ የሽንት ምርመራ (Urine Analysis)፡ ፕሮቲን፣ ግሉኮስ እና የሽንት ቧንቧ ኢንፌክሽንን ይፈትሻል።",
-    "diagnostics.packages.executive.sec3_title": "የምስል እና የራዲዮሎጂ ምርመራዎች",
-    "diagnostics.packages.executive.sec3_t1": "ዲጂታል የደረት ኤክስ-ሬይ (Chest X-Ray)",
-    "diagnostics.packages.executive.sec3_t2":
-      "የሆድ እና የዳሌ አልትራሳውንድ (Ultrasound)",
-    "diagnostics.packages.executive.sec3_t3": "የልብ ምት መከታተያ (ECG)",
-    "diagnostics.packages.executive.consultation":
-      "ሙሉ የአካል ምርመራ እና የውጤት ግምገማ በከፍተኛ የውስጥ ደዌ ህክምና ስፔሻሊስት።",
-    "diagnostics.packages.executive.primary_cta": "የስራ አስፈጻሚ ፓኬጅ ያስይዙ",
-
-    "diagnostics.packages.diabetic.name": "የስኳር ህመም እንክብካቤ",
-    "diagnostics.packages.diabetic.tag": "ልዩ እንክብካቤ",
-    "diagnostics.packages.diabetic.best_for":
-      "የስኳር ህመም ያለባቸው፣ የቅድመ-ስኳር ምልክት ያለባቸው ወይም በቤተሰብ የስኳር ህመም ታሪክ ያላቸው ግለሰቦች የስኳር መጠናቸውን እና የተጓዳኝ አካላት ጤናን ለመከታተል የሚደረግ።",
-    "diagnostics.packages.diabetic.sec1_title": "የስኳር መጠን ቁጥጥር እና የረጅም ጊዜ ክትትል",
-    "diagnostics.packages.diabetic.sec1_t1": "የባዶ ሆድ ደም ስኳር ምርመራ (FBS)",
-    "diagnostics.packages.diabetic.sec1_t2":
-      "ከተመገቡ ከ2 ሰዓት በኋላ የሚደረግ የደም ስኳር (PPBS)",
-    "diagnostics.packages.diabetic.sec1_t3": "የ3 ወር አማካይ የደም ስኳር መጠን (HbA1c)",
-    "diagnostics.packages.diabetic.sec2_title": "የስኳር ህመም የውስጥ አካላት ተፅዕኖ ምርመራ",
-    "diagnostics.packages.diabetic.sec2_t1":
-      "የስኳር ህመም ኩላሊት ምርመራ፡ ክሬያቲኒን፣ ዩሪያ፣ የሽንት ማይክሮአልቡሚን።",
-    "diagnostics.packages.diabetic.sec2_t2":
-      "የልብ እና ደም ቧንቧ ስጋት ግምገማ፡ አጠቃላይ የኮሌስትሮል እና ስብ ምርመራ።",
-    "diagnostics.packages.diabetic.sec3_title": "የተጎዱ አካላት ምርመራ",
-    "diagnostics.packages.diabetic.sec3_t1": "የልብ ህክምና ምርመራ (12-Lead ECG)",
-    "diagnostics.packages.diabetic.sec3_t2":
-      "የስኳር ህመም የአይን ህዋሳት ምርመራ (Retinopathy Screening)",
-    "diagnostics.packages.diabetic.sec3_t3":
-      "የስኳር ህመም የእግር ነርቭ እና ደም ቧንቧ ምርመራ (Peripheral Neuropathy)",
-    "diagnostics.packages.diabetic.consultation":
-      "ከእጢ እና ስኳር ህመም ስፔሻሊስት እንዲሁም ከስነ-ምግብ ባለሙያ ጋር የሚደረግ ምክክር።",
-    "diagnostics.packages.diabetic.primary_cta": "የስኳር ህመም ፓኬጅ ያስይዙ",
-
-    "diagnostics.packages.cardiac.name": "ከፍተኛ ደረጃ የልብ ህክምና",
-    "diagnostics.packages.cardiac.tag": "የልብ ህክምና ምርመራ",
-    "diagnostics.packages.cardiac.best_for":
-      "የደም ግፊት፣ ከፍተኛ ኮሌስትሮል፣ የጭንቀት ታሪክ፣ ሲጋራ ማጨስ፣ በቤተሰብ የልብ ህመም ታሪክ ያላቸው ወይም የደረት ህመም እና ድካም የሚሰማቸው አዋቂዎች።",
-    "diagnostics.packages.cardiac.sec1_title":
-      "የልብ እና ደም ቧንቧ ባዮማርከሮች እና የስጋት ምርመራ",
-    "diagnostics.packages.cardiac.sec1_t1": "ሙሉ የኮሌስትሮል ምርመራ (HDL, LDL)",
-    "diagnostics.packages.cardiac.sec1_t2": "የደም ቧንቧ እብጠት መለኪያ ምርመራ (hs-CRP)",
-    "diagnostics.packages.cardiac.sec1_t3": "የባዶ ሆድ ደም ስኳር (FBS) እና HbA1c ምርመራ",
-    "diagnostics.packages.cardiac.sec1_t4":
-      "የኩላሊት እና ኤሌክትሮላይት ምርመራ፡ ክሬያቲኒን፣ ሶዲየም፣ ፖታሺየም",
-    "diagnostics.packages.cardiac.sec2_title": "ዘመናዊ ያልተወጉ የልብ ምስል እና ምርመራዎች",
-    "diagnostics.packages.cardiac.sec2_t1": "የልብ ምት እና ሪትም ምርመራ (ECG)",
-    "diagnostics.packages.cardiac.sec2_t2":
-      "የልብ አልትራሳውንድ (Echocardiogram / ECHO)",
-    "diagnostics.packages.cardiac.sec2_t3":
-      "የልብ ጥረት ምርመራ (Treadmill Stress Test / TMT)",
-    "diagnostics.packages.cardiac.sec2_t4": "የደረት ዲጂታል ኤክስሬይ (Chest X-Ray)",
-    "diagnostics.packages.cardiac.consultation":
-      "በከፍተኛ የልብ ህክምና ስፔሻሊስት ሀኪም የሚደረግ ጥልቅ ምርመራ እና ምክክር።",
-    "diagnostics.packages.cardiac.primary_cta": "የልብ ህክምና ፓኬጅ ያስይዙ",
-
-    "diagnostics.prep.title": "ለህሙማን ቅድመ ምርመራ መመሪያዎች",
-    "diagnostics.prep.subtitle":
-      "ወደ ምርመራ ማዕከላችን ከመምጣትዎ በፊት ሊከተሏቸው የሚገቡ አስፈላጊ መመሪያዎች።",
-    "diagnostics.prep.fasting.title": "የባዶ ሆድ ምርመራ መመሪያ",
-    "diagnostics.prep.fasting.content":
-      "እባክዎን ጠዋት ለደም ናሙና ከመምጣትዎ በፊት ከ10–12 ሰዓታት ይጡሙ (ውሃ ብቻ መጠጣት ይቻላል)።",
-    "diagnostics.prep.medication.title": "የመድኃኒት አወሳሰድ ህግ",
-    "diagnostics.prep.medication.content":
-      "በሀኪም ካልታዘዙ በስተቀር የመደበኛ ደም ግፊት መድኃኒቶችን ይቀጥሉ። የስኳር መድኃኒቶች ደግሞ ደም ከተወሰደ በኋላ መወሰድ አለባቸው።",
-    "diagnostics.prep.cardiac_footwear.title": "ለልብ ምርመራ የሚለበሱ ጫማዎች",
-    "diagnostics.prep.cardiac_footwear.content":
-      "የልብ ጥረት ምርመራ (TMT) የሚደደረግልዎት ከሆነ፣ እባክዎን ምቹ የስፖርት ልብሶችን እና ጫማዎችን ይልበሱ።",
 
     "hospital.sec_doc.title": "ባለሙያ ሀኪሞቻችንን ይወቁ",
-    "hospital.sec_doc.subtitle": "ለጤናዎ እና ለደህንነትዎ የተሰጡ ከፍተኛ ብቃት ያላቸው ስፔሻሊስቶች",
+    "hospital.sec_doc.subtitle": "ለጤናዎ የተሰጡ ከፍተኛ ብቃት ያላቸው ስፔሻሊስቶች",
     "hospital.sec_doc.experience_label": "ልምድ",
     "hospital.sec_doc.yrs_suffix": "+ ዓመታት",
     "hospital.sec_doc.available_label": "ይገኛል",
     "hospital.sec_doc.view_all_btn": "ሁሉንም ሀኪሞች ይመልከቱ",
-    "hospital.sec_doc.empty_msg": "ምንም ሀኪም አልተገኘም።",
+
+    // Services Page
+    "services.hero.badge": "ሙሉ የህክምና እንክብካቤ",
+    "services.hero.title": "የጤና አገልግሎቶቻችን",
+    "services.hero.subtitle": "የተለያዩ ልዩ የህክምና አገልግሎቶቻችንን ያስሱ።",
+    "services.search.placeholder": "አገልግሎቶችን በስም ወይም በመግለጫ ይፈልጉ...",
+    "services.search.results_count": "አገልግሎቶች ተገኝተዋል",
+    "services.search.clear": "ፍለጋን አጽዳ",
+    "services.search.no_results": "ከፍለጋዎ ጋር የሚስማማ ምንም አገልግሎት የለም",
+    "services.search.no_results_desc": "በሌላ ቃል ለመፈለግ ይሞክሩ።",
+    "services.search.showing_all": "ሁሉንም የሚገኙ አገልግሎቶች በማሳየት ላይ",
+    "services.stat.available": "24/7 እንክብካቤ ይገኛል",
+    "services.stat.specialists": "50+ የህክምና ባለሙያዎች",
 
     // Doctor Details Modal
     "doctors.modal.title": "የሀኪሙ ዝርዝር መረጃ",
@@ -1362,9 +564,7 @@ const translations: Record<Language, Record<string, string>> = {
     "doctors.modal.active_status": "ዝግጁ እና ስራ ላይ ያለ",
     "doctors.modal.free_fee": "መደበኛ ክፍያ",
 
-    // ======================================================================
-    // NEW KEYS ADDED FOR HEADER (THEME, MORE, ACCOUNT)
-    // ======================================================================
+    // Theme & Account
     "nav.more": "ተጨማሪ",
     "nav.sign_in": "ይግቡ",
     "nav.create_account": "መለያ ይፍጠሩ",
@@ -1374,70 +574,65 @@ const translations: Record<Language, Record<string, string>> = {
     "theme.light": "ብርሃን",
     "theme.dark": "ጨለማ",
     "theme.system": "ስርዓት",
-    "webchat.chat_with_us": "ከእኛ ጋር ያዩሩ",
-    "webchat.online": "በመስመር ላይ",
-    "webchat.offline": "ከመስመር ውጭ",
-    "webchat.type_message": "መልዕክትዎን ይተይቡ...",
-    "webchat.send": "ላክ",
 
-    // Payment Page Translations - Add to am object
-"payment.verifying": "ክፍያ በመፈተሽ ላይ...",
-"payment.pleaseWait": "እባክዎ ግብይትዎን እስክናረጋግጥ ድረስ ይጠብቁ",
-"payment.success": "ክፍያ ተሳክቷል! 🎉",
-"payment.successMessage": "ክፍያዎ በተሳካ ሁኔታ ተረጋግጧል።",
-"payment.failed": "ክፍያ አልተሳካም ❌",
-"payment.failedMessage": "ክፍያዎን ማረጋገጥ አልቻልንም። እባክዎ እንደገና ይሞክሩ ወይም ድጋፍ ያግኙ።",
-"payment.noReference": "የግብይት ማጣቀሻ አልተገኘም",
-"payment.verificationFailed": "የክፍያ ማረጋገጫ አልተሳካም",
-"payment.transactionId": "የግብይት መታወቂያ፡",
-"payment.reference": "ማጣቀሻ፡",
-"payment.amount": "መጠን፡",
-"payment.status": "ሁኔታ፡",
-"payment.returnHome": "ወደ መነሻ ተመለስ",
-"payment.viewAppointments": "ቀጠሮዎቼን ይመልከቱ",
-"payment.tryAgain": "እንደገና ይሞክሩ",
+    // Payment
+    "payment.verifying": "ክፍያ በመፈተሽ ላይ...",
+    "payment.pleaseWait": "እባክዎ ግብይትዎን እስክናረጋግጥ ድረስ ይጠብቁ",
+    "payment.success": "ክፍያ ተሳክቷል! 🎉",
+    "payment.successMessage": "ክፍያዎ በተሳካ ሁኔታ ተረጋግጧል።",
+    "payment.failed": "ክፍያ አልተሳካም ❌",
+    "payment.failedMessage": "ክፍያዎን ማረጋገጥ አልቻልንም።",
+    "payment.noReference": "የግብይት ማጣቀሻ አልተገኘም",
+    "payment.verificationFailed": "የክፍያ ማረጋገጫ አልተሳካም",
+    "payment.transactionId": "የግብይት መታወቂያ፡",
+    "payment.reference": "ማጣቀሻ፡",
+    "payment.amount": "መጠን፡",
+    "payment.status": "ሁኔታ፡",
+    "payment.returnHome": "ወደ መነሻ ተመለስ",
+    "payment.viewAppointments": "ቀጠሮዎቼን ይመልከቱ",
+    "payment.tryAgain": "እንደገና ይሞክሩ",
 
-"nav.departments": "ክፍሎች",
+    "nav.departments": "ክፍሎች",
 
-// Departments Page
-"departments.loading": "ክፍሎች በመጫን ላይ...",
-"departments.loading_message": "እባክዎ ክፍሎቹን እስክናመጣ ድረስ ይጠብቁ",
-"departments.error_title": "የሆነ ስህተት ተከስቷል",
-"departments.error_message": "ክፍሎቹን ማግኘት አልተቻለም። እባክዎ በኋላ ይሞክሩ።",
-"departments.try_again": "እንደገና ይሞክሩ",
-"departments.badge": "የህክምና አገልግሎቶች",
-"departments.title": "ክፍሎቻችን",
-"departments.subtitle": "በባለሙያ የጤና ባለሙያዎች የሚሰሩ ልዩ የህክምና ክፍሎቻችንን ያስሱ",
-"departments.empty_title": "እስካሁን ምንም ክፍሎች የሉም",
-"departments.empty_message": "ክፍሎች ከተጨመሩ በኋላ እዚህ ይታያሉ።",
-"departments.total": "ጠቅላላ",
-"departments.departments": "ክፍሎች",
-"departments.default_description": "ልዩ እንክብካቤ የሚሰጥ ክፍል",
-"departments.learn_more": "ተጨማሪ ይወቁ",
+    // Departments Page
+    "departments.loading": "ክፍሎች በመጫን ላይ...",
+    "departments.loading_message": "እባክዎ ክፍሎቹን እስክናመጣ ድረስ ይጠብቁ",
+    "departments.error_title": "የሆነ ስህተት ተከስቷል",
+    "departments.error_message": "ክፍሎቹን ማግኘት አልተቻለም።",
+    "departments.try_again": "እንደገና ይሞክሩ",
+    "departments.badge": "የህክምና አገልግሎቶች",
+    "departments.title": "ክፍሎቻችን",
+    "departments.subtitle": "ልዩ የህክምና ክፍሎቻችንን ያስሱ",
+    "departments.empty_title": "እስካሁን ምንም ክፍሎች የሉም",
+    "departments.empty_message": "ክፍሎች ከተጨመሩ በኋላ እዚህ ይታያሉ።",
+    "departments.total": "ጠቅላላ",
+    "departments.departments": "ክፍሎች",
+    "departments.default_description": "ልዩ እንክብካቤ የሚሰጥ ክፍል",
+    "departments.learn_more": "ተጨማሪ ይወቁ",
 
-// Departments Detail Page
-"departments.back": "ወደ ክፍሎች ተመለስ",
-"departments.back_to_all": "ወደ ሁሉም ክፍሎች ተመለስ",
-"departments.department": "ክፍል",
-"departments.about": "ስለ",
-"departments.providing_care": "ልዩ የህክምና እንክብካቤ የሚሰጥ ክፍል",
-"departments.about_description": "ክፍል ልዩ ህክምና ለሚፈልጉ ታካሚዎች አጠቃላይ የህክምና እንክብካቤ ይሰጣል። የባለሙያ የጤና ተንከባካቢዎች ቡድናችን ከፍተኛ ጥራት ያለው እንክብካቤ ለመስጠት የተሰጠ ነው።",
-"departments.not_found": "ክፍል አልተገኘም",
-"departments.not_found_message": "የሚፈልጉት ክፍል የለም ወይም ተወግዷል።",
-"departments.services": "አገልግሎቶቻችን",
-"departments.service_1": "ልዩ ምክክሮች",
-"departments.service_2": "ዘመናዊ ምርመራዎች",
-"departments.service_3": "የህክምና እቅዶች",
-"departments.service_4": "ክትትል እንክብካቤ",
-"departments.hours": "የስራ ሰዓት",
-"departments.weekdays": "ሰኞ - አርብ",
-"departments.saturday": "ቅዳሜ",
-"departments.sunday": "እሁድ",
-"departments.closed": "ዝግ ነው",
-"departments.emergency": "ድንገተኛ",
-"departments.contact_location": "ግንኙነት እና አድራሻ",
-"departments.location": "ፈለገ ህይወት አካባቢ፣ የታና ሐይቅ ዳር፣ ባሕር ዳር",
-"departments.book_appointment": "ቀጠሮ ይያዙ",
+    // Departments Detail Page
+    "departments.back": "ወደ ክፍሎች ተመለስ",
+    "departments.back_to_all": "ወደ ሁሉም ክፍሎች ተመለስ",
+    "departments.department": "ክፍል",
+    "departments.about": "ስለ",
+    "departments.providing_care": "ልዩ የህክምና እንክብካቤ የሚሰጥ ክፍል",
+    "departments.about_description": "ልዩ ህክምና ለሚፈልጉ ታካሚዎች አጠቃላይ የህክምና እንክብካቤ ይሰጣል።",
+    "departments.not_found": "ክፍል አልተገኘም",
+    "departments.not_found_message": "የሚፈልጉት ክፍል የለም ወይም ተወግዷል።",
+    "departments.services": "አገልግሎቶቻችን",
+    "departments.service_1": "ልዩ ምክክሮች",
+    "departments.service_2": "ዘመናዊ ምርመራዎች",
+    "departments.service_3": "የህክምና እቅዶች",
+    "departments.service_4": "ክትትል እንክብካቤ",
+    "departments.hours": "የስራ ሰዓት",
+    "departments.weekdays": "ሰኞ - አርብ",
+    "departments.saturday": "ቅዳሜ",
+    "departments.sunday": "እሁድ",
+    "departments.closed": "ዝግ ነው",
+    "departments.emergency": "ድንገተኛ",
+    "departments.contact_location": "ግንኙነት እና አድራሻ",
+    "departments.location": "አዲስ አበባ፣ ኢትዮጵያ",
+    "departments.book_appointment": "ቀጠሮ ይያዙ",
   },
 };
 

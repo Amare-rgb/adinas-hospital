@@ -21,6 +21,26 @@ function buildImageUrl(imagePath) {
 }
 
 // ============================================================
+// HELPER: Generate doctor ID
+// ============================================================
+function generateDoctorId() {
+  const prefix = 'DR';
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}${timestamp}${random}`;
+}
+
+// ============================================================
+// HELPER: Generate license number
+// ============================================================
+function generateLicenseNumber() {
+  const prefix = 'LIC';
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `${prefix}-${year}-${random}`;
+}
+
+// ============================================================
 // VALIDATION HELPERS
 // ============================================================
 
@@ -125,16 +145,6 @@ const validateConsultationFee = (value) => {
   return num;
 };
 
-const validateLocation = (value) => {
-  if (!value || value.trim().length === 0) {
-    return 'Afilas General Hospital';
-  }
-  if (value.trim().length > 100) {
-    throw new Error('Location must be less than 100 characters');
-  }
-  return value.trim();
-};
-
 const validateWorkingHours = (workingHours) => {
   if (!workingHours || !Array.isArray(workingHours)) {
     return null;
@@ -209,7 +219,6 @@ router.get('/', [
   query('specialization').optional().isString().withMessage('Specialization must be a string'),
   query('isAvailable').optional().isBoolean().withMessage('isAvailable must be a boolean'),
   query('search').optional().isString().withMessage('Search must be a string'),
-  query('location').optional().isString().withMessage('Location must be a string'),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -220,54 +229,76 @@ router.get('/', [
       });
     }
 
-    const { specialization, isAvailable, search, location } = req.query;
+    const { specialization, isAvailable, search } = req.query;
     
     const where = {};
     
     if (specialization) where.specialization = { contains: specialization, mode: 'insensitive' };
     if (isAvailable !== undefined) where.isAvailable = isAvailable === 'true';
-    if (location && location !== 'all' && location !== 'undefined' && location !== 'null') {
-      where.location = location;
-    }
     if (search && search.trim().length > 0) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
+        { 
+          user: { 
+            OR: [
+              { firstName: { contains: search, mode: 'insensitive' } },
+              { lastName: { contains: search, mode: 'insensitive' } },
+            ]
+          } 
+        },
         { specialization: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
+        { 
+          user: { 
+            email: { contains: search, mode: 'insensitive' } 
+          } 
+        },
       ];
     }
-
-    console.log('📡 Doctor query with location:', location);
 
     const doctors = await prisma.doctor.findMany({
       where,
       include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
         workingHours: {
           orderBy: { dayOfWeek: 'asc' },
         },
       },
-      orderBy: { name: 'asc' },
+      orderBy: { 
+        user: {
+          firstName: 'asc'
+        }
+      },
     });
 
-    const mappedDoctors = doctors.map(doc => ({
-      id: doc.id,
-      name: doc.name,
-      title: doc.specialization,
-      bio: doc.bio || '',
-      photoUrl: buildImageUrl(doc.image),
-      active: doc.isAvailable,
-      email: doc.email,
-      phone: doc.phone,
-      specialization: doc.specialization,
-      experience: doc.experience,
-      education: doc.education,
-      rating: doc.rating,
-      consultationFee: doc.consultationFee,
-      scheduleSlots: doc.workingHours || [], 
-      location: doc.location || null,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-    }));
+    const mappedDoctors = doctors.map(doc => {
+      const fullName = doc.user ? `${doc.user.firstName} ${doc.user.lastName}`.trim() : 'Unknown';
+      return {
+        id: doc.id,
+        name: fullName,
+        title: doc.specialization,
+        bio: doc.bio || '',
+        photoUrl: buildImageUrl(doc.image),
+        active: doc.isAvailable,
+        email: doc.user?.email || null,
+        phone: doc.user?.phone || '',
+        specialization: doc.specialization,
+        experience: doc.experience,
+        education: doc.education,
+        rating: doc.rating,
+        consultationFee: doc.consultationFee,
+        scheduleSlots: doc.workingHours || [], 
+        location: doc.user?.location || 'Adinas General Hospital',
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+      };
+    });
 
     res.json({
       success: true,
@@ -301,6 +332,15 @@ router.get('/:id', [
     const doctor = await prisma.doctor.findUnique({
       where: { id },
       include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
         workingHours: {
           orderBy: { dayOfWeek: 'asc' },
         },
@@ -314,22 +354,24 @@ router.get('/:id', [
       });
     }
 
+    const fullName = doctor.user ? `${doctor.user.firstName} ${doctor.user.lastName}`.trim() : 'Unknown';
+
     const mappedDoctor = {
       id: doctor.id,
-      name: doctor.name,
+      name: fullName,
       title: doctor.specialization,
       bio: doctor.bio || '',
       photoUrl: buildImageUrl(doctor.image),
       active: doctor.isAvailable,
-      email: doctor.email,
-      phone: doctor.phone,
+      email: doctor.user?.email || null,
+      phone: doctor.user?.phone || '',
       specialization: doctor.specialization,
       experience: doctor.experience,
       education: doctor.education,
       rating: doctor.rating,
       consultationFee: doctor.consultationFee,
       scheduleSlots: doctor.workingHours || [],
-      location: doctor.location || null,
+      location: doctor.user?.location || 'Adinas General Hospital',
       createdAt: doctor.createdAt,
       updatedAt: doctor.updatedAt,
     };
@@ -350,7 +392,6 @@ router.get('/:id', [
 // Get available doctors for appointment
 router.get('/available', [
   query('date').isISO8601().withMessage('Date must be a valid ISO date'),
-  query('location').optional().isString().withMessage('Location must be a string'),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -361,12 +402,12 @@ router.get('/available', [
       });
     }
 
-    const { date, location } = req.query;
+    const { date } = req.query;
     
     const selectedDate = new Date(date);
     const dayOfWeek = selectedDate.getDay();
 
-    let where = {
+    const where = {
       isAvailable: true,
       workingHours: {
         some: {
@@ -376,13 +417,18 @@ router.get('/available', [
       },
     };
 
-    if (location && location !== 'all' && location !== 'undefined' && location !== 'null') {
-      where.location = location;
-    }
-
     const doctors = await prisma.doctor.findMany({
       where,
       include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
         workingHours: {
           where: {
             dayOfWeek: dayOfWeek,
@@ -405,10 +451,16 @@ router.get('/available', [
 
     const availableDoctors = doctors.map(doctor => {
       const bookedTimes = doctor.appointments.map(apt => apt.time);
+      const fullName = doctor.user ? `${doctor.user.firstName} ${doctor.user.lastName}`.trim() : 'Unknown';
       return {
         ...doctor,
+        name: fullName,
+        email: doctor.user?.email || null,
+        phone: doctor.user?.phone || '',
+        location: doctor.user?.location || 'Adinas General Hospital',
         bookedTimes: bookedTimes,
         appointments: undefined,
+        user: undefined,
       };
     });
 
@@ -426,7 +478,7 @@ router.get('/available', [
 });
 
 // ============================================================
-// CREATE DOCTOR
+// CREATE DOCTOR - FIXED
 // ============================================================
 router.post('/', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
   body('name').notEmpty().withMessage('Name is required').isString(),
@@ -437,7 +489,6 @@ router.post('/', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
   body('bio').optional().isString(),
   body('education').optional().isString(),
   body('consultationFee').optional().isFloat({ min: 0 }),
-  body('location').optional().isString(),
   body('workingHours').optional().isArray(),
   body('photoUrl').optional().isString(),
 ], async (req, res) => {
@@ -452,33 +503,72 @@ router.post('/', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
 
     const { 
       name, email, phone, specialization, experience, 
-      bio, education, consultationFee, location, 
+      bio, education, consultationFee, 
       workingHours, photoUrl 
     } = req.body;
 
-    // Check if doctor exists
-    const existing = await prisma.doctor.findUnique({
+    console.log('📝 Creating doctor with data:', { name, email, specialization });
+
+    // Split name into firstName and lastName
+    const nameParts = name.trim().split(' ');
+    const firstName = nameParts[0] || 'Doctor';
+    const lastName = nameParts.slice(1).join(' ') || 'Unknown';
+
+    // Check if user exists with this email AND include doctor relation
+    let user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
+      include: {
+        doctor: true,
+      },
     });
-    if (existing) {
+
+    // If user exists and already has a doctor profile, return error
+    if (user && user.doctor) {
       return res.status(400).json({
         success: false,
         error: 'Doctor with this email already exists',
       });
     }
 
-    // Create doctor with working hours
+    // If user doesn't exist, create one
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: email.toLowerCase(),
+          firstName: firstName,
+          lastName: lastName,
+          phone: phone || '',
+          role: 'DOCTOR',
+          password: 'temporary_password_change_me',
+          isActive: true,
+          location: 'Adinas General Hospital',
+        },
+      });
+    } else {
+      // User exists but doesn't have a doctor profile yet
+      if (phone && phone !== user.phone) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { phone: phone },
+        });
+      }
+    }
+
+    // Generate doctor ID and license number
+    const doctorId = generateDoctorId();
+    const licenseNumber = generateLicenseNumber();
+
+    // Create doctor
     const doctor = await prisma.doctor.create({
       data: {
-        name: name.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone || '',
+        userId: user.id,
+        doctorId: doctorId,
+        licenseNumber: licenseNumber,
         specialization: specialization.trim(),
         bio: bio || '',
         education: education || '',
         experience: experience || 0,
         consultationFee: consultationFee || 0,
-        location: location || 'Afilas General Hospital',
         image: photoUrl || '',
         isAvailable: true,
         workingHours: workingHours && workingHours.length > 0 ? {
@@ -491,19 +581,44 @@ router.post('/', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
         } : undefined,
       },
       include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
         workingHours: true,
       },
     });
 
-    console.log(`✅ Doctor created: ${doctor.name}`);
+    const fullName = `${doctor.user.firstName} ${doctor.user.lastName}`.trim();
+
+    console.log(`✅ Doctor created: ${fullName} (ID: ${doctor.doctorId})`);
 
     res.status(201).json({
       success: true,
-      data: doctor,
+      data: {
+        ...doctor,
+        name: fullName,
+        email: doctor.user?.email,
+        phone: doctor.user?.phone || '',
+        location: doctor.user?.location || 'Adinas General Hospital',
+      },
       message: 'Doctor created successfully',
     });
   } catch (error) {
-    console.error('Create doctor error:', error);
+    console.error('❌ Create doctor error:', error);
+    
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        success: false,
+        error: 'Doctor with this email already exists',
+      });
+    }
+    
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to create doctor',
@@ -524,7 +639,6 @@ router.put('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
   body('bio').optional().isString(),
   body('education').optional().isString(),
   body('consultationFee').optional().isFloat({ min: 0 }),
-  body('location').optional().isString(),
   body('active').optional().isBoolean(),
   body('workingHours').optional().isArray(),
   body('photoUrl').optional().isString(),
@@ -541,13 +655,15 @@ router.put('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
     const { id } = req.params;
     const { 
       name, email, phone, specialization, experience, 
-      bio, education, consultationFee, location, 
+      bio, education, consultationFee, 
       active, workingHours, photoUrl 
     } = req.body;
 
-    // Check if doctor exists
     const doctor = await prisma.doctor.findUnique({
       where: { id },
+      include: {
+        user: true,
+      },
     });
 
     if (!doctor) {
@@ -557,45 +673,57 @@ router.put('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
       });
     }
 
-    // Check if email is taken by another doctor
-    if (email && email !== doctor.email) {
-      const existing = await prisma.doctor.findUnique({
+    if (email && email !== doctor.user.email) {
+      const existingUser = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
       });
-      if (existing) {
+      if (existingUser && existingUser.id !== doctor.userId) {
         return res.status(400).json({
           success: false,
-          error: 'Doctor with this email already exists',
+          error: 'User with this email already exists',
         });
       }
     }
 
-    // Update doctor
+    const userUpdateData = {};
+    if (email && email !== doctor.user.email) {
+      userUpdateData.email = email.toLowerCase().trim();
+    }
+    if (phone !== undefined && phone !== doctor.user.phone) {
+      userUpdateData.phone = phone || '';
+    }
+    if (name) {
+      const nameParts = name.trim().split(' ');
+      userUpdateData.firstName = nameParts[0] || 'Doctor';
+      userUpdateData.lastName = nameParts.slice(1).join(' ') || 'Unknown';
+    }
+
+    if (Object.keys(userUpdateData).length > 0) {
+      await prisma.user.update({
+        where: { id: doctor.userId },
+        data: userUpdateData,
+      });
+    }
+
+    const doctorUpdateData = {};
+    if (specialization !== undefined) doctorUpdateData.specialization = specialization.trim();
+    if (bio !== undefined) doctorUpdateData.bio = bio;
+    if (education !== undefined) doctorUpdateData.education = education;
+    if (experience !== undefined) doctorUpdateData.experience = experience;
+    if (consultationFee !== undefined) doctorUpdateData.consultationFee = consultationFee;
+    if (photoUrl !== undefined) doctorUpdateData.image = photoUrl;
+    if (active !== undefined) doctorUpdateData.isAvailable = active;
+
     const updatedDoctor = await prisma.doctor.update({
       where: { id },
-      data: {
-        name: name !== undefined ? name.trim() : doctor.name,
-        email: email !== undefined ? email.toLowerCase().trim() : doctor.email,
-        phone: phone !== undefined ? phone : doctor.phone,
-        specialization: specialization !== undefined ? specialization.trim() : doctor.specialization,
-        bio: bio !== undefined ? bio : doctor.bio,
-        education: education !== undefined ? education : doctor.education,
-        experience: experience !== undefined ? experience : doctor.experience,
-        consultationFee: consultationFee !== undefined ? consultationFee : doctor.consultationFee,
-        location: location !== undefined ? location : doctor.location,
-        image: photoUrl !== undefined ? photoUrl : doctor.image,
-        isAvailable: active !== undefined ? active : doctor.isAvailable,
-      },
+      data: doctorUpdateData,
     });
 
-    // Update working hours if provided
     if (workingHours !== undefined) {
-      // Delete existing working hours
       await prisma.workingHour.deleteMany({
         where: { doctorId: id },
       });
 
-      // Create new working hours
       if (workingHours.length > 0) {
         await prisma.workingHour.createMany({
           data: workingHours.map(slot => ({
@@ -609,19 +737,33 @@ router.put('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
       }
     }
 
-    // Fetch updated doctor with working hours
     const finalDoctor = await prisma.doctor.findUnique({
       where: { id },
       include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
         workingHours: true,
       },
     });
 
-    console.log(`✅ Doctor updated: ${finalDoctor.name}`);
+    const fullName = finalDoctor.user ? `${finalDoctor.user.firstName} ${finalDoctor.user.lastName}`.trim() : 'Unknown';
 
     res.json({
       success: true,
-      data: finalDoctor,
+      data: {
+        ...finalDoctor,
+        name: fullName,
+        email: finalDoctor.user?.email,
+        phone: finalDoctor.user?.phone || '',
+        location: finalDoctor.user?.location || 'Adinas General Hospital',
+      },
       message: 'Doctor updated successfully',
     });
   } catch (error) {
@@ -644,6 +786,17 @@ router.patch('/:id/toggle-status', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
 
     const doctor = await prisma.doctor.findUnique({
       where: { id },
+      include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
+      },
     });
 
     if (!doctor) {
@@ -659,15 +812,30 @@ router.patch('/:id/toggle-status', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
         isAvailable: !doctor.isAvailable,
       },
       include: {
+        user: {
+          select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            location: true,
+          }
+        },
         workingHours: true,
       },
     });
 
-    console.log(`✅ Doctor ${updated.name} ${updated.isAvailable ? 'activated' : 'deactivated'}`);
+    const fullName = updated.user ? `${updated.user.firstName} ${updated.user.lastName}`.trim() : 'Unknown';
 
     res.json({
       success: true,
-      data: updated,
+      data: {
+        ...updated,
+        name: fullName,
+        email: updated.user?.email,
+        phone: updated.user?.phone || '',
+        location: updated.user?.location || 'Adinas General Hospital',
+      },
       message: `Doctor ${updated.isAvailable ? 'activated' : 'deactivated'} successfully`,
     });
   } catch (error) {
@@ -680,7 +848,7 @@ router.patch('/:id/toggle-status', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
 });
 
 // ============================================================
-// 🔥 FIXED: DELETE DOCTOR - COMPLETELY SEPARATE FROM APPOINTMENTS
+// DELETE DOCTOR
 // ============================================================
 router.delete('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
   param('id').isString().withMessage('Invalid doctor ID'),
@@ -688,12 +856,10 @@ router.delete('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
   try {
     const { id } = req.params;
 
-    console.log(`📡 Deleting doctor: ${id}`);
-
-    // Check if doctor exists
     const doctor = await prisma.doctor.findUnique({
       where: { id },
       include: {
+        user: true,
         workingHours: true,
       },
     });
@@ -705,45 +871,42 @@ router.delete('/:id', auth, authorize('SUPER_ADMIN', 'ADMIN'), [
       });
     }
 
-    // 🔥 ONLY DELETE WORKING HOURS AND DOCTOR
-    // DO NOT TOUCH APPOINTMENTS - THEY ARE SEPARATE
-    
-    // Delete working hours first (if any)
     if (doctor.workingHours.length > 0) {
       await prisma.workingHour.deleteMany({
         where: { doctorId: id },
       });
-      console.log(`✅ Deleted ${doctor.workingHours.length} working hours`);
     }
 
-    // Delete the doctor only - appointments remain untouched!
     await prisma.doctor.delete({
       where: { id },
     });
 
-    console.log(`✅ Doctor "${doctor.name}" deleted successfully. Appointments remain intact.`);
+    await prisma.user.delete({
+      where: { id: doctor.userId },
+    });
+
+    const fullName = `${doctor.user.firstName} ${doctor.user.lastName}`.trim();
 
     res.json({
       success: true,
-      message: `Doctor "${doctor.name}" deleted successfully. Appointments remain intact.`,
+      message: `Doctor "${fullName}" deleted successfully.`,
       data: {
         deletedDoctor: {
           id: doctor.id,
-          name: doctor.name,
-          email: doctor.email,
+          name: fullName,
+          email: doctor.user.email,
+          phone: doctor.user.phone || '',
         },
-        appointmentsUnaffected: true,
       },
     });
 
   } catch (error) {
-    console.error('❌ Delete doctor error:', error);
+    console.error('Delete doctor error:', error);
 
-    // Handle specific Prisma errors
     if (error.code === 'P2003') {
       return res.status(400).json({
         success: false,
-        error: 'Cannot delete doctor because they have related records. Please delete working hours first.',
+        error: 'Cannot delete doctor because they have related records.',
       });
     }
 

@@ -1,4 +1,4 @@
-// src/lib/api.ts
+// src/lib/api.ts - UPDATED VERSION
 
 // Directly define the API URL - no env.ts needed
 const API_URL = 'http://localhost:5000/api';
@@ -12,17 +12,31 @@ export class ApiError extends Error {
   }
 }
 
+// 🔥 Helper to get token from localStorage
+function getToken(): string | null {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token');
+  }
+  return null;
+}
+
 export const api = {
   async post<T>(endpoint: string, data?: any, token?: string): Promise<T> {
     const url = `${API_URL}${endpoint}`;
+    
+    // 🔥 FIX: If token not provided, try to get from localStorage
+    const authToken = token || getToken();
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
     
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+      console.log('🔑 Auth token added to request');
+    } else {
+      console.warn('⚠️ No token available for request');
     }
 
     console.log(`📡 POST ${url}`);
@@ -70,13 +84,16 @@ export const api = {
   async get<T>(endpoint: string, token?: string): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     
+    // 🔥 FIX: If token not provided, try to get from localStorage
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
     
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     try {
@@ -112,13 +129,16 @@ export const api = {
   async put<T>(endpoint: string, data?: any, token?: string): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     
+    // 🔥 FIX: If token not provided, try to get from localStorage
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
     
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     try {
@@ -155,13 +175,16 @@ export const api = {
   async delete<T>(endpoint: string, token?: string): Promise<T> {
     const url = `${API_URL}${endpoint}`;
     
+    // 🔥 FIX: If token not provided, try to get from localStorage
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
     
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     try {
@@ -203,9 +226,11 @@ export const api = {
     const formData = new FormData();
     formData.append('file', file);
     
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
     
     const url = `${API_URL}/upload/single?type=${type}`;
@@ -258,9 +283,11 @@ export const api = {
       formData.append('files', file);
     });
     
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
     
     const url = `${API_URL}/upload/multiple?type=${type}`;
@@ -307,9 +334,11 @@ export const api = {
    * Delete an uploaded file
    */
   async deleteFile(type: string, filename: string, token?: string): Promise<void> {
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
     
     const url = `${API_URL}/upload/${type}/${filename}`;
@@ -347,9 +376,11 @@ export const api = {
    * Get all files in a directory
    */
   async getFiles(type: string, token?: string): Promise<Array<{ filename: string; url: string; size: number; modified: string; created: string }>> {
+    const authToken = token || getToken();
+    
     const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
     
     const url = `${API_URL}/upload/${type}`;
@@ -385,4 +416,20 @@ export const api = {
       );
     }
   },
+
+  // ===== HELPER METHODS =====
+  
+  /**
+   * Extract data from API response
+   */
+  extractData<T>(response: any): T {
+    if (!response) return [] as unknown as T;
+    if (Array.isArray(response)) return response as T;
+    if (response.data && Array.isArray(response.data)) return response.data as T;
+    if (response.data) return response.data as T;
+    if (response.success && response.data) return response.data as T;
+    return response as T;
+  },
 };
+
+export default api;

@@ -1,7 +1,8 @@
+// server.js
 require('dotenv').config();
 
 // ===== FIX: Verify environment variables are loaded =====
-console.log(' Environment Check:');
+console.log('📋 Environment Check:');
 console.log('  JWT_SECRET:', process.env.JWT_SECRET ? '✅ Loaded' : '❌ MISSING!');
 console.log('  PORT:', process.env.PORT || 5000);
 console.log('  NODE_ENV:', process.env.NODE_ENV || 'development');
@@ -33,9 +34,12 @@ const dashboardRoutes = require('./routes/dashboard');
 const serviceRoutes = require('./routes/services');
 const uploadRoutes = require('./routes/upload');
 const userRoutes = require('./routes/users');
-const pharmaOrdersRoutes = require('./routes/pharmaOrders');
 const paymentRoutes = require('./routes/paymentRoutes');
-const departmentRoutes = require('./routes/departments'); // ✅ ADDED THIS
+const departmentRoutes = require('./routes/departments');
+// 🔥 ADDED: Settings routes
+const settingsRoutes = require('./routes/settings');
+
+// ❌ REMOVED: const pharmaOrdersRoutes = require('./routes/pharma-orders.routes');
 
 const app = express();
 
@@ -53,7 +57,6 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:3002',
   CLIENT_URL,
-  // Add your production URLs here
   process.env.CORS_ORIGIN
 ].filter(Boolean);
 
@@ -70,7 +73,6 @@ app.use(helmet({
 // CORS
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.indexOf(origin) !== -1 || NODE_ENV === 'development') {
@@ -98,7 +100,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const uploadsPath = path.join(__dirname, '../uploads');
 console.log('📁 Serving uploads from:', uploadsPath);
 
-// Check if uploads directory exists, create if not
 if (!fs.existsSync(uploadsPath)) {
   console.log('📁 Creating uploads directory...');
   fs.mkdirSync(uploadsPath, { recursive: true });
@@ -112,14 +113,12 @@ app.use('/uploads', express.static(uploadsPath));
 let notifications = [];
 let notificationIdCounter = 1;
 
-// Helper function to get user ID from request
 const getUserId = (req) => {
   if (req.user?.id) return req.user.id;
   if (req.user?.userId) return req.user.userId;
   return 'admin-123';
 };
 
-// Helper function to format time ago
 const getTimeAgo = (date) => {
   const now = new Date();
   const past = new Date(date);
@@ -135,7 +134,6 @@ const getTimeAgo = (date) => {
   return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
 };
 
-// Create sample notifications
 const createSampleNotifications = (userId) => {
   const now = new Date();
   return [
@@ -179,7 +177,7 @@ const createSampleNotifications = (userId) => {
       id: notificationIdCounter++,
       userId: userId,
       title: 'New patient registered: Michael Brown',
-      message: 'A new patient has registered at Afilas General Hospital.',
+      message: 'A new patient has registered at Adinas General Hospital.',
       type: 'patient',
       read: true,
       createdAt: new Date(now.getTime() - 2 * 24 * 3600000).toISOString(),
@@ -200,7 +198,6 @@ const createSampleNotifications = (userId) => {
 // NOTIFICATION ROUTES
 // ============================================================
 
-// TEST ROUTE
 app.get('/api/notifications/test', (req, res) => {
   res.json({ 
     success: true, 
@@ -210,7 +207,6 @@ app.get('/api/notifications/test', (req, res) => {
   });
 });
 
-// GET all notifications
 app.get('/api/notifications', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -245,7 +241,6 @@ app.get('/api/notifications', (req, res) => {
   }
 });
 
-// GET unread count
 app.get('/api/notifications/unread/count', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -256,7 +251,6 @@ app.get('/api/notifications/unread/count', (req, res) => {
   }
 });
 
-// Mark as read
 app.patch('/api/notifications/:id/read', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -275,7 +269,6 @@ app.patch('/api/notifications/:id/read', (req, res) => {
   }
 });
 
-// Mark all as read
 app.patch('/api/notifications/read/all', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -295,7 +288,6 @@ app.patch('/api/notifications/read/all', (req, res) => {
   }
 });
 
-// Delete notification
 app.delete('/api/notifications/:id', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -313,7 +305,6 @@ app.delete('/api/notifications/:id', (req, res) => {
   }
 });
 
-// Create notification
 app.post('/api/notifications', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -340,7 +331,6 @@ app.post('/api/notifications', (req, res) => {
   }
 });
 
-// Create sample notifications
 app.get('/api/notifications/sample', (req, res) => {
   try {
     const userId = getUserId(req);
@@ -364,24 +354,22 @@ app.get('/api/notifications/sample', (req, res) => {
 
 console.log('\n📦 Registering routes...');
 
-// Health check before authentication
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    server: 'Afilas Hospital API',
+    server: 'Adinas Hospital API',
     jwt_configured: !!process.env.JWT_SECRET,
     chapa_configured: !!process.env.CHAPA_SECRET_KEY,
     environment: NODE_ENV,
   });
 });
 
-// Root route
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Afilas Hospital API is running',
+    message: 'Adinas Hospital API is running',
     version: '1.0.0',
     jwt_configured: !!process.env.JWT_SECRET,
     endpoints: {
@@ -390,14 +378,13 @@ app.get('/', (req, res) => {
       appointments: '/api/appointments',
       services: '/api/services',
       payment: '/api/payment',
-      'pharma-orders': '/api/pharma-orders',
       notifications: '/api/notifications',
-      departments: '/api/departments', // ✅ Added to root list
+      departments: '/api/departments',
+      settings: '/api/settings',
     }
   });
 });
 
-// Register all routes
 try {
   app.use('/api/auth', authRoutes);
   console.log('✅ Auth routes registered at /api/auth');
@@ -426,16 +413,17 @@ try {
   app.use('/api/users', userRoutes);
   console.log('✅ User routes registered at /api/users');
 
-  app.use('/api/pharma-orders', pharmaOrdersRoutes);
-  console.log('✅ Pharma orders routes registered at /api/pharma-orders');
-
-  // ✅ Payment routes - with error handling
+  // ❌ REMOVED: app.use('/api/pharma-orders', pharmaOrdersRoutes);
+  
   app.use('/api/payment', paymentRoutes);
   console.log('✅ Payment routes registered at /api/payment');
 
-  // ✅ NEW: Department routes
   app.use('/api/departments', departmentRoutes);
   console.log('✅ Department routes registered at /api/departments');
+
+  // 🔥 ADDED: Settings routes
+  app.use('/api/settings', settingsRoutes);
+  console.log('✅ Settings routes registered at /api/settings');
 
 } catch (error) {
   console.error('❌ Error registering routes:', error);
@@ -446,7 +434,6 @@ try {
 // ERROR HANDLING (Must be after all routes)
 // ============================================================
 
-// Catch-all for unhandled routes - 404
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -456,7 +443,6 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
   console.error('❌ Global Error:', {
     message: err.message,
@@ -484,16 +470,16 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log('\n========================================');
-  console.log(` Server running on http://localhost:${PORT}`);
-  console.log(` Environment: ${NODE_ENV}`);
-  console.log(` Base URL: ${BASE_URL}`);
-  console.log(` Client URL: ${CLIENT_URL}`);
-  console.log(`\n Security:`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 Environment: ${NODE_ENV}`);
+  console.log(`📁 Base URL: ${BASE_URL}`);
+  console.log(`🌐 Client URL: ${CLIENT_URL}`);
+  console.log(`\n🔐 Security:`);
   console.log(`   JWT: ${process.env.JWT_SECRET ? '✅ Configured' : '❌ Missing!'}`);
   console.log(`   Chapa: ${process.env.CHAPA_SECRET_KEY ? '✅ Configured' : '⚠️ Not set'}`);
   console.log(`   CORS: ${allowedOrigins.join(', ')}`);
   
-  console.log('\n Available API Endpoints:');
+  console.log('\n📋 Available API Endpoints:');
   console.log(`   🔹 GET  /health - Health check`);
   console.log(`   🔹 GET  / - API information`);
   console.log(`   🔹 POST /api/auth/login - Login`);
@@ -508,18 +494,13 @@ app.listen(PORT, () => {
   console.log(`   🔹 POST /api/upload - Upload files`);
   console.log(`   🔹 GET  /api/users - Get users (admin only)`);
   
-  console.log(`\n    PAYMENT ENDPOINTS:`);
+  console.log(`\n   💳 PAYMENT ENDPOINTS:`);
   console.log(`   🔹 POST /api/payment/initiate - Initiate payment`);
   console.log(`   🔹 GET  /api/payment/verify?tx_ref=XXX - Verify payment`);
   console.log(`   🔹 GET  /api/payment/status/:tx_ref - Check payment status`);
   console.log(`   🔹 POST /api/payment/webhook - Chapa webhook`);
   
-  console.log(`\n    PHARMACY ENDPOINTS:`);
-  console.log(`   🔹 GET  /api/pharma-orders - Get pharmacy orders`);
-  console.log(`   🔹 POST /api/pharma-orders - Create pharmacy order`);
-  console.log(`   🔹 PATCH /api/pharma-orders/:id/status - Update order status`);
-  
-  console.log(`\n    NOTIFICATION ENDPOINTS:`);
+  console.log(`\n   🔔 NOTIFICATION ENDPOINTS:`);
   console.log(`   🔹 GET  /api/notifications - Get notifications`);
   console.log(`   🔹 GET  /api/notifications/unread/count - Unread count`);
   console.log(`   🔹 PATCH /api/notifications/:id/read - Mark as read`);
@@ -528,9 +509,13 @@ app.listen(PORT, () => {
   console.log(`   🔹 POST /api/notifications - Create notification`);
   console.log(`   🔹 GET  /api/notifications/sample - Create sample notifications`);
 
-  console.log(`\n    ✅ NEW DEPARTMENT ENDPOINTS:`);
+  console.log(`\n   🏥 DEPARTMENT ENDPOINTS:`);
   console.log(`   🔹 GET  /api/departments - List all departments`);
   console.log(`   🔹 POST /api/departments - Create a new department`);
+
+  console.log(`\n   ⚙️ SETTINGS ENDPOINTS:`);
+  console.log(`   🔹 GET  /api/settings - Get settings`);
+  console.log(`   🔹 PUT  /api/settings - Update settings`);
   console.log('========================================\n');
 });
 
@@ -539,7 +524,6 @@ app.listen(PORT, () => {
 // ============================================================
 process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', error);
-  // Don't exit in development, but log it
   if (NODE_ENV === 'production') {
     process.exit(1);
   }
@@ -547,7 +531,6 @@ process.on('uncaughtException', (error) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection:', reason);
-  // Don't exit in development, but log it
   if (NODE_ENV === 'production') {
     process.exit(1);
   }

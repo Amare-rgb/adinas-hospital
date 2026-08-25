@@ -1,3 +1,4 @@
+// prisma/schema.prisma - COMPLETE FIXED VERSION (without Allergy, Immunization, Bed, Room)
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,92 +9,230 @@ datasource db {
 }
 
 // ============================================================
+// ENUMS
+// ============================================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  DOCTOR
+  NURSE
+  RECEPTIONIST
+  PHARMACIST
+  ACCOUNTANT
+  USER
+  PATIENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum PatientStatus {
+  ACTIVE
+  DISCHARGED
+  REFERRED
+  DECEASED
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  REFUNDED
+  CANCELLED
+  FAILED
+}
+
+enum AdmissionStatus {
+  ACTIVE
+  DISCHARGED
+  TRANSFERRED
+  DECEASED
+}
+
+enum MedicationStatus {
+  ACTIVE
+  DISCONTINUED
+  COMPLETED
+}
+
+enum ContactStatus {
+  UNREAD
+  READ
+  REPLIED
+  RESOLVED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  APPOINTMENT
+  MEDICATION
+  ADMISSION
+  PAYMENT
+  SYSTEM
+}
+
+enum GalleryType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum VisitType {
+  HOSPITAL
+  HOME
+  TELEMEDICINE
+}
+
+// ============================================================
 // USER MODEL
 // ============================================================
 model User {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  password     String
-  name         String
-  role         Role           @default(USER)
-  phone        String?
-  avatar       String?
-  isActive     Boolean        @default(true)
-  lastLogin    DateTime?
-  location     String?        @default("Afilas General Hospital")
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  email            String         @unique
+  password         String
+  firstName        String
+  lastName         String
+  phone            String?
+  role             Role           @default(PATIENT)
+  avatar           String?
+  isActive         Boolean        @default(true)
+  isEmailVerified  Boolean        @default(false)
+  isPhoneVerified  Boolean        @default(false)
+  lastLogin        DateTime?
+  location         String?        @default("Adinas General Hospital")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
-  appointments Appointment[]
-  notifications Notification[]
+  // Relations
+  patient          Patient?
+  doctor           Doctor?
+  appointments     Appointment[]
+  notifications    Notification[]
+  prescriptions    Prescription[]
+  payments         Payment[]
+  admissions       Admission[]
+  messages         Message[]      @relation("MessageSender")
+  receivedMessages Message[]      @relation("MessageRecipient")
+  auditLogs        AuditLog[]
+  medicalNotes     MedicalNote[]
 
   @@map("users")
 }
 
 // ============================================================
-// SERVICE MODEL
+// PATIENT MODEL
 // ============================================================
-model Service {
-  id          String        @id @default(cuid())
-  name        String
-  description String
-  price       Float?
-  duration    Int?
-  image       String?
-  category    String?
-  isActive    Boolean       @default(true)
-  location    String?       @default("Afilas General Hospital")
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+model Patient {
+  id                String         @id @default(cuid())
+  userId            String         @unique
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patientId         String         @unique
+  dateOfBirth       DateTime?
+  gender            Gender?
+  emergencyContact  String?
+  emergencyPhone    String?
+  address           String?
+  city              String?
+  state             String?
+  country           String?        @default("Ethiopia")
+  postalCode        String?
+  status            PatientStatus  @default(ACTIVE)
+  allergies         String?
+  chronicConditions String?
+  medicalHistory    String?
+  insuranceProvider String?
+  insurancePolicy   String?
+  insuranceExpiry   DateTime?
+  occupation        String?
+  maritalStatus     String?
+  nationality       String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
-  appointments Appointment[]
+  // Relations
+  departmentId      String?
+  department        Department?    @relation(fields: [departmentId], references: [id])
+  appointments      Appointment[]
+  prescriptions     Prescription[]
+  admissions        Admission[]
+  payments          Payment[]
+  medicalNotes      MedicalNote[]
 
-  @@map("services")
-}
-
-// ============================================================
-// ✅ NEW: DEPARTMENT MODEL (FOR ADMIN DROPDOWN)
-// ============================================================
-model Department {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  doctors     Doctor[]      // Relation to Doctor
-  pharmaOrders PharmaOrder[] // Relation to Pharma Orders
+  @@map("patients")
 }
 
 // ============================================================
 // DOCTOR MODEL
 // ============================================================
 model Doctor {
-  id              String        @id @default(cuid())
-  name            String
-  email           String?       @unique
-  phone           String
-  specialization  String
-  bio             String?
-  education       String?
-  experience      Int?
-  image           String?
-  rating          Float         @default(0)
-  isAvailable     Boolean       @default(true)
-  consultationFee Float?
-  location        String?       @default("Afilas General Hospital")
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                String               @id @default(cuid())
+  userId            String               @unique
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctorId          String               @unique
+  specialization    String
+  subSpecialization String?
+  bio               String?
+  education         String?
+  experience        Int?
+  image             String?
+  rating            Float                @default(0)
+  totalReviews      Int                  @default(0)
+  isAvailable       Boolean              @default(true)
+  consultationFee   Float?
+  licenseNumber     String               @unique
+  licenseExpiry     DateTime?
+  departmentId      String?
+  department        Department?          @relation(fields: [departmentId], references: [id])
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 
   // Relations
-  workingHours    WorkingHour[]
-  appointments    Appointment[]
-  
-  // ✅ New Relation to Department
-  departmentId    String?
-  department      Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  workingHours      WorkingHour[]
+  appointments      Appointment[]
+  availability      DoctorAvailability[]
 
   @@map("doctors")
+}
+
+// ============================================================
+// DEPARTMENT MODEL
+// ============================================================
+model Department {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  code         String        @unique
+  description  String?
+  location     String?
+  phone        String?
+  email        String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  doctors      Doctor[]
+  appointments Appointment[]
+  patients     Patient[]
+
+  @@map("departments")
 }
 
 // ============================================================
@@ -105,6 +244,8 @@ model WorkingHour {
   startTime   String
   endTime     String
   isAvailable Boolean  @default(true)
+  breakStart  String?
+  breakEnd    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -116,65 +257,220 @@ model WorkingHour {
 }
 
 // ============================================================
+// DOCTOR AVAILABILITY
+// ============================================================
+model DoctorAvailability {
+  id          String   @id @default(cuid())
+  doctorId    String
+  doctor      Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  date        DateTime
+  startTime   String
+  endTime     String
+  isAvailable Boolean  @default(true)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("doctor_availability")
+}
+
+// ============================================================
 // APPOINTMENT MODEL
 // ============================================================
 model Appointment {
   id            String            @id @default(cuid())
-  patientName   String
-  patientEmail  String
-  patientPhone  String
-  patientAge    Int?
-  patientGender String?
-  date          DateTime
-  time          String
-  status        AppointmentStatus @default(PENDING)
-  notes         String?
-  symptoms      String?
-  isEmergency   Boolean           @default(false)
-  location      String?           @default("Afilas General Hospital")
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-
+  patientId     String?
+  patient       Patient?          @relation(fields: [patientId], references: [id])
+  doctorId      String?
+  doctor        Doctor?           @relation(fields: [doctorId], references: [id])
+  departmentId  String?
+  department    Department?       @relation(fields: [departmentId], references: [id])
   serviceId     String?
   service       Service?          @relation(fields: [serviceId], references: [id])
   userId        String?
   user          User?             @relation(fields: [userId], references: [id])
+  
+  // Patient details for quick booking
+  patientName   String?
+  patientEmail  String?
+  patientPhone  String?
+  patientAge    Int?
+  patientGender String?
 
-  doctorId      String?
-  doctor        Doctor?           @relation(fields: [doctorId], references: [id])
-
-  // Home visit fields
-  visitType     String?           // 'HOSPITAL' or 'HOME'
+  date          DateTime
+  time          String
+  duration      Int               @default(30)
+  status        AppointmentStatus @default(PENDING)
+  reason        String
+  symptoms      String?
+  diagnosis     String?
+  treatment     String?
+  notes         String?
+  followUpDate  DateTime?
+  isEmergency   Boolean           @default(false)
+  visitType     VisitType         @default(HOSPITAL)
   city          String?
   subCity       String?
   woreda        String?
   gpsPin        String?
   homeAddress   String?
+  location      String?           @default("Adinas General Hospital")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // Relations
+  prescriptions Prescription[]
 
   @@map("appointments")
 }
 
 // ============================================================
-// PHARMA ORDER MODEL
+// SERVICE MODEL
 // ============================================================
-model PharmaOrder {
-  id            String            @id @default(cuid())
-  customerName  String
-  customerEmail String
-  customerPhone String
-  drugName      String
-  quantity      Int
-  departmentId  String?           // ✅ Links to Department
-  status        PharmaOrderStatus @default(PENDING)
-  orderDate     String
-  orderTime     String
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  description  String
+  price        Float?
+  duration     Int?
+  image        String?
+  category     String?
+  isActive     Boolean       @default(true)
+  location     String?       @default("Adinas General Hospital")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  // ✅ Relation back to Department
-  department    Department?       @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  appointments Appointment[]
 
-  @@map("pharma_orders")
+  @@map("services")
+}
+
+// ============================================================
+// PRESCRIPTION MODEL
+// ============================================================
+model Prescription {
+  id            String           @id @default(cuid())
+  patientId     String
+  patient       Patient          @relation(fields: [patientId], references: [id])
+  doctorId      String
+  doctor        User             @relation(fields: [doctorId], references: [id])
+  appointmentId String?
+  appointment   Appointment?     @relation(fields: [appointmentId], references: [id])
+  medication    String
+  dosage        String
+  frequency     String
+  duration      String
+  instructions  String?
+  status        MedicationStatus @default(ACTIVE)
+  prescribedAt  DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@map("prescriptions")
+}
+
+// ============================================================
+// ADMISSION MODEL
+// ============================================================
+model Admission {
+  id                String          @id @default(cuid())
+  patientId         String
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  admittedAt        DateTime        @default(now())
+  expectedDischarge DateTime?
+  dischargedAt      DateTime?
+  reason            String
+  diagnosis         String?
+  notes             String?
+  status            AdmissionStatus @default(ACTIVE)
+  userId            String?
+  user              User?           @relation(fields: [userId], references: [id])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("admissions")
+}
+
+// ============================================================
+// PAYMENT MODEL
+// ============================================================
+model Payment {
+  id                String        @id @default(cuid())
+  patientId         String
+  patient           Patient       @relation(fields: [patientId], references: [id])
+  amount            Float
+  service           String
+  description       String?
+  status            PaymentStatus @default(PENDING)
+  reference         String        @unique
+  paymentMethod     String        @default("CASH")
+  transactionId     String?
+  paidAt            DateTime?
+  insuranceClaim    Boolean       @default(false)
+  insuranceApproval String?
+  userId            String?
+  user              User?         @relation(fields: [userId], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+// ============================================================
+// MEDICAL NOTE MODEL
+// ============================================================
+model MedicalNote {
+  id        String   @id @default(cuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  doctorId  String
+  doctor    User     @relation(fields: [doctorId], references: [id])
+  title     String
+  content   String
+  isPrivate Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("medical_notes")
+}
+
+// ============================================================
+// NOTIFICATION MODEL
+// ============================================================
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  link      String?
+  location  String?          @default("Adinas General Hospital")
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@map("notifications")
+}
+
+// ============================================================
+// CONTACT MODEL
+// ============================================================
+model Contact {
+  id         String        @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String
+  status     ContactStatus @default(UNREAD)
+  assignedTo String?
+  resolvedAt DateTime?
+  location   String?       @default("Adinas General Hospital")
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@map("contacts")
 }
 
 // ============================================================
@@ -189,7 +485,7 @@ model Gallery {
   thumbnail   String?
   isActive    Boolean     @default(true)
   order       Int         @default(0)
-  location    String?     @default("Afilas General Hospital")
+  location    String?     @default("Adinas General Hospital")
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -197,7 +493,7 @@ model Gallery {
 }
 
 // ============================================================
-// NEWS MODEL
+// NEWS/BLOG MODEL
 // ============================================================
 model News {
   id          String    @id @default(cuid())
@@ -209,14 +505,14 @@ model News {
   videoUrl    String?
   author      String
   authorId    String?
-  category    String?
+  category    String?   @default("General")
   isPublished Boolean   @default(false)
   publishedAt DateTime?
   views       Int       @default(0)
   likes       Int       @default(0)
   comments    Int       @default(0)
   tags        Json?     @default("[]")
-  location    String?   @default("Afilas General Hospital")
+  location    String?   @default("Adinas General Hospital")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -224,85 +520,66 @@ model News {
 }
 
 // ============================================================
-// CONTACT MODEL
+// MESSAGE MODEL
 // ============================================================
-model Contact {
-  id        String        @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  subject   String
-  message   String
-  status    ContactStatus @default(UNREAD)
-  location  String?       @default("Afilas General Hospital")
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+model Message {
+  id          String    @id @default(cuid())
+  senderId    String
+  sender      User      @relation("MessageSender", fields: [senderId], references: [id])
+  recipientId String
+  recipient   User      @relation("MessageRecipient", fields: [recipientId], references: [id])
+  subject     String?
+  content     String
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  parentId    String?
+  parent      Message?  @relation("MessageThread", fields: [parentId], references: [id])
+  replies     Message[] @relation("MessageThread")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  @@map("contacts")
-}
-
-// ============================================================
-// NOTIFICATION MODEL
-// ============================================================
-model Notification {
-  id        String           @id @default(cuid())
-  title     String
-  message   String
-  type      NotificationType @default(INFO)
-  isRead    Boolean          @default(false)
-  link      String?
-  location  String?          @default("Afilas General Hospital")
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notifications")
+  @@map("messages")
 }
 
 // ============================================================
-// ENUMS
+// SETTINGS MODEL
 // ============================================================
+model Settings {
+  id              String   @id @default(cuid())
+  hospitalName    String   @default("Adinas General Hospital")
+  hospitalAddress String?
+  hospitalPhone   String?
+  hospitalEmail   String?
+  timezone        String   @default("Africa/Nairobi")
+  currency        String   @default("ETB")
+  taxRate         Float    @default(0)
+  logo            String?
+  favicon         String?
+  clinicHours     String?
+  aboutText       String?
+  missionText     String?
+  visionText      String?
+  socialLinks     Json?    @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-enum Role {
-  SUPER_ADMIN
-  ADMIN
-  DOCTOR
-  USER
+  @@map("settings")
 }
 
-enum AppointmentStatus {
-  PENDING
-  CONFIRMED
-  COMPLETED
-  CANCELLED
-  RESCHEDULED
-  MISSED
-}
+// ============================================================
+// AUDIT LOG MODEL
+// ============================================================
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  changes   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
-enum PharmaOrderStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  CANCELLED
-}
-
-enum GalleryType {
-  IMAGE
-  VIDEO
-}
-
-enum ContactStatus {
-  UNREAD
-  READ
-  REPLIED
-}
-
-enum NotificationType {
-  INFO
-  SUCCESS
-  WARNING
-  ERROR
-  APPOINTMENT
+  @@map("audit_logs")
 }

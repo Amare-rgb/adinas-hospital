@@ -1,14 +1,28 @@
-// lib/types.ts
+// lib/types.ts - UPDATED VERSION
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  role?: string;
+  avatar?: string;
+  isActive?: boolean;
+  location?: string;
+}
+
 export interface Department {
   id: string;
   name: string;
   nameAmharic?: string | null;
-  slug: string;
-  summary: string;
-  details: string;
+  slug?: string;
+  summary?: string;
+  details?: string;
   description?: string;
   icon?: string | null;
-  order: number;
+  order?: number;
+  code?: string; // Added for backend compatibility
   doctors?: Doctor[];
   services?: Service[];
   isActive?: boolean;
@@ -22,28 +36,39 @@ export interface ScheduleSlot {
   isAvailable?: boolean;
 }
 
+// 🔥 FIXED: Doctor interface matches backend response
 export interface Doctor {
   id: string;
-  name: string;
-  title: string;
+  name?: string; // Optional - backend may not have this directly
+  title?: string; // Optional - backend may not have this
+  userId?: string;
+  doctorId?: string;
+  user?: User; // Backend returns user object with firstName/lastName
+  specialization?: string;
+  subSpecialization?: string;
   bio?: string | null;
   photoUrl?: string | null;
   email?: string | null;
   phone?: string | null;
-  departmentId: string;
+  departmentId?: string;
   department?: Department;
-  active: boolean;
+  isAvailable?: boolean;
+  active?: boolean;
   scheduleSlots?: ScheduleSlot[];
-  specialization?: string;
   experience?: number;
   education?: string;
   rating?: number;
   consultationFee?: number;
   location?: string | null;
+  licenseNumber?: string;
+  licenseExpiry?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'MISSED';
 
+// 🔥 FIXED: Appointment interface matches backend response
 export interface Appointment {
   id: string;
   patientName: string;
@@ -52,12 +77,12 @@ export interface Appointment {
   patientAge?: number | null;
   patientGender?: string | null;
   departmentId?: string;
-  department?: Department;
+  department?: Department | string | null; // Can be object or string
   doctorId?: string | null;
-  doctor?: Doctor | null;
+  doctor?: Doctor | string | null; // Can be object or string
   serviceId?: string | null;
   service?: Service | null;
-  appointmentDate: string;
+  appointmentDate?: string;
   date?: string;
   time?: string;
   note?: string | null;
@@ -77,21 +102,12 @@ export interface Appointment {
   woreda?: string | null;
   gpsPin?: string | null;
   homeAddress?: string | null;
-}
-
-// 🔥 ADD PharmaOrder Interface
-export interface PharmaOrder {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  drugName: string;
-  quantity: number;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
-  notes?: string | null;
-  location?: string | null;
-  createdAt: string;
-  updatedAt?: string;
+  
+  // Additional fields from backend
+  reason?: string;
+  diagnosis?: string;
+  treatment?: string;
+  followUpDate?: string;
 }
 
 export interface NewsArticle {

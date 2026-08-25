@@ -5,27 +5,21 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle, ArrowRight, Home, ArrowLeft, Building2 } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle, ArrowRight, Home, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageProvider';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
-
-const LOCATIONS = [
-  { value: 'Afilas General Hospital', labelEn: 'Afilas General Hospital', labelAm: '🏥 አፊላስ አጠቃላይ ሆስፒታል' },
-  { value: 'Afilas Diagnosis Center', labelEn: 'Afilas Diagnosis Center', labelAm: '🔬 አፊላስ የምርመራ ማዕከል' },
-  { value: 'Afilas Drug Manufacturing', labelEn: 'Afilas Drug Manufacturing', labelAm: '💊 አፊላስ የመድኃኒት ማምረቻ' },
-];
 
 export function RegisterForm() {
   const router = useRouter();
   const { language } = useLanguage();
   const [formData, setFormData] = useState({
-    name: '', 
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
-    location: '', 
     password: '',
-    confirmPassword: '' 
+    confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -37,30 +31,31 @@ export function RegisterForm() {
   const t = (key: string) => {
     const map: Record<string, { en: string; am: string }> = {
       'title': { en: 'Create Account', am: 'መለያ ይፍጠሩ' },
-      'subtitle': { en: 'Join Afilas Hospital', am: 'አፊላስ ሆስፒታል ይቀላቀሉ' },
+      'subtitle': { en: 'Join Adinas General Hospital', am: 'አዲናስ አጠቃላይ ሆስፒታል ይቀላቀሉ' },
       'success': { en: 'Registration Successful! 🎉', am: 'ምዝገባ ተሳክቷል! 🎉' },
-      'welcome': { en: 'Welcome to Afilas Hospital', am: 'እንኳን ወደ አፊላስ ሆስፒታል በደህና መጡ' },
+      'welcome': { en: 'Welcome to Adinas General Hospital', am: 'እንኳን ወደ አዲናስ አጠቃላይ ሆስፒታል በደህና መጡ' },
       'continue': { en: 'Continue', am: 'ቀጥል' },
       'backHome': { en: 'Back to Home', am: 'ወደ መነሻ ተመለስ' },
-      'fullName': { en: 'Full Name', am: 'ሙሉ ስም' },
-      'fullNamePlaceholder': { en: 'Enter full name', am: 'ሙሉ ስም ያስገቡ' },
+      'firstName': { en: 'First Name', am: 'ስም' },
+      'firstNamePlaceholder': { en: 'Enter first name', am: 'ስም ያስገቡ' },
+      'lastName': { en: 'Last Name', am: 'የቤት ስም' },
+      'lastNamePlaceholder': { en: 'Enter last name', am: 'የቤት ስም ያስገቡ' },
       'email': { en: 'Email', am: 'ኢሜል' },
       'emailPlaceholder': { en: 'you@example.com', am: 'እርስዎ@ምሳሌ.ኮም' },
       'phone': { en: 'Phone', am: 'ስልክ' },
       'phonePlaceholder': { en: '+251 9XX XXX XXX', am: '+251 9XX XXX XXX' },
-      'location': { en: 'Location', am: 'ቦታ' },
-      'locationPlaceholder': { en: 'Select location', am: 'ቦታ ይምረጡ' },
       'password': { en: 'Password', am: 'የይለፍ ቃል' },
       'passwordPlaceholder': { en: 'Min 6 characters', am: 'ቢያንስ 6 ቁምፊ' },
       'confirmPassword': { en: 'Confirm Password', am: 'የይለፍ ቃል ያረጋግጡ' },
       'confirmPlaceholder': { en: 'Confirm password', am: 'የይለፍ ቃል ያረጋግጡ' },
-      'errName': { en: 'Full name required', am: 'ሙሉ ስም ያስፈልጋል' },
-      'errNameMin': { en: 'Min 2 characters', am: 'ቢያንስ 2 ቁምፊ' },
+      'errFirstName': { en: 'First name required', am: 'ስም ያስፈልጋል' },
+      'errFirstNameMin': { en: 'Min 2 characters', am: 'ቢያንስ 2 ቁምፊ' },
+      'errLastName': { en: 'Last name required', am: 'የቤት ስም ያስፈልጋል' },
+      'errLastNameMin': { en: 'Min 2 characters', am: 'ቢያንስ 2 ቁምፊ' },
       'errEmail': { en: 'Email required', am: 'ኢሜል ያስፈልጋል' },
       'errEmailInvalid': { en: 'Valid email required', am: 'ትክክለኛ ኢሜል ያስፈልጋል' },
       'errPhone': { en: 'Phone required', am: 'ስልክ ያስፈልጋል' },
       'errPhoneInvalid': { en: 'Valid phone required', am: 'ትክክለኛ ስልክ ያስፈልጋል' },
-      'errLocation': { en: 'Select location', am: 'ቦታ ይምረጡ' },
       'errPassword': { en: 'Password required', am: 'የይለፍ ቃል ያስፈልጋል' },
       'errPasswordMin': { en: 'Min 6 characters', am: 'ቢያንስ 6 ቁምፊ' },
       'errMatch': { en: 'Passwords do not match', am: 'የይለፍ ቃሎች አይዛመዱም' },
@@ -72,21 +67,28 @@ export function RegisterForm() {
     return map[key]?.[language as 'en' | 'am'] || key;
   };
 
-  const getLabel = (loc: typeof LOCATIONS[0]) => language === 'am' ? loc.labelAm : loc.labelEn;
   const isAm = language === 'am';
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!formData.name.trim()) e.name = t('errName');
-    else if (formData.name.trim().length < 2) e.name = t('errNameMin');
+    
+    if (!formData.firstName.trim()) e.firstName = t('errFirstName');
+    else if (formData.firstName.trim().length < 2) e.firstName = t('errFirstNameMin');
+    
+    if (!formData.lastName.trim()) e.lastName = t('errLastName');
+    else if (formData.lastName.trim().length < 2) e.lastName = t('errLastNameMin');
+    
     if (!formData.email.trim()) e.email = t('errEmail');
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) e.email = t('errEmailInvalid');
+    
     if (!formData.phone.trim()) e.phone = t('errPhone');
     else if (!/^\+?[\d\s-]{10,}$/.test(formData.phone.trim())) e.phone = t('errPhoneInvalid');
-    if (!formData.location) e.location = t('errLocation');
+    
     if (!formData.password) e.password = t('errPassword');
     else if (formData.password.length < 6) e.password = t('errPasswordMin');
+    
     if (formData.password !== formData.confirmPassword) e.confirmPassword = t('errMatch');
+    
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -95,26 +97,58 @@ export function RegisterForm() {
     e.preventDefault();
     if (!validate()) return;
     setIsLoading(true);
+    setErrors({});
+    
     try {
+      // 🔥 FIXED: Send payload matching backend /users endpoint exactly
       const payload = {
-        name: formData.name.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
-        location: formData.location,
         password: formData.password,
         role: 'USER',
+        location: 'Adinas General Hospital',
         isActive: true
       };
-      await api.post('/users', payload, false);
+      
+      console.log('📡 Registering user with payload:', payload);
+      
+      // 🔥 FIXED: Use /users endpoint directly (matches your backend)
+      const response = await api.post('/users', payload, false);
+      
+      console.log('✅ Registration response:', response);
+      
       toast.success('Registration successful! 🎉');
       setIsSuccess(true);
+      
       setTimeout(() => {
-        setFormData({ name: '', email: '', phone: '', location: '', password: '', confirmPassword: '' });
+        setFormData({ firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: '' });
         setIsSuccess(false);
         router.push('/login');
       }, 3000);
+      
     } catch (error: any) {
-      const errorMsg = error.message || error.error || 'Registration failed. Please try again.';
+      console.error('❌ Registration error:', error);
+      
+      let errorMsg = 'Registration failed. Please try again.';
+      
+      // 🔥 FIXED: Better error message extraction
+      if (error.message) {
+        errorMsg = error.message;
+      } else if (error.data?.message) {
+        errorMsg = error.data.message;
+      } else if (error.data?.error) {
+        errorMsg = error.data.error;
+      } else if (error.data?.errors) {
+        errorMsg = error.data.errors.map((e: any) => e.msg || e.message).join(', ');
+      }
+      
+      // Check for specific error messages
+      if (errorMsg.toLowerCase().includes('email') && errorMsg.toLowerCase().includes('exists')) {
+        errorMsg = 'This email is already registered. Please login or use a different email.';
+      }
+      
       toast.error(errorMsg);
       setErrors({ submit: errorMsg });
     } finally {
@@ -122,23 +156,17 @@ export function RegisterForm() {
     }
   };
 
-  const change = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const change = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (errors.submit) setErrors(prev => ({ ...prev, submit: '' }));
   };
 
   const inpClass = (field: string) => {
     const base = "w-full pl-8 pr-3 py-1.5 rounded-lg border-2 transition-all outline-none bg-background text-foreground text-sm";
     const err = errors[field] ? 'border-destructive bg-destructive/10' : '';
-    const focus = focusedField === field ? 'border-primary shadow-sm shadow-primary/20' : 'border-border hover:border-primary/50';
-    return `${base} ${err || focus}`;
-  };
-
-  const selClass = (field: string) => {
-    const base = "w-full pl-8 pr-8 py-1.5 rounded-lg border-2 transition-all outline-none bg-background text-foreground text-sm appearance-none";
-    const err = errors[field] ? 'border-destructive bg-destructive/10' : '';
-    const focus = focusedField === field ? 'border-primary shadow-sm shadow-primary/20' : 'border-border hover:border-primary/50';
+    const focus = focusedField === field ? 'border-[#2A3380] shadow-sm shadow-[#2A3380]/20' : 'border-border hover:border-[#2A3380]/50';
     return `${base} ${err || focus}`;
   };
 
@@ -151,7 +179,7 @@ export function RegisterForm() {
             <h3 className={`text-base font-bold text-green-700 dark:text-green-300 ${isAm ? 'font-medium' : ''}`}>{t('success')}</h3>
             <p className={`text-green-600 dark:text-green-400 mt-0.5 text-xs ${isAm ? 'font-medium' : ''}`}>{t('welcome')}</p>
             <div className="flex flex-col gap-1.5 mt-2.5">
-              <button onClick={() => router.push('/login')} className="px-4 py-1 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 text-xs transition-colors">
+              <button onClick={() => router.push('/login')} className="px-4 py-1 bg-[#2A3380] text-white rounded-lg hover:bg-[#1E3A8A] text-xs transition-colors">
                 {t('continue')}
               </button>
               <Link href="/" className="px-4 py-1 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 text-xs flex items-center justify-center gap-1 transition-colors">
@@ -167,93 +195,186 @@ export function RegisterForm() {
   return (
     <div className="w-full max-w-sm">
       <div className="bg-card rounded-2xl shadow-lg p-4 border border-border">
-        <Link href="/" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary text-xs font-medium mb-2 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-1 text-muted-foreground hover:text-[#2A3380] text-xs font-medium mb-2 transition-colors">
           <ArrowLeft className="w-3 h-3" />{t('backHome')}
         </Link>
 
         <div className="text-center mb-3">
-          <Image src="/logo-header-190x49-1.png" alt="Afilas" width={120} height={30} className="mx-auto mb-1" priority style={{ width: '120px', height: 'auto' }} />
-          <h2 className={`text-base font-bold text-foreground ${isAm ? 'font-medium' : ''}`}>{t('title')}</h2>
+          <div className="flex justify-center mb-2">
+            <div className="relative w-20 h-20">
+              <Image 
+                src="/llogo.jpg" 
+                alt="Adinas General Hospital" 
+                fill
+                className="object-contain"
+                priority 
+              />
+            </div>
+          </div>
+          <h2 className={`text-base font-bold text-[#2A3380] ${isAm ? 'font-medium' : ''}`}>{t('title')}</h2>
           <p className={`text-[10px] text-muted-foreground ${isAm ? 'font-medium' : ''}`}>{t('subtitle')}</p>
         </div>
 
         <form onSubmit={submit} className="space-y-2">
+          {/* First Name */}
           <div>
-            <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('fullName')}</label>
+            <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('firstName')}</label>
             <div className="relative">
               <User className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-              <input type="text" name="name" value={formData.name} onChange={change} onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)} className={inpClass('name')} placeholder={t('fullNamePlaceholder')} dir="ltr" />
+              <input 
+                type="text" 
+                name="firstName" 
+                value={formData.firstName} 
+                onChange={change} 
+                onFocus={() => setFocusedField('firstName')} 
+                onBlur={() => setFocusedField(null)} 
+                className={inpClass('firstName')} 
+                placeholder={t('firstNamePlaceholder')} 
+                dir="ltr" 
+              />
             </div>
-            {errors.name && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.name}</p>}
+            {errors.firstName && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.firstName}</p>}
           </div>
 
+          {/* Last Name */}
+          <div>
+            <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('lastName')}</label>
+            <div className="relative">
+              <User className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+              <input 
+                type="text" 
+                name="lastName" 
+                value={formData.lastName} 
+                onChange={change} 
+                onFocus={() => setFocusedField('lastName')} 
+                onBlur={() => setFocusedField(null)} 
+                className={inpClass('lastName')} 
+                placeholder={t('lastNamePlaceholder')} 
+                dir="ltr" 
+              />
+            </div>
+            {errors.lastName && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.lastName}</p>}
+          </div>
+
+          {/* Email */}
           <div>
             <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('email')}</label>
             <div className="relative">
               <Mail className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-              <input type="email" name="email" value={formData.email} onChange={change} onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)} className={inpClass('email')} placeholder={t('emailPlaceholder')} dir="ltr" />
+              <input 
+                type="email" 
+                name="email" 
+                value={formData.email} 
+                onChange={change} 
+                onFocus={() => setFocusedField('email')} 
+                onBlur={() => setFocusedField(null)} 
+                className={inpClass('email')} 
+                placeholder={t('emailPlaceholder')} 
+                dir="ltr" 
+              />
             </div>
             {errors.email && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.email}</p>}
           </div>
 
+          {/* Phone */}
           <div>
             <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('phone')}</label>
             <div className="relative">
               <Phone className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-              <input type="tel" name="phone" value={formData.phone} onChange={change} onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)} className={inpClass('phone')} placeholder={t('phonePlaceholder')} dir="ltr" />
+              <input 
+                type="tel" 
+                name="phone" 
+                value={formData.phone} 
+                onChange={change} 
+                onFocus={() => setFocusedField('phone')} 
+                onBlur={() => setFocusedField(null)} 
+                className={inpClass('phone')} 
+                placeholder={t('phonePlaceholder')} 
+                dir="ltr" 
+              />
             </div>
             {errors.phone && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.phone}</p>}
           </div>
 
-          <div>
-            <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('location')}</label>
-            <div className="relative">
-              <Building2 className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-              <select name="location" value={formData.location} onChange={change} onFocus={() => setFocusedField('location')} onBlur={() => setFocusedField(null)} className={selClass('location')} dir="ltr">
-                <option value="">{t('locationPlaceholder')}</option>
-                {LOCATIONS.map((loc) => <option key={loc.value} value={loc.value}>{getLabel(loc)}</option>)}
-              </select>
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-3 h-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </div>
-            </div>
-            {errors.location && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.location}</p>}
-          </div>
-
+          {/* Password */}
           <div>
             <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('password')}</label>
             <div className="relative">
               <Lock className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-              <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={change} onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)} className={`${inpClass('password')} pr-7`} placeholder={t('passwordPlaceholder')} dir="ltr" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-1/2 -translate-y-1/2">
+              <input 
+                type={showPassword ? 'text' : 'password'} 
+                name="password" 
+                value={formData.password} 
+                onChange={change} 
+                onFocus={() => setFocusedField('password')} 
+                onBlur={() => setFocusedField(null)} 
+                className={`${inpClass('password')} pr-7`} 
+                placeholder={t('passwordPlaceholder')} 
+                dir="ltr" 
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className="absolute right-2 top-1/2 -translate-y-1/2"
+              >
                 {showPassword ? <EyeOff className="w-3 h-3 text-muted-foreground hover:text-foreground" /> : <Eye className="w-3 h-3 text-muted-foreground hover:text-foreground" />}
               </button>
             </div>
             {errors.password && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.password}</p>}
           </div>
 
+          {/* Confirm Password */}
           <div>
             <label className={`block text-[10px] font-semibold text-foreground/80 mb-0.5 ${isAm ? 'font-medium' : ''}`}>{t('confirmPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-              <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={change} onFocus={() => setFocusedField('confirmPassword')} onBlur={() => setFocusedField(null)} className={`${inpClass('confirmPassword')} pr-7`} placeholder={t('confirmPlaceholder')} dir="ltr" />
-              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-2 top-1/2 -translate-y-1/2">
+              <input 
+                type={showConfirmPassword ? 'text' : 'password'} 
+                name="confirmPassword" 
+                value={formData.confirmPassword} 
+                onChange={change} 
+                onFocus={() => setFocusedField('confirmPassword')} 
+                onBlur={() => setFocusedField(null)} 
+                className={`${inpClass('confirmPassword')} pr-7`} 
+                placeholder={t('confirmPlaceholder')} 
+                dir="ltr" 
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+                className="absolute right-2 top-1/2 -translate-y-1/2"
+              >
                 {showConfirmPassword ? <EyeOff className="w-3 h-3 text-muted-foreground hover:text-foreground" /> : <Eye className="w-3 h-3 text-muted-foreground hover:text-foreground" />}
               </button>
             </div>
             {errors.confirmPassword && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.confirmPassword}</p>}
           </div>
 
-          <button type="submit" disabled={isLoading} className={`w-full py-1.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm transition-all ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary/90 hover:shadow-md hover:scale-[1.01]'} ${isAm ? 'font-medium' : ''}`}>
+          {/* Submit Button */}
+          <button 
+            type="submit" 
+            disabled={isLoading} 
+            className={`w-full py-1.5 rounded-lg bg-[#2A3380] text-white font-semibold text-sm transition-all ${
+              isLoading 
+                ? 'opacity-70 cursor-not-allowed' 
+                : 'hover:bg-[#1E3A8A] hover:shadow-md hover:scale-[1.01]'
+            } ${isAm ? 'font-medium' : ''}`}
+          >
             {isLoading ? (
-              <><svg className="animate-spin h-3.5 w-3.5 text-primary-foreground inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> {t('creating')}</>
+              <><svg className="animate-spin h-3.5 w-3.5 text-white inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> {t('creating')}</>
             ) : (
               <>{t('create')} <ArrowRight className="w-3.5 h-3.5 inline" /></>
             )}
           </button>
 
+          {/* Error Message */}
+          {errors.submit && (
+            <p className={`text-center text-[10px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.submit}</p>
+          )}
+
+          {/* Login Link */}
           <p className={`text-center text-[10px] text-muted-foreground ${isAm ? 'font-medium' : ''}`}>
-            {t('already')} <Link href="/login" className="text-primary hover:text-primary/80 font-semibold hover:underline transition-colors">{t('signin')}</Link>
+            {t('already')} <Link href="/login" className="text-[#2A3380] hover:text-[#1E3A8A] font-semibold hover:underline transition-colors">{t('signin')}</Link>
           </p>
         </form>
       </div>

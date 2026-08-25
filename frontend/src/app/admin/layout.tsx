@@ -18,63 +18,28 @@ import {
   UserCircle,
   Shield,
   ChevronDown,
-  Crown,
   Loader2,
-  LayoutDashboard,
-  Building2 // ✅ Added Icon for Departments
+  Hospital,
+  Users
 } from 'lucide-react';
 
-// Define navigation item type with sub-items
+// Define navigation item type
 interface NavItem {
   href: string;
   label: string;
-  icon?: any;
-  subItems?: { href: string; label: string }[];
+  icon?: React.ReactNode;
 }
 
-// Navigation with sub-items for each location - NO ICONS
+// ✅ UPDATED: Navigation for Adinas General Hospital with correct paths
 const NAV: NavItem[] = [
-  { 
-    href: '/admin/dashboard', 
-    label: 'Dashboard',
-    icon: LayoutDashboard
-  },
-  { 
-    href: '/admin/dashboard/afilas-general', 
-    label: 'Afilas General Hospital',
-    subItems: [
-      { href: '/admin/appointments/afilas-general', label: 'Appointments' },
-      { href: '/admin/doctors/afilas-general', label: 'Doctors' },
-      { href: '/admin/user/afilas-general', label: 'Users' },
-      { href: '/admin/services/afilas-general', label: 'Services' },
-      { href: '/admin/blog/afilas-general', label: 'Blog' },
-      { href: '/admin/departments', label: 'Departments' }, // ✅ ADDED HERE
-    ]
-  },
-  { 
-    href: '/admin/dashboard/afilas-diagnosis', 
-    label: 'Afilas Diagnosis Center',
-    subItems: [
-      { href: '/admin/appointments/afilas-diagnosis', label: 'Appointments' },
-      { href: '/admin/doctors/afilas-diagnosis', label: 'Doctors' },
-      { href: '/admin/user/afilas-diagnosis', label: 'Users' },
-      { href: '/admin/services/afilas-diagnosis', label: 'Services' },
-      { href: '/admin/blog/afilas-diagnosis', label: 'Blog' },
-      { href: '/admin/departments', label: 'Departments' }, // ✅ ADDED HERE
-    ]
-  },
-  { 
-    href: '/admin/dashboard/afilas-drug', 
-    label: 'Afilas Drug Manufacturing',
-    subItems: [
-      { href: '/admin/appointments/afilas-drug', label: 'Appointments' },
-      { href: '/admin/doctors/afilas-drug', label: 'Doctors' },
-      { href: '/admin/user/afilas-drug', label: 'Users' },
-      { href: '/admin/services/afilas-drug', label: 'Services' },
-      { href: '/admin/blog/afilas-drug', label: 'Blog' },
-      { href: '/admin/departments', label: 'Departments' }, // ✅ ADDED HERE
-    ]
-  },
+  { href: '/admin/dashboard', label: 'Dashboard' },
+  { href: '/admin/appointments/adinas-general', label: 'Appointments' },
+  { href: '/admin/doctors/adinas-general', label: 'Doctors' },
+  { href: '/admin/user/adinas-general', label: 'Users' }, // ✅ Changed from Patients to Users
+  { href: '/admin/departments', label: 'Departments' },
+  { href: '/admin/services/adinas-general', label: 'Services' },
+  { href: '/admin/blog/adinas-general', label: 'Blog' },
+  { href: '/admin/settings', label: 'Settings' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -90,7 +55,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
   const [notifications, setNotifications] = useState([
     { id: 1, title: 'New appointment booked', time: 'Just now', read: false },
     { id: 2, title: 'Patient feedback received', time: '1 hour ago', read: false },
@@ -149,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
     const adminData = getStoredAdmin();
-    console.log(' Admin data from storage:', adminData);
+    console.log('Admin data from storage:', adminData);
     setAdmin(adminData);
     setChecked(true);
   }, [isLoginPage, router]);
@@ -179,7 +143,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       
       if (response.ok) {
         const data = await response.json();
-        console.log(' Notifications response:', data);
+        console.log('Notifications response:', data);
         
         if (data && data.notifications) {
           setNotifications(data.notifications);
@@ -248,14 +212,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   };
 
-  const toggleDropdown = (href: string) => {
-    setOpenDropdowns(prev => 
-      prev.includes(href) 
-        ? prev.filter(item => item !== href)
-        : [...prev, href]
-    );
-  };
-
   const markAllAsRead = () => {
     setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
@@ -274,96 +230,78 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <div className="min-h-screen bg-gray-50" />;
   }
 
-  // ============================================================
-  // ✅ FIXED: Logout function - Redirect to Home Page
-  // ============================================================
   function handleLogout() {
-    // Clear all session data
     clearSession();
-    
-    // Clear all localStorage items
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userRole');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('admin');
-    
-    // Clear sessionStorage
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('userRole');
     sessionStorage.removeItem('isLoggedIn');
-    
-    // ✅ Redirect to home page (not login page)
     window.location.href = '/';
   }
 
+  // ✅ UPDATED: Get page title based on pathname
   const getPageTitle = () => {
-    // Check if it's the main dashboard
-    if (pathname === '/admin/dashboard') {
-      return 'Dashboard';
+    const titles: { [key: string]: string } = {
+      '/admin/dashboard': 'Dashboard',
+      '/admin/appointments/adinas-general': 'Appointments',
+      '/admin/doctors/adinas-general': 'Doctors',
+      '/admin/user/adinas-general': 'Users', // ✅ Changed from Patients to Users
+      '/admin/departments': 'Departments',
+      '/admin/services/adinas-general': 'Services',
+      '/admin/blog/adinas-general': 'Blog',
+      '/admin/security': 'Settings',
+    };
+    // Check if pathname matches any key or starts with any key
+    for (const [key, value] of Object.entries(titles)) {
+      if (pathname === key || pathname.startsWith(key + '/')) {
+        return value;
+      }
     }
-    
-    // Check if it's a dashboard page
-    const dashboardMatch = pathname.match(/\/admin\/dashboard\/(afilas-general|afilas-diagnosis|afilas-drug)/);
-    if (dashboardMatch) {
-      const location = dashboardMatch[1];
-      const locationNames: { [key: string]: string } = {
-        'afilas-general': 'Afilas General Hospital',
-        'afilas-diagnosis': 'Afilas Diagnosis Center',
-        'afilas-drug': 'Afilas Drug Manufacturing'
-      };
-      return locationNames[location] || 'Dashboard';
-    }
-
-    // Check if it's a sub-page
-    const subMatch = pathname.match(/\/admin\/(appointments|doctors|user|services|blog|departments)\/(afilas-general|afilas-diagnosis|afilas-drug)/);
-    if (subMatch) {
-      const section = subMatch[1];
-      const location = subMatch[2];
-      const sectionNames: { [key: string]: string } = {
-        'appointments': 'Appointments',
-        'doctors': 'Doctors',
-        'user': 'Users',
-        'services': 'Services',
-        'blog': 'Blog',
-        'departments': 'Departments' // ✅ Added here
-      };
-      const locationNames: { [key: string]: string } = {
-        'afilas-general': 'Afilas General Hospital',
-        'afilas-diagnosis': 'Afilas Diagnosis Center',
-        'afilas-drug': 'Afilas Drug Manufacturing'
-      };
-      return `${sectionNames[section]} - ${locationNames[location]}`;
-    }
-
-    // Check if it's the global departments page
-    if (pathname === '/admin/departments') {
-      return 'Departments';
-    }
-
     return 'Dashboard';
+  };
+
+  // ✅ UPDATED: Get page description for each route
+  const getPageDescription = () => {
+    const descriptions: { [key: string]: string } = {
+      '/admin/dashboard': 'Overview of your hospital operations',
+      '/admin/appointments/adinas-general': 'Manage all appointments and schedules',
+      '/admin/doctors/adinas-general': 'Manage doctor profiles and availability',
+      '/admin/user/adinas-general': 'Manage hospital users and permissions', // ✅ Changed from Patients to Users
+      '/admin/departments': 'Manage hospital departments and staff',
+      '/admin/services/adinas-general': 'Manage medical services and pricing',
+      '/admin/blog/adinas-general': 'Create and manage blog posts',
+      '/admin/security': 'Configure hospital settings',
+    };
+    for (const [key, value] of Object.entries(descriptions)) {
+      if (pathname === key || pathname.startsWith(key + '/')) {
+        return value;
+      }
+    }
+    return 'Manage your hospital';
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Get user initials for avatar
   const getUserInitials = () => {
     if (!admin?.name) return 'A';
     return admin.name.charAt(0).toUpperCase();
   };
 
-  // Get full name for display
   const getDisplayName = () => {
     if (!admin?.name) return 'Admin';
     return admin.name;
   };
 
-  // Check if a nav item is active
-  const isNavActive = (item: NavItem) => {
-    if (item.href === '/admin/dashboard') {
+  // ✅ UPDATED: Check if navigation item is active
+  const isNavActive = (href: string) => {
+    if (href === '/admin/dashboard') {
       return pathname === '/admin/dashboard';
     }
-    return pathname === item.href || pathname.startsWith(item.href + '/');
+    return pathname === href || pathname.startsWith(href + '/');
   };
 
   return (
@@ -379,19 +317,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           sidebarOpen ? 'justify-between' : 'justify-center'
         }`}>
           <Link href="/admin/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Image
-              src="/logo-header-190x49-1.png"
-              alt="Afilas Hospital"
-              width={sidebarOpen ? 160 : 40}
-              height={sidebarOpen ? 41 : 40}
-              className="object-contain dark:brightness-0 dark:invert"
-              priority
-            />
+            <div className="relative w-10 h-10">
+              <Image
+                src="/llogo.jpg"
+                alt="Adinas General Hospital"
+                fill
+                className="object-contain rounded-lg"
+                priority
+              />
+            </div>
+            {sidebarOpen && (
+              <span className="text-lg font-bold text-[#2A3380] dark:text-white">Adinas Admin</span>
+            )}
           </Link>
           {sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-600"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft size={20} />
@@ -400,7 +342,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {!sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-400 hover:text-gray-600"
               aria-label="Expand sidebar"
             >
               <ChevronRight size={20} />
@@ -408,111 +350,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
         </div>
 
-        {/* Navigation with sub-items - NO ICONS */}
+        {/* Navigation - NO ICONS */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV.map((item) => {
-            const isActive = isNavActive(item);
-            const isDropdownOpen = openDropdowns.includes(item.href);
-            const hasSubItems = item.subItems && item.subItems.length > 0;
-            const isDashboard = item.href === '/admin/dashboard';
+            const isActive = isNavActive(item.href);
 
             return (
-              <div key={item.href} className="relative">
-                {isDashboard ? (
-                  // Dashboard link - direct navigation with WHITE background
-                  <Link
-                    href={item.href}
-                    className={`
-                      flex items-center w-full px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 group relative cursor-pointer
-                      ${isActive
-                        ? 'bg-white border border-gray-300 text-gray-700 shadow-sm hover:bg-gray-50'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                      }
-                      ${!sidebarOpen && 'justify-center'}
-                    `}
-                    title={!sidebarOpen ? item.label : undefined}
-                  >
-                    {sidebarOpen ? (
-                      <>
-                        <LayoutDashboard size={18} className={`mr-2 ${isActive ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'}`} />
-                        <span className="flex-1 font-bold text-left">{item.label}</span>
-                      </>
-                    ) : (
-                      <LayoutDashboard size={20} className={isActive ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500'} />
-                    )}
-                    {isActive && sidebarOpen && (
-                      <span className="ml-auto w-1.5 h-6 rounded-full bg-green-500" />
-                    )}
-                    {isActive && !sidebarOpen && (
-                      <span className="absolute right-0 w-1 h-8 bg-green-500 rounded-full" />
-                    )}
-                  </Link>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`
+                  flex items-center w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative
+                  ${isActive
+                    ? 'bg-[#2A3380] text-white shadow-md hover:bg-[#1E3A8A]'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                  }
+                  ${!sidebarOpen && 'justify-center'}
+                `}
+                title={!sidebarOpen ? item.label : undefined}
+              >
+                {sidebarOpen ? (
+                  <span className="flex-1 text-left">{item.label}</span>
                 ) : (
-                  // Location buttons with dropdown
-                  <button
-                    onClick={() => hasSubItems && toggleDropdown(item.href)}
-                    className={`
-                      flex items-center w-full px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 group relative cursor-pointer
-                      ${isActive
-                        ? 'bg-green-600 text-white shadow-md hover:bg-green-700'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300'
-                      }
-                      ${!sidebarOpen && 'justify-center'}
-                    `}
-                    title={!sidebarOpen ? item.label : undefined}
-                  >
-                    {sidebarOpen ? (
-                      <>
-                        <span className="flex-1 font-bold text-left">{item.label}</span>
-                        {hasSubItems && (
-                          <ChevronDown 
-                            size={16} 
-                            className={`transition-transform duration-200 ${
-                              isDropdownOpen ? 'rotate-180' : ''
-                            } ${
-                              isActive
-                                ? 'text-white/70'
-                                : 'text-gray-400 dark:text-gray-500'
-                            }`}
-                          />
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-xs font-bold">{item.label.charAt(0)}</span>
-                    )}
-                    {isActive && sidebarOpen && (
-                      <span className="ml-auto w-1.5 h-6 rounded-full bg-white/50" />
-                    )}
-                    {isActive && !sidebarOpen && (
-                      <span className="absolute right-0 w-1 h-8 bg-green-500 rounded-full" />
-                    )}
-                  </button>
+                  <span className="text-xs font-bold">{item.label.charAt(0)}</span>
                 )}
-
-                {/* Sub-items dropdown - NO ICONS */}
-                {hasSubItems && sidebarOpen && isDropdownOpen && (
-                  <div className="mt-1 ml-4 space-y-0.5 border-l-2 border-gray-200 dark:border-gray-700 pl-3">
-                    {item.subItems!.map((subItem) => {
-                      const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href + '/');
-                      return (
-                        <Link
-                          key={subItem.href}
-                          href={subItem.href}
-                          className={`
-                            flex items-center px-3 py-2 rounded-lg text-sm transition-all duration-200
-                            ${isSubActive
-                              ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 font-medium'
-                              : 'text-gray-600 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300'
-                            }
-                          `}
-                        >
-                          <span>{subItem.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                {isActive && sidebarOpen && (
+                  <span className="ml-auto w-1.5 h-6 rounded-full bg-white/50" />
                 )}
-              </div>
+                {isActive && !sidebarOpen && (
+                  <span className="absolute right-0 w-1 h-8 bg-[#2A3380] rounded-full" />
+                )}
+              </Link>
             );
           })}
         </nav>
@@ -520,27 +388,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Bottom Section */}
         <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
           {admin && (
-            <div className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors ${
+            <div className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
               !sidebarOpen && 'justify-center'
             }`}>
-              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-700 dark:text-white font-semibold shrink-0 shadow-md">
+              <div className="w-8 h-8 rounded-full bg-[#2A3380] text-white flex items-center justify-center font-semibold shrink-0">
                 {getUserInitials()}
               </div>
               {sidebarOpen && (
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-700 dark:text-gray-300 truncate">{getDisplayName()}</p>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{getDisplayName()}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{admin.email}</p>
                 </div>
               )}
             </div>
           )}
 
-          {/* ✅ FIXED: Logout button - Redirects to Home Page */}
           <button
             onClick={handleLogout}
-            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-bold transition-colors ${
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
               !sidebarOpen && 'justify-center'
-            } text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300`}
+            } text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20`}
             title={!sidebarOpen ? 'Logout' : undefined}
           >
             <LogOut size={20} className="shrink-0" />
@@ -549,9 +416,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <Link
             href="/"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
               !sidebarOpen && 'justify-center'
-            } text-gray-500 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300`}
+            } text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-700`}
             title={!sidebarOpen ? 'Back to site' : undefined}
           >
             <ArrowLeft size={20} className="shrink-0" />
@@ -565,10 +432,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Top Navbar */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40">
           <div className="flex flex-col px-4 sm:px-6">
-            {/* System Title - WHITE BACKGROUND */}
-            <div className="flex items-center justify-center py-2 bg-blue-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-              <h1 className="text-sm font-bold text-gray-800 dark:text-white tracking-wider uppercase">
-                Afilas Hospital - Three Branch Management System
+            {/* System Title - Adinas General Hospital */}
+            <div className="flex items-center justify-center py-2 bg-[#2A3380]/5 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <h1 className="text-sm font-bold text-[#2A3380] dark:text-white tracking-wider uppercase flex items-center gap-2">
+                <Hospital className="w-4 h-4" />
+                Adinas General Hospital - Management System
               </h1>
             </div>
             
@@ -577,7 +445,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setMobileMenuOpen(true)}
-                  className="lg:hidden p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   aria-label="Open menu"
                 >
                   <Menu size={24} className="text-gray-600 dark:text-gray-300" />
@@ -585,7 +453,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="hidden sm:block">
                   <h2 className="text-lg font-bold text-gray-800 dark:text-white">{getPageTitle()}</h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Welcome back, {getDisplayName()}
+                    {getPageDescription()}
                   </p>
                 </div>
               </div>
@@ -594,17 +462,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {/* Search Icon */}
                 <button
                   onClick={handleSearchClick}
-                  className="search-trigger p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                  className="search-trigger p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   aria-label="Search"
                 >
                   <Search size={20} className="text-gray-600 dark:text-gray-300" />
                 </button>
 
-                {/* Notification Bell - Centered on Mobile */}
+                {/* Notification Bell */}
                 <div className="relative" ref={notificationRef}>
                   <button
                     onClick={() => setNotificationOpen(!notificationOpen)}
-                    className="p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors relative"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
                     aria-label="Notifications"
                   >
                     <Bell size={20} className="text-gray-600 dark:text-gray-300" />
@@ -616,27 +484,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </button>
 
                   {notificationOpen && (
-                    <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden 
-                      sm:right-0 sm:left-auto
-                      left-1/2 -translate-x-1/2 sm:translate-x-0">
-                      {/* Compact Header */}
+                    <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
                       <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
                         <h3 className="text-xs font-bold text-gray-800 dark:text-white">Notifications</h3>
                         {unreadCount > 0 && (
                           <button 
                             onClick={markAllAsRead}
-                            className="text-[10px] text-green-600 hover:text-green-700 font-bold"
+                            className="text-[10px] text-[#2A3380] hover:text-[#1E3A8A] font-bold"
                           >
                             Mark all read
                           </button>
                         )}
                       </div>
 
-                      {/* Compact List */}
                       <div className="max-h-56 overflow-y-auto">
                         {notificationLoading ? (
                           <div className="px-3 py-4 text-center">
-                            <Loader2 className="w-5 h-5 text-green-500 animate-spin mx-auto" />
+                            <Loader2 className="w-5 h-5 text-[#2A3380] animate-spin mx-auto" />
                           </div>
                         ) : notifications.length === 0 ? (
                           <div className="px-3 py-4 text-center">
@@ -648,13 +512,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <div
                               key={notif.id}
                               onClick={() => markAsRead(notif.id)}
-                              className={`px-3 py-2 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 ${
-                                !notif.read ? 'bg-green-50/50 dark:bg-green-900/10' : ''
+                              className={`px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0 ${
+                                !notif.read ? 'bg-[#2A3380]/5 dark:bg-[#2A3380]/10' : ''
                               }`}
                             >
                               <div className="flex items-start gap-2">
                                 {!notif.read && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></span>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#2A3380] mt-1.5 flex-shrink-0"></span>
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-medium text-gray-800 dark:text-white truncate">{notif.title}</p>
@@ -666,11 +530,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         )}
                       </div>
 
-                      {/* Compact Footer */}
                       <div className="px-3 py-1.5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                         <Link
                           href="/admin/notifications"
-                          className="block text-center text-[10px] text-green-600 hover:text-green-700 font-bold py-0.5"
+                          className="block text-center text-[10px] text-[#2A3380] hover:text-[#1E3A8A] font-bold py-0.5"
                           onClick={() => setNotificationOpen(false)}
                         >
                           View all
@@ -684,16 +547,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 pl-2 border-l border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors pr-2 py-1"
+                    className="flex items-center gap-2 pl-2 border-l border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors pr-2 py-1"
                     aria-label="Profile menu"
                   >
                     <div className="relative">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white flex items-center justify-center font-bold text-sm shadow-md">
+                      <div className="w-8 h-8 rounded-full bg-[#2A3380] text-white flex items-center justify-center font-bold text-sm shadow-md">
                         {getUserInitials()}
                       </div>
                     </div>
                     <div className="hidden sm:block text-left">
-                      <p className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                         {getDisplayName()}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{admin?.email}</p>
@@ -706,7 +569,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-white flex items-center justify-center font-bold text-xl shadow-lg">
+                            <div className="w-14 h-14 rounded-full bg-[#2A3380] text-white flex items-center justify-center font-bold text-xl shadow-lg">
                               {getUserInitials()}
                             </div>
                           </div>
@@ -720,19 +583,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       <div className="py-1">
                         <Link
                           href="/admin/profile"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                           onClick={() => setProfileOpen(false)}
                         >
                           <UserCircle size={18} className="text-gray-400 dark:text-gray-500" />
-                          <span className="font-bold">My Profile</span>
+                          <span>My Profile</span>
                         </Link>
                         <Link
                           href="/admin/security"
-                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                           onClick={() => setProfileOpen(false)}
                         >
                           <Shield size={18} className="text-gray-400 dark:text-gray-500" />
-                          <span className="font-bold">Security</span>
+                          <span>Security</span>
                         </Link>
                         <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                       </div>
@@ -746,7 +609,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full"
                         >
                           <LogOut size={18} />
-                          <span className="font-bold">Sign Out</span>
+                          <span>Sign Out</span>
                         </button>
                       </div>
                     </div>
@@ -773,7 +636,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search patients, doctors, appointments..."
+                    placeholder="Search users, patients, doctors, appointments..."
                     className="w-full bg-transparent border-none outline-none text-base text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     autoFocus
                   />
@@ -802,7 +665,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="max-h-96 overflow-y-auto">
                 {searchLoading ? (
                   <div className="p-8 text-center">
-                    <Loader2 className="w-8 h-8 text-green-500 animate-spin mx-auto mb-2" />
+                    <Loader2 className="w-8 h-8 text-[#2A3380] animate-spin mx-auto mb-2" />
                     <p className="text-sm text-gray-500">Searching...</p>
                   </div>
                 ) : searchResults.length > 0 ? (
@@ -811,15 +674,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       <button
                         key={index}
                         onClick={() => handleSearchResultClick(result)}
-                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors flex items-center gap-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
                       >
-                        <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 font-bold text-sm flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-[#2A3380]/10 flex items-center justify-center text-[#2A3380] font-bold text-sm flex-shrink-0">
                           {result.type?.charAt(0) || 'R'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-800 dark:text-white">{result.name || result.title || 'Result'}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {result.type || 'Item'} • {result.location || 'General'}
+                            {result.type || 'Item'}
                           </p>
                         </div>
                         <ChevronRight size={16} className="text-gray-400 flex-shrink-0" />
@@ -842,91 +705,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        {/* Mobile Navigation Overlay */}
+        {/* Mobile Navigation Overlay - NO ICONS */}
         {mobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setMobileMenuOpen(false)}>
             <div className="absolute left-0 top-0 h-full w-72 bg-white dark:bg-gray-800 shadow-xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-                <Image
-                  src="/logo-header-190x49-1.png"
-                  alt="Afilas Hospital"
-                  width={120}
-                  height={31}
-                  className="object-contain dark:brightness-0 dark:invert"
-                  priority
-                />
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8">
+                    <Image
+                      src="/llogo.jpg"
+                      alt="Adinas General Hospital"
+                      fill
+                      className="object-contain rounded-lg"
+                    />
+                  </div>
+                  <span className="text-lg font-bold text-[#2A3380] dark:text-white">Adinas Admin</span>
+                </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <X size={24} className="text-gray-600 dark:text-gray-300" />
                 </button>
               </div>
               <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-120px)]">
                 {NAV.map((item) => {
-                  const isActive = isNavActive(item);
-                  const isDropdownOpen = openDropdowns.includes(item.href);
-                  const hasSubItems = item.subItems && item.subItems.length > 0;
-                  const isDashboard = item.href === '/admin/dashboard';
+                  const isActive = isNavActive(item.href);
 
                   return (
-                    <div key={item.href}>
-                      {isDashboard ? (
-                        <Link
-                          href={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-bold transition-all ${isActive
-                              ? 'bg-white border border-gray-300 text-gray-700 shadow-sm'
-                              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                          }`}
-                        >
-                          <LayoutDashboard size={18} className="mr-2" />
-                          <span className="flex-1 text-left">{item.label}</span>
-                        </Link>
-                      ) : (
-                        <button
-                          onClick={() => hasSubItems && toggleDropdown(item.href)}
-                          className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-bold transition-all ${isActive
-                              ? 'bg-green-600 text-white'
-                              : 'text-gray-600 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300'
-                          }`}
-                        >
-                          <span className="flex-1 text-left">{item.label}</span>
-                          {hasSubItems && (
-                            <ChevronDown 
-                              size={16} 
-                              className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                            />
-                          )}
-                        </button>
-                      )}
-                      {hasSubItems && isDropdownOpen && (
-                        <div className="pl-6 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 ml-4">
-                          {item.subItems!.map((subItem) => {
-                            const isSubActive = pathname === subItem.href || pathname.startsWith(subItem.href + '/');
-                            return (
-                              <Link
-                                key={subItem.href}
-                                href={subItem.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`flex items-center px-3 py-2 rounded-lg text-sm transition-all ${isSubActive
-                                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 font-medium'
-                                    : 'text-gray-600 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300'
-                                }`}
-                              >
-                                <span>{subItem.label}</span>
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-[#2A3380] text-white'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                    </Link>
                   );
                 })}
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
                   {admin && (
                     <div className="px-4 py-2 mb-2">
-                      <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{getDisplayName()}</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{getDisplayName()}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{admin.email}</p>
                     </div>
                   )}
@@ -935,14 +759,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       handleLogout();
                       setMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-bold"
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium"
                   >
                     <LogOut size={20} />
                     Logout
                   </button>
                   <Link
                     href="/"
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg font-bold"
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <ArrowLeft size={20} />

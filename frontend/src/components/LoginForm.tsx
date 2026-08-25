@@ -144,20 +144,31 @@ export function LoginForm() {
   const inputClass = (field: string) => {
     const base = "w-full pl-8 pr-3 py-1.5 rounded-lg border-2 transition-all outline-none bg-background text-foreground text-sm";
     const err = errors[field] ? 'border-destructive bg-destructive/10' : '';
-    const focus = focusedField === field ? 'border-primary shadow-sm shadow-primary/20' : 'border-border hover:border-primary/50';
+    const focus = focusedField === field ? 'border-[#2A3380] shadow-sm shadow-[#2A3380]/20' : 'border-border hover:border-[#2A3380]/50';
     return `${base} ${err || focus}`;
   };
 
   return (
     <div className="w-full max-w-sm">
       <div className="bg-card rounded-2xl shadow-lg p-4 border border-border">
-        <Link href="/" className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary text-xs font-medium mb-2 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-1 text-muted-foreground hover:text-[#2A3380] text-xs font-medium mb-2 transition-colors">
           <ArrowLeft className="w-3 h-3" />{t('backHome')}
         </Link>
 
         <div className="text-center mb-3">
-          <Image src="/logo-header-190x49-1.png" alt="Afilas" width={120} height={30} className="mx-auto mb-1" priority style={{ width: '120px', height: 'auto' }} />
-          <h2 className={`text-base font-bold text-foreground ${isAm ? 'font-medium' : ''}`}>{t('title')}</h2>
+          {/* Logo - Full display without cropping */}
+          <div className="flex justify-center mb-2">
+            <div className="relative w-20 h-20">
+              <Image 
+                src="/llogo.jpg" 
+                alt="Adinas General Hospital" 
+                fill
+                className="object-contain"
+                priority 
+              />
+            </div>
+          </div>
+          <h2 className={`text-base font-bold text-[#2A3380] ${isAm ? 'font-medium' : ''}`}>{t('title')}</h2>
           <p className={`text-[10px] text-muted-foreground ${isAm ? 'font-medium' : ''}`}>{t('subtitle')}</p>
         </div>
 
@@ -175,7 +186,7 @@ export function LoginForm() {
                 onBlur={() => setFocusedField(null)}
                 className={inputClass('email')}
                 placeholder={t('emailPlaceholder')}
-                dir="ltr"  // Always LTR
+                dir="ltr"
               />
             </div>
             {errors.email && <p className={`mt-0.5 text-[9px] text-destructive ${isAm ? 'font-medium' : ''}`}>{errors.email}</p>}
@@ -212,7 +223,7 @@ export function LoginForm() {
           </div>
 
           <div className="text-right">
-            <Link href="/forgot-password" className={`text-[10px] text-primary hover:text-primary/80 hover:underline ${isAm ? 'font-medium' : ''}`}>
+            <Link href="/forgot-password" className={`text-[10px] text-[#2A3380] hover:text-[#1E3A8A] hover:underline ${isAm ? 'font-medium' : ''}`}>
               {t('forgotPassword')}
             </Link>
           </div>
@@ -220,11 +231,11 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-1.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm transition-all ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary/90 hover:shadow-md hover:scale-[1.01]'} ${isAm ? 'font-medium' : ''}`}
+            className={`w-full py-1.5 rounded-lg bg-[#2A3380] text-white font-semibold text-sm transition-all ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#1E3A8A] hover:shadow-md hover:scale-[1.01]'} ${isAm ? 'font-medium' : ''}`}
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin h-3.5 w-3.5 text-primary-foreground inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-3.5 w-3.5 text-white inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -240,7 +251,7 @@ export function LoginForm() {
 
           <p className={`text-center text-[10px] text-muted-foreground ${isAm ? 'font-medium' : ''}`}>
             {t('noAccount')}{' '}
-            <Link href="/register" className="text-primary hover:text-primary/80 font-semibold hover:underline transition-colors">
+            <Link href="/register" className="text-[#2A3380] hover:text-[#1E3A8A] font-semibold hover:underline transition-colors">
               {t('register')}
             </Link>
           </p>

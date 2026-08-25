@@ -1,3 +1,4 @@
+// app/admin/departments/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -108,7 +109,6 @@ export default function AdminDepartmentsPage() {
       </div>
 
       {/* 1. MINIMIZED FORM CARD */}
-      {/* Added max-w-2xl to drastically reduce the width */}
       <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
           <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
@@ -130,7 +130,7 @@ export default function AdminDepartmentsPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none transition-all text-sm shadow-sm"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#2A3380]/50 focus:border-[#2A3380] outline-none transition-all text-sm shadow-sm"
                   placeholder="e.g., Cardiology, Pediatrics..."
                 />
               </div>
@@ -142,7 +142,7 @@ export default function AdminDepartmentsPage() {
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-green-500/50 focus:border-green-500 outline-none transition-all text-sm shadow-sm"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#2A3380]/50 focus:border-[#2A3380] outline-none transition-all text-sm shadow-sm"
                   placeholder="e.g., Heart and vascular care"
                 />
               </div>
@@ -152,7 +152,7 @@ export default function AdminDepartmentsPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#2A3380] hover:bg-[#1E3A8A] text-white font-semibold text-sm rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -171,7 +171,7 @@ export default function AdminDepartmentsPage() {
         </div>
       </div>
 
-      {/* 2. SIMPLE CARD LIST (Kept full width naturally) */}
+      {/* 2. SIMPLE CARD LIST */}
       <div className="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-between">
           <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
@@ -188,7 +188,7 @@ export default function AdminDepartmentsPage() {
         <div className="p-6 sm:p-8">
           {fetching ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-              <Loader2 className="w-8 h-8 text-green-600 animate-spin mb-2" />
+              <Loader2 className="w-8 h-8 text-[#2A3380] animate-spin mb-2" />
               <p className="text-sm">Loading departments...</p>
             </div>
           ) : departments.length === 0 ? (
@@ -204,7 +204,7 @@ export default function AdminDepartmentsPage() {
                 return (
                   <div
                     key={dept.id}
-                    className="group relative flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700 hover:shadow-md transition-all duration-200"
+                    className="group relative flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-[#2A3380]/30 dark:hover:border-[#2A3380]/50 hover:shadow-md transition-all duration-200"
                   >
                     {/* Department Icon */}
                     <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>

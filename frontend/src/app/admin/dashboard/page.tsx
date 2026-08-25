@@ -2,9 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { api, extractApiData } from '@/lib/api';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useRouter } from 'next/navigation';
 import {
   XAxis,
   YAxis,
@@ -71,13 +69,6 @@ interface DashboardData {
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6', '#6366F1'];
 
-// Location options
-const LOCATIONS = [
-  { id: 'Afilas General Hospital', label: 'Afilas General Hospital' },
-  { id: 'Afilas Diagnosis Center', label: 'Afilas Diagnosis Center' },
-  { id: 'Afilas Drug Manufacturing', label: 'Afilas Drug Manufacturing' }
-];
-
 // Mock data for testing
 const MOCK_APPOINTMENTS_CHART = [
   { month: 'Jan', appointments: 45, completed: 30, cancelled: 5 },
@@ -96,44 +87,75 @@ const MOCK_USERS_CHART = [
 ];
 
 export default function AdminDashboardPage() {
-  const { t } = useLanguage();
+  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
-  const [selectedLocation, setSelectedLocation] = useState<string>('Afilas General Hospital');
+
+  // Check authentication
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (!token) {
+      router.push('/admin/login');
+      return;
+    }
+
+    if (userRole?.toUpperCase() !== 'ADMIN' && userRole?.toUpperCase() !== 'SUPER_ADMIN') {
+      router.push('/');
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     fetchDashboardData();
-  }, [selectedPeriod, selectedLocation]);
+  }, [selectedPeriod]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const statsResponse = await api.get(`/dashboard/stats?location=${encodeURIComponent(selectedLocation)}`, true);
-      const stats = extractApiData<DashboardStats>(statsResponse);
+      const token = localStorage.getItem('token');
+      
+      // Fetch stats
+      const statsResponse = await fetch(`http://localhost:5000/api/dashboard/stats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      let appointmentsChart;
-      let usersChart;
-
-      try {
-        const appointmentsResponse = await api.get(`/dashboard/appointments-chart?period=${selectedPeriod}&location=${encodeURIComponent(selectedLocation)}`, true);
-        appointmentsChart = extractApiData<ChartDataItem[]>(appointmentsResponse);
-        console.log('📊 Appointments chart data:', appointmentsChart);
-      } catch (err) {
-        console.log('Using mock appointments data');
-        appointmentsChart = MOCK_APPOINTMENTS_CHART;
+      let stats: DashboardStats;
+      if (statsResponse.ok) {
+        stats = await statsResponse.json();
+      } else {
+        // Fallback data
+        stats = {
+          overview: {
+            totalAppointments: 0,
+            todayAppointments: 0,
+            upcomingAppointments: 0,
+            totalDoctors: 0,
+            totalServices: 0,
+            totalUsers: 0,
+            pendingContacts: 0,
+            totalNews: 0,
+          },
+          appointmentsByStatus: {},
+          recentAppointments: [],
+          reviews: {
+            totalReviews: 0,
+            averageRating: 0,
+          },
+          location: 'Adinas General Hospital',
+        };
       }
 
-      try {
-        const usersResponse = await api.get(`/dashboard/users-chart?location=${encodeURIComponent(selectedLocation)}`, true);
-        usersChart = extractApiData<ChartDataItem[]>(usersResponse);
-        console.log('📊 Users chart data:', usersChart);
-      } catch (err) {
-        console.log('Using mock users data');
-        usersChart = MOCK_USERS_CHART;
-      }
+      // Use mock data for charts
+      const appointmentsChart = MOCK_APPOINTMENTS_CHART;
+      const usersChart = MOCK_USERS_CHART;
 
       setData({
         stats,
@@ -161,7 +183,7 @@ export default function AdminDashboardPage() {
             totalReviews: 0,
             averageRating: 0,
           },
-          location: 'all',
+          location: 'Adinas General Hospital',
         },
         appointmentsChart: MOCK_APPOINTMENTS_CHART,
         usersChart: MOCK_USERS_CHART,
@@ -170,15 +192,6 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLocationChange = (locationId: string) => {
-    setSelectedLocation(locationId);
-  };
-
-  const getLocationDisplay = () => {
-    const loc = LOCATIONS.find(l => l.id === selectedLocation);
-    return loc ? loc.label : selectedLocation;
   };
 
   const renderStars = (rating: number) => {
@@ -205,16 +218,11 @@ export default function AdminDashboardPage() {
     return `${name} ${(percent * 100).toFixed(0)}%`;
   };
 
-  const renderStatusLabel = ({ name, percent }: { name?: string; percent?: number }) => {
-    if (!name || !percent) return '';
-    return `${name} ${(percent * 100).toFixed(0)}%`;
-  };
-
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-gray-300 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-[#2A3380] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading dashboard data...</p>
         </div>
       </div>
@@ -230,7 +238,7 @@ export default function AdminDashboardPage() {
           <p className="text-sm text-gray-500 mb-4">{error}</p>
           <button 
             onClick={fetchDashboardData}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
+            className="px-4 py-2 bg-[#2A3380] text-white rounded-lg hover:bg-[#1E3A8A] transition-colors"
           >
             ↻ Retry
           </button>
@@ -251,9 +259,7 @@ export default function AdminDashboardPage() {
 
   const { stats, appointmentsChart, usersChart } = data;
 
-  // ============================================================
-  // ✅ UPDATED SUMMARY CARDS - "Today's Appointments" changed to "Website Reviews"
-  // ============================================================
+  // Summary Cards - No Icons
   const summaryCards = [
     { 
       label: 'Total Appointments', 
@@ -274,7 +280,7 @@ export default function AdminDashboardPage() {
     { 
       label: 'Total Users', 
       value: stats?.overview?.totalUsers?.toLocaleString() || '0',
-      color: 'from-yellow-500 to-orange-600'
+      color: 'from-blue-500 to-cyan-600'
     },
     { 
       label: 'Total Services', 
@@ -288,69 +294,39 @@ export default function AdminDashboardPage() {
     },
   ];
 
-  // Status distribution for chart
-  const statusData = stats?.appointmentsByStatus 
-    ? Object.entries(stats.appointmentsByStatus).map(([name, value]) => ({
-        name: name.charAt(0) + name.slice(1).toLowerCase(),
-        value
-      }))
-    : [];
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
-            <select 
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value as any)}
-              className="bg-transparent border-none outline-none text-sm text-gray-600 dark:text-gray-300"
-            >
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-            </select>
-          </div>
-          <button 
-            onClick={fetchDashboardData}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors"
+    <div className="space-y-6 bg-white min-h-screen p-6">
+      {/* Period Selector - Only */}
+      <div className="flex justify-end items-center gap-3 bg-white">
+        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-3 py-2">
+          <select 
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value as any)}
+            className="bg-transparent border-none outline-none text-sm text-gray-600"
           >
-            ↻ Refresh
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors">
-            ↓ Export
-          </button>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
         </div>
+        <button 
+          onClick={fetchDashboardData}
+          className="flex items-center gap-2 px-4 py-2 bg-[#2A3380] text-white rounded-lg hover:bg-[#1E3A8A] transition-colors text-sm"
+        >
+          ↻ Refresh
+        </button>
       </div>
 
-      {/* Location Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-wrap gap-4">
-        {LOCATIONS.map((location) => (
-          <button
-            key={location.id}
-            onClick={() => handleLocationChange(location.id)}
-            className={`px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex-1 min-w-[180px] ${
-              selectedLocation === location.id
-                ? 'bg-gray-900 text-white shadow-md hover:bg-gray-800'
-                : 'bg-white text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700'
-            }`}
-          >
-            {location.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ✅ Summary Cards - 6 cards in a row */}
+      {/* Summary Cards - 6 cards in a row - No Icons */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {summaryCards.map((card, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow">
+          <div key={index} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">
+                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider truncate">
                   {card.label}
                 </p>
-                <p className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">
+                <p className="text-xl font-bold text-gray-900 mt-0.5">
                   {card.value}
                 </p>
                 {card.rating !== undefined && card.rating > 0 && (
@@ -358,7 +334,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center">
                       {renderStars(card.rating)}
                     </div>
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                    <span className="text-[10px] text-gray-500">
                       {card.rating.toFixed(1)}
                     </span>
                   </div>
@@ -371,14 +347,14 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* TWO CHARTS: Appointments Trend & Users by Role */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Appointments Trend */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Appointments Trend</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {getLocationDisplay()} • Monthly statistics
+              <h3 className="font-semibold text-gray-900">Appointments Trend</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Adinas General Hospital • Monthly statistics
               </p>
             </div>
           </div>
@@ -408,11 +384,11 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Chart 2: Users by Role */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Users by Role</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">User role distribution</p>
+              <h3 className="font-semibold text-gray-900">Users by Role</h3>
+              <p className="text-xs text-gray-500 mt-1">User role distribution</p>
             </div>
           </div>
           {usersChart && usersChart.length > 0 ? (
@@ -448,9 +424,6 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
-
-      {/* ✅ REMOVED: Recent Appointments Section */}
-      
     </div>
   );
 }

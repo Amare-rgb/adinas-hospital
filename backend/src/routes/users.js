@@ -18,18 +18,21 @@ router.get('/', async (req, res) => {
     if (location && location !== 'all' && location !== 'undefined') where.location = location;
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },  // ✅ FIXED
+        { lastName: { contains: search, mode: 'insensitive' } },   // ✅ FIXED
         { email: { contains: search, mode: 'insensitive' } },
       ];
     }
 
     console.log('📡 Fetching users with where:', where);
 
+    // ✅ FIXED: Use firstName and lastName instead of name
     const users = await prisma.user.findMany({
       where,
       select: {
         id: true,
-        name: true,
+        firstName: true,    // ✅ Changed from 'name' to 'firstName'
+        lastName: true,     // ✅ Added lastName
         email: true,
         phone: true,
         role: true,
@@ -43,12 +46,18 @@ router.get('/', async (req, res) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    console.log(`✅ Found ${users.length} users`);
+    // ✅ Add computed name field
+    const usersWithName = users.map(user => ({
+      ...user,
+      name: `${user.firstName} ${user.lastName}`.trim()
+    }));
+
+    console.log(`✅ Found ${usersWithName.length} users`);
 
     res.json({
       success: true,
-      data: users,
-      total: users.length,
+      data: usersWithName,
+      total: usersWithName.length,
     });
   } catch (error) {
     console.error('❌ Get users error:', error);
@@ -66,11 +75,13 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
+    // ✅ FIXED: Use firstName and lastName instead of name
     const user = await prisma.user.findUnique({
       where: { id: id },
       select: {
         id: true,
-        name: true,
+        firstName: true,    // ✅ Changed from 'name' to 'firstName'
+        lastName: true,     // ✅ Added lastName
         email: true,
         phone: true,
         role: true,
@@ -90,9 +101,15 @@ router.get('/:id', async (req, res) => {
       });
     }
 
+    // ✅ Add computed name field
+    const userWithName = {
+      ...user,
+      name: `${user.firstName} ${user.lastName}`.trim()
+    };
+
     res.json({
       success: true,
-      data: user,
+      data: userWithName,
     });
   } catch (error) {
     console.error('❌ Get user error:', error);
@@ -107,10 +124,14 @@ router.get('/:id', async (req, res) => {
 // CREATE user (Registration)
 // ============================================================
 router.post('/', [
-  body('name')
+  body('firstName')       // ✅ Changed from 'name' to 'firstName'
     .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
+    .notEmpty().withMessage('First name is required')
+    .isLength({ min: 2 }).withMessage('First name must be at least 2 characters'),
+  body('lastName')        // ✅ Added lastName validation
+    .trim()
+    .notEmpty().withMessage('Last name is required')
+    .isLength({ min: 2 }).withMessage('Last name must be at least 2 characters'),
   body('email')
     .isEmail().withMessage('Valid email is required')
     .normalizeEmail(),
@@ -135,7 +156,8 @@ router.post('/', [
       });
     }
 
-    const { name, email, password, phone, role, location, isActive } = req.body;
+    // ✅ Changed from 'name' to 'firstName' and added 'lastName'
+    const { firstName, lastName, email, password, phone, role, location, isActive } = req.body;
 
     // Check if user exists
     const existing = await prisma.user.findUnique({
@@ -150,19 +172,22 @@ router.post('/', [
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // ✅ FIXED: Use firstName and lastName instead of name
     const user = await prisma.user.create({
       data: {
-        name: name.trim(),
+        firstName: firstName.trim(),    // ✅ Changed from 'name' to 'firstName'
+        lastName: lastName.trim(),      // ✅ Added lastName
         email: email.trim().toLowerCase(),
         password: hashedPassword,
         phone: phone || '',
         role: role || 'USER',
-        location: location || 'Afilas General Hospital',
+        location: location || 'Adinas General Hospital',
         isActive: isActive !== undefined ? isActive : true,
       },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         phone: true,
         role: true,
@@ -173,11 +198,17 @@ router.post('/', [
       },
     });
 
+    // ✅ Add computed name field
+    const userWithName = {
+      ...user,
+      name: `${user.firstName} ${user.lastName}`.trim()
+    };
+
     console.log(`✅ New user created: ${user.email} (${user.role}) at ${user.location}`);
 
     res.status(201).json({
       success: true,
-      data: user,
+      data: userWithName,
       message: 'User created successfully',
     });
   } catch (error) {
@@ -193,9 +224,12 @@ router.post('/', [
 // UPDATE user
 // ============================================================
 router.put('/:id', [
-  body('name')
+  body('firstName')       // ✅ Changed from 'name' to 'firstName'
     .trim()
-    .notEmpty().withMessage('Name is required'),
+    .notEmpty().withMessage('First name is required'),
+  body('lastName')        // ✅ Added lastName validation
+    .trim()
+    .notEmpty().withMessage('Last name is required'),
   body('email')
     .isEmail().withMessage('Valid email is required')
     .normalizeEmail(),
@@ -207,7 +241,8 @@ router.put('/:id', [
 ], async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, role, location, isActive, password } = req.body;
+    // ✅ Changed from 'name' to 'firstName' and added 'lastName'
+    const { firstName, lastName, email, phone, role, location, isActive, password } = req.body;
 
     const user = await prisma.user.findUnique({
       where: { id: id },
@@ -233,13 +268,14 @@ router.put('/:id', [
       }
     }
 
-    // ✅ FIX: Removed ': any' type annotation
+    // ✅ FIXED: Use firstName and lastName instead of name
     const updateData = {
-      name: name.trim(),
+      firstName: firstName.trim(),    // ✅ Changed from 'name' to 'firstName'
+      lastName: lastName.trim(),      // ✅ Added lastName
       email: email.trim().toLowerCase(),
       phone: phone || '',
       role: role,
-      location: location || 'Afilas General Hospital',
+      location: location || 'Adinas General Hospital',
       isActive: isActive !== undefined ? isActive : user.isActive,
     };
 
@@ -253,7 +289,8 @@ router.put('/:id', [
       data: updateData,
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         phone: true,
         role: true,
@@ -264,11 +301,17 @@ router.put('/:id', [
       },
     });
 
+    // ✅ Add computed name field
+    const userWithName = {
+      ...updated,
+      name: `${updated.firstName} ${updated.lastName}`.trim()
+    };
+
     console.log(`✅ User updated: ${updated.email}`);
 
     res.json({
       success: true,
-      data: updated,
+      data: userWithName,
       message: 'User updated successfully',
     });
   } catch (error) {
@@ -304,7 +347,8 @@ router.patch('/:id/toggle-status', async (req, res) => {
       data: { isActive: isActive },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         email: true,
         role: true,
         isActive: true,
@@ -312,11 +356,17 @@ router.patch('/:id/toggle-status', async (req, res) => {
       },
     });
 
+    // ✅ Add computed name field
+    const userWithName = {
+      ...updated,
+      name: `${updated.firstName} ${updated.lastName}`.trim()
+    };
+
     console.log(`✅ User ${user.email} ${isActive ? 'activated' : 'deactivated'}`);
 
     res.json({
       success: true,
-      data: updated,
+      data: userWithName,
       message: isActive ? 'User activated successfully' : 'User deactivated successfully',
     });
   } catch (error) {
@@ -426,6 +476,54 @@ router.get('/stats', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch user statistics: ' + error.message,
+    });
+  }
+});
+
+// ============================================================
+// GET users by role (for dropdowns)
+// ============================================================
+router.get('/role/:role', async (req, res) => {
+  try {
+    const { role } = req.params;
+    const { location } = req.query;
+
+    const where = { role };
+    if (location && location !== 'all' && location !== 'undefined') {
+      where.location = location;
+    }
+
+    const users = await prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        role: true,
+        isActive: true,
+        location: true,
+        avatar: true,
+      },
+      orderBy: { firstName: 'asc' },
+    });
+
+    const usersWithName = users.map(user => ({
+      ...user,
+      name: `${user.firstName} ${user.lastName}`.trim()
+    }));
+
+    res.json({
+      success: true,
+      data: usersWithName,
+      total: usersWithName.length,
+    });
+  } catch (error) {
+    console.error('❌ Get users by role error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch users: ' + error.message,
     });
   }
 });

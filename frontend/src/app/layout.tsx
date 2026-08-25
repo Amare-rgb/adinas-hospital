@@ -6,14 +6,14 @@ import LayoutWrapper from "@/components/LayoutWrapper"; // ✅ IMPORT THE WRAPPE
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Afilas Healthcare - Excellence in Medical Services",
+  title: "Adinas General Hospital - Excellence in Healthcare Services",
   description:
-    "Comprehensive healthcare services including hospital care, diagnostics, and pharmaceuticals",
+    "Comprehensive healthcare services including hospital care, diagnostics, pharmacy, and specialized medical treatments",
   generator: "v0.app",
   icons: {
     icon: [
       {
-        url: "/Afilas-Icon.png",
+        url: "/Adinas-Icon.png",
         type: "image/svg+xml",
       },
     ],
