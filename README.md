@@ -1,4 +1,4 @@
-# Afilas General Hospital — Full-Stack System
+# Adinas General Hospital — Full-Stack System
 
 A real, functional rebuild of the Afilas General Hospital website (Bahir Dar, Ethiopia) with:
 
