@@ -4,39 +4,50 @@
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { GeneralSec } from "@/components/generalsec";
+import { CardSection } from "@/components/CardSection";
 
-
-import { UnifiedPillarsSection } from "@/components/Shared Essential";
 
 export function PageContent() {
   return (
     <>
       <Header />
       <main>
-        {/* Hero Section - Full viewport height */}
+        {/* ============================================================
+            1. HERO SECTION - First
+            ============================================================ */}
         <HeroSection />
 
         {/* Divider */}
-        {/* <div className="w-full h-px bg-border" /> */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-[#B3E0F2]/50 to-transparent dark:via-gray-700/50" />
 
-        {/* General Hospital Section */}
+        {/* ============================================================
+            2. GENERAL HOSPITAL SECTION - Second
+            Includes: "Adinas General Hospital" & "Why Choose Us"
+            ============================================================ */}
         <GeneralSec />
 
-        {/* Diagnosis Center Summary Section */}
-       
-        {/* Drug Manufacturing Section */}
-      
+        {/* Divider */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-[#B3E0F2]/50 to-transparent dark:via-gray-700/50" />
 
-        {/* Three Pillars - Summary Cards */}
-        {/* <UnifiedPillarsSection /> */}
+        {/* ============================================================
+            3. CARD SECTION - Third
+            "Your trusted destination for compassionate care"
+            ============================================================ */}
+        <CardSection />
 
         {/* Divider */}
-        <div className="w-full h-px bg-border" />
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-[#B3E0F2]/50 to-transparent dark:via-gray-700/50" />
 
-        {/* Doctor Finder */}
-        
+        {/* ============================================================
+            4. OUR MEDICAL SERVICES - Fourth
+            ============================================================ */}
+    
+
+        {/* Divider */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-[#B3E0F2]/50 to-transparent dark:via-gray-700/50" />
+
+        {/* Doctor Finder - Future section */}
       </main>
-     
     </>
   );
 }

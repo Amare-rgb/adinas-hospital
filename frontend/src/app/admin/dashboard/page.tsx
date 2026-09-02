@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTheme } from '@/contexts/ThemeProvider'; // ✅ Added theme import
+import { useTheme } from '@/contexts/ThemeProvider';
 import {
   XAxis,
   YAxis,
@@ -26,6 +26,7 @@ interface DashboardStats {
     todayAppointments: number;
     upcomingAppointments: number;
     totalDoctors: number;
+    totalDepartments?: number;
     totalServices: number;
     totalUsers: number;
     pendingContacts: number;
@@ -38,13 +39,9 @@ interface DashboardStats {
     id: string;
     date: string;
     status: string;
-    doctor: {
-      name: string;
-      specialization: string;
-    };
-    service: {
-      name: string;
-    };
+    doctor: { name: string; specialization: string } | null;
+    service: { name: string } | null;
+    patientName: string;
   }>;
   reviews: {
     totalReviews: number;
@@ -70,26 +67,9 @@ interface DashboardData {
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#14B8A6', '#6366F1'];
 
-// Mock data for testing
-const MOCK_APPOINTMENTS_CHART = [
-  { month: 'Jan', appointments: 45, completed: 30, cancelled: 5 },
-  { month: 'Feb', appointments: 52, completed: 35, cancelled: 8 },
-  { month: 'Mar', appointments: 48, completed: 32, cancelled: 6 },
-  { month: 'Apr', appointments: 60, completed: 45, cancelled: 10 },
-  { month: 'May', appointments: 55, completed: 38, cancelled: 7 },
-  { month: 'Jun', appointments: 70, completed: 50, cancelled: 12 },
-];
-
-const MOCK_USERS_CHART = [
-  { role: 'SUPER_ADMIN', count: 2 },
-  { role: 'ADMIN', count: 5 },
-  { role: 'DOCTOR', count: 15 },
-  { role: 'USER', count: 50 },
-];
-
 export default function AdminDashboardPage() {
-  const { theme } = useTheme(); // ✅ Get current theme
-  const isDark = theme === 'dark'; // ✅ Check if dark mode
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -121,24 +101,48 @@ export default function AdminDashboardPage() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       
-      const statsResponse = await fetch(`http://localhost:5000/api/dashboard/stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Fetch all data in parallel
+      const [statsResponse, chartResponse, usersResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/dashboard/stats`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+        fetch(`${API_BASE_URL}/api/dashboard/appointments-chart?period=${selectedPeriod}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+        fetch(`${API_BASE_URL}/api/dashboard/users-chart`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }),
+      ]);
 
-      let stats: DashboardStats;
-      if (statsResponse.ok) {
-        stats = await statsResponse.json();
-      } else {
-        stats = {
+      // Parse responses
+      const statsData = await statsResponse.json();
+      const chartData = await chartResponse.json();
+      const usersData = await usersResponse.json();
+
+      // Extract data from response (handle both { success, data } and direct data)
+      const stats = statsData.success ? statsData.data : statsData;
+      const appointmentsChart = chartData.success ? chartData.data : (chartData || []);
+      const usersChart = usersData.success ? usersData.data : (usersData || []);
+
+      setData({
+        stats: stats || {
           overview: {
             totalAppointments: 0,
             todayAppointments: 0,
             upcomingAppointments: 0,
             totalDoctors: 0,
+            totalDepartments: 0,
             totalServices: 0,
             totalUsers: 0,
             pendingContacts: 0,
@@ -151,19 +155,15 @@ export default function AdminDashboardPage() {
             averageRating: 0,
           },
           location: 'Adinas General Hospital',
-        };
-      }
-
-      const appointmentsChart = MOCK_APPOINTMENTS_CHART;
-      const usersChart = MOCK_USERS_CHART;
-
-      setData({
-        stats,
-        appointmentsChart: appointmentsChart || [],
-        usersChart: usersChart || [],
+        },
+        appointmentsChart: Array.isArray(appointmentsChart) ? appointmentsChart : [],
+        usersChart: Array.isArray(usersChart) ? usersChart : [],
       });
     } catch (error: any) {
       console.error('❌ Error fetching dashboard data:', error);
+      setError(error.message || 'Failed to load dashboard data');
+      
+      // Set empty data on error
       setData({
         stats: {
           overview: {
@@ -171,6 +171,7 @@ export default function AdminDashboardPage() {
             todayAppointments: 0,
             upcomingAppointments: 0,
             totalDoctors: 0,
+            totalDepartments: 0,
             totalServices: 0,
             totalUsers: 0,
             pendingContacts: 0,
@@ -184,10 +185,9 @@ export default function AdminDashboardPage() {
           },
           location: 'Adinas General Hospital',
         },
-        appointmentsChart: MOCK_APPOINTMENTS_CHART,
-        usersChart: MOCK_USERS_CHART,
+        appointmentsChart: [],
+        usersChart: [],
       });
-      setError(null);
     } finally {
       setLoading(false);
     }
@@ -263,7 +263,7 @@ export default function AdminDashboardPage() {
 
   const { stats, appointmentsChart, usersChart } = data;
 
-  // Summary Cards - With dark mode support
+  // Summary Cards
   const summaryCards = [
     { 
       label: 'Total Appointments', 
@@ -302,7 +302,7 @@ export default function AdminDashboardPage() {
     <div className={`space-y-6 min-h-screen p-6 transition-colors duration-300
       ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       
-      {/* Period Selector - With dark mode support */}
+      {/* Period Selector */}
       <div className={`flex justify-end items-center gap-3 transition-colors duration-300
         ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors duration-300
@@ -331,7 +331,7 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {/* Summary Cards - 6 cards in a row - With dark mode support */}
+      {/* Summary Cards - 6 cards in a row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {summaryCards.map((card, index) => (
           <div key={index} className={`rounded-xl border p-4 hover:shadow-md transition-all duration-300
@@ -364,7 +364,7 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* TWO CHARTS: Appointments Trend & Users by Role - With dark mode support */}
+      {/* TWO CHARTS: Appointments Trend & Users by Role */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Appointments Trend */}
         <div className={`rounded-xl border p-6 transition-colors duration-300
@@ -443,7 +443,7 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           </div>
-          {usersChart && usersChart.length > 0 ? (
+          {usersChart && usersChart.length > 0 && usersChart.some(item => (item.count ?? 0) > 0) ? (
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>

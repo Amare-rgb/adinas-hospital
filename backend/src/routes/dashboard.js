@@ -79,7 +79,15 @@ router.get('/stats', auth, authorize('ADMIN'), async (req, res) => {
         orderBy: { createdAt: 'desc' },
         include: {
           service: { select: { name: true } },
-          user: { select: { name: true } },
+          user: { 
+            select: { 
+              firstName: true,  // ✅ Changed from 'name' to 'firstName'
+              lastName: true,   // ✅ Added lastName
+              id: true,
+              email: true,
+              phone: true,
+            } 
+          },
         },
       }).catch(() => []) : [],
     ]);
@@ -136,7 +144,9 @@ router.get('/stats', auth, authorize('ADMIN'), async (req, res) => {
           status: app.status,
           doctor: null, 
           service: app.service ? { name: app.service.name } : null,
-          patientName: app.user?.name || app.patientName || 'Unknown',
+          patientName: app.user 
+            ? `${app.user.firstName || ''} ${app.user.lastName || ''}`.trim() || 'Unknown'  // ✅ Combined firstName + lastName
+            : app.patientName || 'Unknown',
         }))
       : [];
 

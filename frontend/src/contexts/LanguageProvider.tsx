@@ -50,7 +50,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.book": "Book",
     "nav.book_services": "Book Services",
     "nav.book_hospital_desc": "Book at Adinas General Hospital",
-    "nav.book_appointment": "Book at Adinas General Hospital",  // Added this line
+    "nav.book_appointment": "Book at Adinas General Hospital",
     "nav.branch_links": "Branch Links",
 
     // Hero Section
@@ -72,7 +72,7 @@ const translations: Record<Language, Record<string, string>> = {
     "general.feature4": "Private hospital with high-quality standards",
     "general.feature5": "Experienced medical professionals",
     "general.location": "Location",
-    "general.location_address": "Addis Ababa, Ethiopia",
+    "general.location_address": "Bahir Dar, Ethiopia",
     "general.emergency_services": "Emergency Services",
     "general.emergency_desc": "24/7 Emergency Care & Ambulance Services",
     "general.cta": "Discover Our Services",
@@ -86,7 +86,7 @@ const translations: Record<Language, Record<string, string>> = {
     "general.hospital_description": "Our hospital has been delivering compassionate, expert medical care to our community. Our legacy of excellence is built on experience, innovation, and an unwavering commitment to patient well-being.",
     "general.learn_more": "Learn More",
 
-    // Doctor Finder Section - Added translations
+    // Doctor Finder Section
     "doctors.hero.badge": "Find a Doctor",
     "doctors.hero.title": "Our Expert Doctors",
     "doctors.hero.subtitle": "Connect with experienced specialists across key medical disciplines.",
@@ -138,7 +138,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Footer
     "footer.tagline": "Elevating health through care and precision.",
-    "footer.address": "Address: Addis Ababa, Ethiopia",
+    "footer.address": "Address: Bahir Dar, Ethiopia",
     "footer.phone": "Phone: +251 98 320 1998",
     "footer.email": "Email: info@adinashospital.com",
     "footer.quick_links": "Quick Links",
@@ -321,8 +321,78 @@ const translations: Record<Language, Record<string, string>> = {
     "departments.closed": "Closed",
     "departments.emergency": "Emergency",
     "departments.contact_location": "Contact & Location",
-    "departments.location": "Addis Ababa, Ethiopia",
+    "departments.location": "Bahir Dar, Ethiopia",
     "departments.book_appointment": "Book Appointment",
+
+    // WebChat
+    "webchat.chat_with_us": "Chat with us",
+    "webchat.online": "Online",
+    "webchat.offline": "Offline",
+    "webchat.type_message": "Type a message...",
+    "webchat.send": "Send",
+    "webchat.close": "Close",
+
+    // Services Section Translations
+    "services.dental_care": "Dental Care",
+    "services.dental_care_desc": "Routine check-ups, cleanings, extractions, fillings, and comprehensive oral health services.",
+    "services.emergency_trauma": "Emergency & Trauma Care",
+    "services.emergency_trauma_desc": "24/7 rapid medical care for accidents, severe injuries, and critical health emergencies.",
+    "services.surgery": "General & Specialty Surgery",
+    "services.surgery_desc": "A wide range of general and specialized surgical procedures performed by experienced specialists.",
+    "services.internal_medicine": "Internal Medicine",
+    "services.internal_medicine_desc": "Comprehensive diagnosis and management of chronic and general internal conditions, such as diabetes, hypertension, and renal/hepatic disorders.",
+    "services.laboratory": "Laboratory & Diagnostics",
+    "services.laboratory_desc": "Advanced laboratory testing (blood, pathology, etc.) alongside imaging services like X-Ray and Ultrasound.",
+    "services.obstetrics": "Obstetrics & Gynecology",
+    "services.obstetrics_desc": "Antenatal care, delivery services, women's health, and family planning solutions.",
+    "services.pediatrics": "Pediatrics",
+    "services.pediatrics_desc": "Specialized healthcare, immunizations, and treatment of illnesses for newborns, infants, and children.",
+    "services.pharmacy": "Pharmacy Services",
+    "services.pharmacy_desc": "24/7 dispensary providing quality local and imported prescription medications.",
+    "services.view_all": "View All Services",
+    "services.price": "Price",
+    "services.duration": "Duration",
+    "services.minutes": "min",
+    "services.book_now": "Book Now",
+    "services.learn_more": "Learn More",
+    "services.subscribe_title": "Subscribe to our news",
+    "services.subscribe_placeholder": "Enter your email",
+    "services.subscribe_button": "Subscribe",
+
+    // Newsletter
+    "newsletter.title": "Subscribe to our Newsletter",
+    "newsletter.description": "Stay updated with the latest health news and medical insights.",
+    "newsletter.placeholder": "Enter your email address",
+    "newsletter.button": "Subscribe",
+    "newsletter.success": "Successfully subscribed!",
+    "newsletter.error": "Subscription failed. Please try again.",
+
+    // Emergency
+    "emergency.hotline": "Emergency Hotline",
+    "emergency.available": "24/7 Available",
+    "emergency.call_now": "Call Now",
+
+    // Card Section - Updated for Bahir Dar
+    "card.badge": "Your Trusted Healthcare Partner",
+    "card.title": "Your trusted destination for",
+    "card.title_highlight": "compassionate care",
+    "card.subtitle": "In the heart of Bahir Dar, our dedicated team of 250+ professionals delivers safe, efficient, and patient-centered services for every member of your family.",
+    "card.location": "Bahir Dar, Ethiopia",
+    "card.card1_title": "Compassionate Care",
+    "card.card1_desc": "Providing personalized, empathetic healthcare services with a focus on patient well-being and comfort.",
+    "card.card2_title": "Expert Team",
+    "card.card2_desc": "250+ dedicated professionals delivering safe, efficient, and patient-centered services for every family member.",
+    "card.card3_title": "Comprehensive Services",
+    "card.card3_desc": "From preventive checkups to advanced treatments, we guide you through every step of your health journey.",
+    "card.card4_title": "24/7 Emergency Care",
+    "card.card4_desc": "Round-the-clock emergency services with rapid response teams for critical and urgent medical conditions.",
+    "card.card5_title": "Advanced Technology",
+    "card.card5_desc": "State-of-the-art medical equipment and cutting-edge technology for accurate diagnosis and effective treatment.",
+    "card.card6_title": "Patient-Centered Approach",
+    "card.card6_desc": "Personalized care plans tailored to individual needs, ensuring the best possible outcomes for every patient.",
+    "card.bottom_text": "From preventive checkups to advanced treatments, we are here to walk with you through every step of your health journey.",
+    "card.book_appointment": "Book an Appointment",
+    "card.learn_more": "Learn More",
   },
 
   am: {
@@ -359,7 +429,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.book": "አስይዝ",
     "nav.book_services": "አገልግሎቶችን ያስይዙ",
     "nav.book_hospital_desc": "በአዲናስ ጠቅላላ ሆስፒታል ያስይዙ",
-    "nav.book_appointment": "በአዲናስ ጠቅላላ ሆስፒታል ቀጠሮ ይያዙ",  // Added this line
+    "nav.book_appointment": "በአዲናስ ጠቅላላ ሆስፒታል ቀጠሮ ይያዙ",
     "nav.branch_links": "የቅርንጫፍ አገናኞች",
 
     // Hero Section
@@ -381,7 +451,7 @@ const translations: Record<Language, Record<string, string>> = {
     "general.feature4": "ከፍተኛ ጥራት ያለው የግል ሆስፒታል",
     "general.feature5": "ልምድ ያላቸው የሕክምና ባለሙያዎች",
     "general.location": "አድራሻ",
-    "general.location_address": "አዲስ አበባ፣ ኢትዮጵያ",
+    "general.location_address": "ባህር ዳር፣ ኢትዮጵያ",
     "general.emergency_services": "የአደጋ ጊዜ አገልግሎት",
     "general.emergency_desc": "24/7 የአደጋ ጊዜ እንክብካቤ እና አምቡላንስ አገልግሎት",
     "general.cta": "አገልግሎቶቻችንን ያስሱ",
@@ -395,7 +465,7 @@ const translations: Record<Language, Record<string, string>> = {
     "general.hospital_description": "ሆስፒታላችን ርህራሄ ያለው እና ልምድ ያለው የህክምና እንክብካቤ ለማህበረሰባችን ሲሰጥ ቆይቷል። የልቀት ቅርሳችን በልምድ፣ በፈጠራ እና ለታካሚ ደህንነት ባለን የማያቋርጥ ቁርጠኝነት ላይ የተገነባ ነው።",
     "general.learn_more": "ተጨማሪ ይወቁ",
 
-    // Doctor Finder Section - Added Amharic translations
+    // Doctor Finder Section
     "doctors.hero.badge": "ሐኪም ያግኙ",
     "doctors.hero.title": "የኛ ባለሙያ ሀኪሞች",
     "doctors.hero.subtitle": "በዋና ዋና የሕክምና ዘርፎች ውስጥ ልምድ ካላቸው ስፔሻሊስቶች ጋር ይገናኙ።",
@@ -447,7 +517,7 @@ const translations: Record<Language, Record<string, string>> = {
 
     // Footer
     "footer.tagline": "በእንክብካቤ እና ትክክለኛነት ጤናን ማሳደግ።",
-    "footer.address": "አድራሻ፡ አዲስ አበባ፣ ኢትዮጵያ",
+    "footer.address": "አድራሻ፡ ባህር ዳር፣ ኢትዮጵያ",
     "footer.phone": "ስልክ፡ +251 98 320 1998",
     "footer.email": "ኢሜይል፡ info@adinashospital.com",
     "footer.quick_links": "ፈጣን አገናኞች",
@@ -631,8 +701,78 @@ const translations: Record<Language, Record<string, string>> = {
     "departments.closed": "ዝግ ነው",
     "departments.emergency": "ድንገተኛ",
     "departments.contact_location": "ግንኙነት እና አድራሻ",
-    "departments.location": "አዲስ አበባ፣ ኢትዮጵያ",
+    "departments.location": "ባህር ዳር፣ ኢትዮጵያ",
     "departments.book_appointment": "ቀጠሮ ይያዙ",
+
+    // WebChat
+    "webchat.chat_with_us": "ከእኛ ጋር ያዩ",
+    "webchat.online": "መስመር ላይ",
+    "webchat.offline": "መስመር የለም",
+    "webchat.type_message": "መልእክት ይተይቡ...",
+    "webchat.send": "ላክ",
+    "webchat.close": "ዝጋ",
+
+    // Services Section Translations
+    "services.dental_care": "የጥርስ ህክምና",
+    "services.dental_care_desc": "መደበኛ ምርመራ፣ ማጽዳት፣ ማውጣት፣ መሙላት እና አጠቃላይ የአፍ ጤና አገልግሎቶች።",
+    "services.emergency_trauma": "የድንገተኛ እና አደጋ ጊዜ ህክምና",
+    "services.emergency_trauma_desc": "ለአደጋዎች፣ ለከባድ ጉዳቶች እና ለአስቸኳይ የጤና ድንገተኛ ሁኔታዎች 24/7 ፈጣን የህክምና እንክብካቤ።",
+    "services.surgery": "አጠቃላይ እና ልዩ ቀዶ ጥገና",
+    "services.surgery_desc": "ልምድ ባላቸው ስፔሻሊስቶች የሚከናወኑ ሰፊ የአጠቃላይ እና ልዩ የቀዶ ጥገና ሂደቶች።",
+    "services.internal_medicine": "የውስጥ ህክምና",
+    "services.internal_medicine_desc": "እንደ የስኳር በሽታ፣ የደም ግፊት እና የኩላሊት/ጉበት በሽታዎች ያሉ ሥር የሰደዱ እና አጠቃላይ የውስጥ ሁኔታዎችን አጠቃላይ ምርመራ እና አስተዳደር።",
+    "services.laboratory": "ላቦራቶሪ እና ምርመራዎች",
+    "services.laboratory_desc": "የላቀ የላቦራቶሪ ምርመራ (ደም፣ ፓቶሎጂ፣ ወዘተ) እንደ ኤክስሬይ እና አልትራሳውንድ ያሉ የምስል አገልግሎቶችን ጨምሮ።",
+    "services.obstetrics": "የእርግዝና እና የሴቶች ህክምና",
+    "services.obstetrics_desc": "የቅድመ ወሊድ እንክብካቤ፣ የወሊድ አገልግሎቶች፣ የሴቶች ጤና እና የቤተሰብ ምጣኔ መፍትሄዎች።",
+    "services.pediatrics": "የህፃናት ህክምና",
+    "services.pediatrics_desc": "ለአራስ ህፃናት፣ ለጨቅላ ህፃናት እና ለልጆች ልዩ የጤና እንክብካቤ፣ ክትባቶች እና የበሽታ ህክምናዎች።",
+    "services.pharmacy": "የፋርማሲ አገልግሎቶች",
+    "services.pharmacy_desc": "ጥራት ያላቸውን የሀገር ውስጥ እና ከውጭ የሚገቡ የሐኪም ማዘዣ መድሃኒቶችን በ24 ሰዓት የሚያቀርብ መድሃኒት ቤት።",
+    "services.view_all": "ሁሉንም አገልግሎቶች ይመልከቱ",
+    "services.price": "ዋጋ",
+    "services.duration": "የሚወስደው ጊዜ",
+    "services.minutes": "ደቂቃ",
+    "services.book_now": "አሁን ቀጠሮ ይያዙ",
+    "services.learn_more": "ተጨማሪ ይወቁ",
+    "services.subscribe_title": "ለዜናችን ይመዝገቡ",
+    "services.subscribe_placeholder": "ኢሜይልዎን ያስገቡ",
+    "services.subscribe_button": "ይመዝገቡ",
+
+    // Newsletter
+    "newsletter.title": "ለዜና ማስታወቂያችን ይመዝገቡ",
+    "newsletter.description": "በቅርብ ጊዜ የጤና ዜናዎች እና የህክምና ግንዛቤዎች ይዘበዘቡ።",
+    "newsletter.placeholder": "ኢሜይል አድራሻዎን ያስገቡ",
+    "newsletter.button": "ይመዝገቡ",
+    "newsletter.success": "በተሳካ ሁኔታ ተመዝግበዋል!",
+    "newsletter.error": "ምዝገባ አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+
+    // Emergency
+    "emergency.hotline": "የድንገተኛ ጊዜ መስመር",
+    "emergency.available": "በ24 ሰዓት ይገኛል",
+    "emergency.call_now": "አሁን ይደውሉ",
+
+    // Card Section - Updated for Bahir Dar
+    "card.badge": "የእርስዎ የታመነ የጤና አጋር",
+    "card.title": "ለእርስዎ የታመነ መድረሻ",
+    "card.title_highlight": "ርህራሄ ያለው እንክብካቤ",
+    "card.subtitle": "በባህር ዳር እምብርት ላይ፣ 250+ የተሰጡ ባለሙያዎች ለቤተሰብዎ አባላት ሁሉ ደህንነቱ የተጠበቀ፣ ቀልጣፋ እና በታካሚ ላይ ያተኮረ አገልግሎት ይሰጣሉ።",
+    "card.location": "ባህር ዳር፣ ኢትዮጵያ",
+    "card.card1_title": "ርህራሄ ያለው እንክብካቤ",
+    "card.card1_desc": "በታካሚ ደህንነት እና ምቾት ላይ ያተኮረ ግላዊ፣ ርህራሄ ያለው የጤና አገልግሎት መስጠት።",
+    "card.card2_title": "ባለሙያ ቡድን",
+    "card.card2_desc": "250+ የተሰጡ ባለሙያዎች ለእያንዳንዱ የቤተሰብ አባል ደህንነቱ የተጠበቀ፣ ቀልጣፋ እና በታካሚ ላይ ያተኮረ አገልግሎት ይሰጣሉ።",
+    "card.card3_title": "ሁሉን አቀፍ አገልግሎቶች",
+    "card.card3_desc": "ከመከላከያ ምርመራዎች እስከ የላቀ ህክምናዎች ድረስ፣ በእያንዳንዱ የጤና ጉዞ ደረጃ እንመራዎታለን።",
+    "card.card4_title": "24/7 የድንገተኛ እንክብካቤ",
+    "card.card4_desc": "ለአስቸኳይ እና አስቸኳይ የህክምና ሁኔታዎች ፈጣን ምላሽ ቡድኖች ያሉት የ24 ሰዓት የድንገተኛ አገልግሎቶች።",
+    "card.card5_title": "ዘመናዊ ቴክኖሎጂ",
+    "card.card5_desc": "ዘመናዊ የህክምና መሳሪያዎች እና ትክክለኛ ምርመራ እና ውጤታማ ህክምና ለመስጠት የላቀ ቴክኖሎጂ።",
+    "card.card6_title": "በታካሚ ላይ ያተኮረ አቀራረብ",
+    "card.card6_desc": "ለእያንዳንዱ ታካሚ ምርጥ ውጤቶችን ለማረጋገጥ ለግለሰብ ፍላጎቶች የተበጁ ግላዊ የእንክብካቤ እቅዶች።",
+    "card.bottom_text": "ከመከላከያ ምርመራዎች እስከ የላቀ ህክምናዎች ድረስ፣ በእያንዳንዱ የጤና ጉዞ ደረጃ ከእርስዎ ጋር ለመሄድ እዚህ ነን።",
+    "card.book_appointment": "ቀጠሮ ይያዙ",
+    "card.learn_more": "ተጨማሪ ይወቁ",
   },
 };
 
